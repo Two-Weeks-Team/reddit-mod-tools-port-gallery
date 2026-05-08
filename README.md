@@ -4,6 +4,9 @@
 
 🎨 **Gallery**: <https://two-weeks-team.github.io/reddit-mod-tools-port-gallery/>
 
+📑 **팀원 한눈에 보기 검증 + 소유권 규정 심층 분석**: <https://two-weeks-team.github.io/reddit-mod-tools-port-gallery/rules-verification.html>
+  ↳ 트랙 자격 (특히 written permission) 게이트 사례·기준·템플릿. 19개 주장 검증, 26 후보별 액션 권장, GPL-3.0 라이선스 전염 주의, 작자별 컨택 가이드.
+
 ## What this is
 
 Each card shows one persona-biased take on **which existing Reddit Data API moderation bot to port to Devvit**, plus a self-contained mockup of the resulting Devvit app surface. Generated through a Preview Forge `PreviewDD` cycle (max profile, 26 advocates dispatched in parallel) with diversity validation and post-hoc bot-eligibility verification.

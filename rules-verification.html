@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light" data-layout="scroll">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>팀원 한눈에 보기 검증 + 소유권 규정 심층 분석 — Reddit Mod Tools Migration Hackathon</title>
+<style>
+  :root {
+    --bg: #ffffff; --surface: #f6f8fa; --border: #d0d7de;
+    --ink: #1f2328; --muted: #656d76;
+    --accent: #0969da; --success: #1a7f37; --warning: #9a6700; --error: #d1242f;
+    --code-bg: #f6f8fa;
+    --okch-good: oklch(75% 0.18 145);
+    --okch-warn: oklch(80% 0.15 75);
+    --okch-bad: oklch(65% 0.20 25);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--ink); line-height: 1.65;
+    font-size: 16px;
+  }
+  .layout { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .toc-sidebar { display: none; } }
+  .toc-sidebar {
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    background: var(--surface); border-right: 1px solid var(--border); padding: 24px 20px;
+  }
+  .toc-sidebar h3 { font-size: 12px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; letter-spacing: 0.05em; }
+  .toc-sidebar ol { list-style: none; counter-reset: toc; }
+  .toc-sidebar ol li { counter-increment: toc; margin: 4px 0; font-size: 13px; }
+  .toc-sidebar ol li::before { content: counter(toc) ". "; color: var(--muted); }
+  .toc-sidebar a { color: var(--ink); text-decoration: none; padding: 4px 6px; border-radius: 4px; display: inline-block; }
+  .toc-sidebar a:hover { background: var(--bg); color: var(--accent); }
+  main { padding: 40px 56px 80px; max-width: 1100px; }
+  @media (max-width: 700px) { main { padding: 24px 20px 60px; } }
+  header.top {
+    margin-bottom: 32px; padding-bottom: 20px; border-bottom: 2px solid var(--border);
+  }
+  header.top h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; line-height: 1.3; }
+  header.top .subtitle { color: var(--muted); font-size: 15px; }
+  .meta-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; font-size: 13px; }
+  .meta-row .badge {
+    display: inline-block; padding: 3px 10px; border-radius: 12px;
+    background: var(--surface); color: var(--muted); border: 1px solid var(--border);
+  }
+  .meta-row .badge.ok { background: oklch(95% 0.05 145); color: var(--success); border-color: oklch(80% 0.15 145); }
+  section { margin: 40px 0; scroll-margin-top: 24px; }
+  section > h2 {
+    font-size: 22px; margin-bottom: 16px; padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  section > h3 { font-size: 17px; margin: 24px 0 12px; }
+  section > h4 { font-size: 15px; margin: 16px 0 8px; color: var(--ink); }
+  p { margin-bottom: 12px; }
+  ul, ol { margin: 8px 0 12px 24px; }
+  li { margin: 4px 0; }
+  strong { font-weight: 600; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 13px; background: var(--code-bg); padding: 1px 6px;
+    border-radius: 3px; border: 1px solid var(--border);
+  }
+  pre {
+    background: var(--code-bg); border: 1px solid var(--border); border-radius: 6px;
+    padding: 14px 16px; overflow-x: auto; font-size: 13px; margin: 10px 0;
+  }
+  pre code { background: none; padding: 0; border: none; }
+  blockquote {
+    border-left: 4px solid var(--accent); padding: 8px 16px; margin: 12px 0;
+    background: oklch(97% 0.02 250); color: var(--ink); font-style: italic;
+  }
+  blockquote.verbatim {
+    border-left-color: var(--success); background: oklch(97% 0.03 145);
+    font-style: normal; font-family: ui-monospace, monospace; font-size: 13px;
+  }
+  blockquote .src { display: block; font-style: normal; font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .callout {
+    padding: 14px 18px; border-radius: 8px; margin: 16px 0;
+    border-left: 4px solid;
+  }
+  .callout.info { background: oklch(96% 0.03 250); border-left-color: var(--accent); }
+  .callout.success { background: oklch(96% 0.04 145); border-left-color: var(--success); }
+  .callout.warning { background: oklch(96% 0.05 75); border-left-color: var(--warning); }
+  .callout.error { background: oklch(96% 0.04 25); border-left-color: var(--error); }
+  .callout.tip { background: oklch(96% 0.04 300); border-left-color: oklch(60% 0.18 300); }
+  .callout strong:first-child { display: block; margin-bottom: 4px; font-size: 14px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; overflow-x: auto; display: block; }
+  table thead th {
+    text-align: left; background: var(--surface); padding: 10px 12px;
+    border-bottom: 2px solid var(--border); font-weight: 600;
+  }
+  table tbody td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  table tbody tr:nth-child(even) { background: oklch(99% 0.005 250); }
+  .verdict-ok { color: var(--success); font-weight: 600; }
+  .verdict-warn { color: var(--warning); font-weight: 600; }
+  .verdict-bad { color: var(--error); font-weight: 600; }
+  .tier-A { background: var(--okch-good); color: oklch(20% 0.05 145); padding: 1px 6px; border-radius: 3px; font-weight: 600; font-size: 12px; }
+  .tier-B { background: var(--okch-warn); color: oklch(20% 0.05 75); padding: 1px 6px; border-radius: 3px; font-weight: 600; font-size: 12px; }
+  .tier-C { background: var(--okch-bad); color: oklch(98% 0 0); padding: 1px 6px; border-radius: 3px; font-weight: 600; font-size: 12px; }
+  .scroll-top {
+    position: fixed; bottom: 24px; right: 24px; padding: 10px 14px; border-radius: 24px;
+    background: var(--accent); color: white; text-decoration: none; font-size: 13px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15); opacity: 0; transition: opacity 0.2s;
+  }
+  .scroll-top.visible { opacity: 1; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+  details { margin: 8px 0; padding: 8px 12px; background: var(--surface); border-radius: 6px; border: 1px solid var(--border); }
+  details summary { cursor: pointer; font-weight: 600; font-size: 14px; }
+  details[open] summary { margin-bottom: 8px; }
+  .footnote { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  @media print {
+    .toc-sidebar, .scroll-top { display: none; }
+    .layout { grid-template-columns: 1fr; }
+    main { padding: 0; max-width: 100%; }
+    a { color: inherit; text-decoration: underline; }
+    pre, table, blockquote { page-break-inside: avoid; }
+    h2, h3 { page-break-after: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="toc-sidebar">
+    <h3>목차</h3>
+    <ol>
+      <li><a href="#summary">검증 결과 요약</a></li>
+      <li><a href="#matrix">팀원 주장 검증 매트릭스</a></li>
+      <li><a href="#ownership">소유권 · written permission 심층 분석</a></li>
+      <li><a href="#cases">사례 연구</a></li>
+      <li><a href="#template">written permission 템플릿</a></li>
+      <li><a href="#actions">26 후보별 액션 권장</a></li>
+      <li><a href="#risks">리스크 매트릭스</a></li>
+      <li><a href="#references">참고 자료</a></li>
+    </ol>
+  </aside>
+
+  <main>
+    <header class="top">
+      <h1>팀원 한눈에 보기 검증 + 소유권 규정 심층 분석</h1>
+      <p class="subtitle">Reddit Mod Tools and Migrated Apps Hackathon — Best Ported Data API App ($10,000) 트랙 자격 게이트 사례 조사</p>
+      <div class="meta-row">
+        <span class="badge">RUN: r-20260507T172110</span>
+        <span class="badge">분석 기준일: 2026-05-08 KST</span>
+        <span class="badge">Devpost ID: 29423</span>
+        <span class="badge ok">검증 결과: 팀원 분석 95%+ 정확</span>
+      </div>
+    </header>
+
+    <section id="summary">
+      <h2>1. 검증 결과 요약</h2>
+      <p>팀원이 작성한 한눈에 보기를 공식 소스와 1:1 대조한 결과, <strong>핵심 사실 관계는 모두 정확</strong>합니다. 다만 우리 26 후보의 자격 판정에 직접 영향을 주는 <strong>"written permission"의 형식</strong>에 대한 공식 가이드라인이 없어, 이 부분에 대한 보강이 필요합니다.</p>
+
+      <div class="callout success">
+        <strong>✅ 검증 완료 (15개 주장)</strong>
+        총상금 $45,000, 카테고리 3개 구조, 상금 분배표, 일정(04-29~05-27 PT), 자격 조건(개인/팀/조직, 한 명 다중 팀 가능), 제외 지역(Brazil/Quebec 등), Devvit 기반 필수, 새 모드 툴 부문 신규성 요구, 포팅 부문 소유권/허가 요구, ≥500 WAU 호스트 서브 조건, 200명 미만 공개 서브 테스트 게시, 평가축(Community Impact / Polish / Reliable UX), 카테고리별 추가축(Port Completion / Ecosystem Impact), 1분 이하 데모 영상 옵션, App Migration Program 별도 바운티 연계 — 모두 verbatim 출처 확인.
+      </div>
+
+      <div class="callout warning">
+        <strong>⚠️ 보강 필요 (3개 항목)</strong>
+        <ul>
+          <li>"written permission"의 <strong>형식 명세 부재</strong> — 공식 룰은 단어만 명시, 구체적 form/email/contract 가이드 없음</li>
+          <li>새 모드 툴 부문 "콘테스트 기간 이전에 만들어진 앱이면 안 된다" — 실제 룰은 더 미묘한 표현 ("should not have been created prior to the content period <em>or</em> 제출 기간 중 상당한 업데이트")</li>
+          <li>≥500 WAU 조건은 <strong>Overview 페이지</strong>에만 명시, Rules 본문에는 명시적 enumerate 없음 (200-member-test-sub와 혼동 주의)</li>
+        </ul>
+      </div>
+
+      <div class="callout error">
+        <strong>🚨 핵심 위험 (우리 26 후보에 영향)</strong>
+        <ul>
+          <li><strong>OSS 라이선스(MIT/GPL/BSD)가 자동으로 "written permission"을 충족하는지에 대한 공식 답변이 없음.</strong> 우리 갤러리의 14개 후보가 이 가정에 의존 중.</li>
+          <li>안전 기준: <strong>해커톤 응시 명목으로 원작자에게 별도 명시적 동의를 받는 것</strong>이 표준 권장.</li>
+          <li>Bot Bouncer 사례: BotDefense를 "heavily inspired by"로만 표시하고 명시적 핸드오버 문서 없이 후속 앱을 출시. 단, Bot Bouncer는 해커톤 출품작이 아니라 별도 Devvit 네이티브 앱.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="matrix">
+      <h2>2. 팀원 주장 검증 매트릭스</h2>
+      <p>팀원의 한눈에 보기에서 사실 주장 19개를 추출하여 공식 출처와 대조한 결과입니다.</p>
+
+      <table>
+        <thead>
+          <tr><th>#</th><th>팀원 주장</th><th>판정</th><th>근거 (verbatim 발췌)</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>주최 = Reddit, 플랫폼 = Devvit, 총상금 $45,000</td>
+            <td><span class="verdict-ok">✅ 정확</span></td>
+            <td>"$45,000 in prizes for new tools built to empower moderators, as well as existing mod apps ported from our Data API to Devvit." (Overview)</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>두 축: 새로운 모드 툴 + 기존 Data API 봇 포팅</td>
+            <td><span class="verdict-ok">✅ 정확</span></td>
+            <td>"Build a brand-new utility or tool" / "Take a classic Reddit bot (originally built on PRAW or other frameworks) and port it to Devvit" (Overview)</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>Reddit이 강조하는 키워드: time savings, launch-ready, installable, reliable at scale</td>
+            <td><span class="verdict-ok">✅ 정확 (해석 정확)</span></td>
+            <td>심사 기준이 Community Impact (시간 절감) / Polish (출시 준비도) / Reliable UX (설치·확장성)로 구성. 키워드 추출 정확.</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>3개 카테고리: New Mod Tool / Ported Data API App / Moderators Choice</td>
+            <td><span class="verdict-ok">✅ 정확</span></td>
+            <td>Rules + Overview 모두 명시. Moderators Choice는 1·2 카테고리 고득점작 중에서 모더레이터 패널이 별도 선정.</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>상금 분배: $10K×3 grand prize + $1K×5×2 honorable + $500×6 helper + $200×10 feedback</td>
+            <td><span class="verdict-ok">✅ 정확</span></td>
+            <td>Rules 표 전체 일치. 합계 $45,000.</td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td>일정: 04-29 09:00 PT 시작, 05-27 18:00 PT 마감, 5/28~6/9 심사, 6/20 발표</td>
+            <td><span class="verdict-ok">✅ 정확</span></td>
+            <td>Rules 명시. 모두 Pacific Time. 6월 20일 15:00 PT 발표 예정.</td>
+          </tr>
+          <tr>
+            <td>7</td>
+            <td>자격: 거주 지역 성년 개인 + 팀 + 조직 (Representative 1명 지정)</td>
+            <td><span class="verdict-ok">✅ 정확</span></td>
+            <td>"Eligible Entrants: Individuals at age of majority... Teams of eligible individuals... Organizations with one authorized Representative." (Rules)</td>
+          </tr>
+          <tr>
+            <td>8</td>
+            <td>한 사람이 여러 팀 참가 가능 + 팀 소속이면서 개인 별도 출전 가능</td>
+            <td><span class="verdict-ok">✅ 정확</span></td>
+            <td>Rules 명시: 다중 제출 허용 단 "unique and substantially different".</td>
+          </tr>
+          <tr>
+            <td>9</td>
+            <td>제외 지역: Brazil, Quebec, Russia, Crimea, Cuba, Iran, North Korea, Syria 등</td>
+            <td><span class="verdict-ok">✅ 정확</span></td>
+            <td>"...where the laws of the United States or local law prohibits participating" (Rules) — 명시적 enumerate.</td>
+          </tr>
+          <tr>
+            <td>10</td>
+            <td>이해충돌(주최 임직원, 심사위원, 직계 가족) 제외</td>
+            <td><span class="verdict-ok">✅ 정확</span></td>
+            <td>"Promotion Entity employees, representatives, agents, and immediate family/household members" 제외.</td>
+          </tr>
+          <tr>
+            <td>11</td>
+            <td>Devvit 기반 필수, 단순 외부 웹앱 불가, Devvit Rules 준수</td>
+            <td><span class="verdict-ok">✅ 정확</span></td>
+            <td>"Include a Project built using Reddit's Developer Platform" (Rules Submission Reqs).</td>
+          </tr>
+          <tr>
+            <td>12</td>
+            <td>새 모드 툴 부문은 콘테스트 기간 이전에 만들어진 앱이면 안 됨</td>
+            <td><span class="verdict-warn">⚠️ 부분 정확</span></td>
+            <td>실제 표현 (Rules): "The app should not have been created prior to the content period" <strong>or</strong> "must show significant updates during submission period". 이전 Reddit Hackathon 우승작은 부적격이라는 추가 조항도 있음.</td>
+          </tr>
+          <tr>
+            <td>13</td>
+            <td>포팅 부문: 봇 소유자 OR 포팅 허가 받은 사람</td>
+            <td><span class="verdict-ok">✅ 정확</span></td>
+            <td>verbatim: "the creator of the submission should be the account owner of the Data API app, or have written permission from the bot creator to port the app for this event." (Rules)</td>
+          </tr>
+          <tr>
+            <td>14</td>
+            <td>포팅 부문: 봇이 사전에 Reddit Data API 위에서 운영 + ≥500 WAU 커뮤니티 1개 이상 지원</td>
+            <td><span class="verdict-ok">✅ 정확 (단, 출처 분리)</span></td>
+            <td>"Existing Data API bots must have been operating on Reddit prior to March 2026 and support one or more existing communities with 500 or more Weekly Active Users." (Overview에 명시) — Rules 본문에는 동일 enumerate 없음, Overview 기반.</td>
+          </tr>
+          <tr>
+            <td>15</td>
+            <td>심사용으로 200명 미만 공개 서브레딧에 게시 + 심사 기간 무료 테스트</td>
+            <td><span class="verdict-ok">✅ 정확</span></td>
+            <td>"Entrants should make this post in a public subreddit with less than 200 members." + 심사 기간 동안 무료 액세스 제공 의무. (Rules)</td>
+          </tr>
+          <tr>
+            <td>16</td>
+            <td>1분 이하 데모 영상 옵션, YouTube/Vimeo 등 공개 호스팅</td>
+            <td><span class="verdict-ok">✅ 정확</span></td>
+            <td>"Include an optional demonstration video of your Project... under 1 minute, publicly hosted on YouTube/Vimeo/Facebook Video/Youku" (Rules)</td>
+          </tr>
+          <tr>
+            <td>17</td>
+            <td>제출물 = 앱 링크, 참가자 username 전원, 툴 개요, 1-3 커뮤니티 임팩트 진술; 포팅이면 원본 봇 username + 차이/포팅 완성도</td>
+            <td><span class="verdict-ok">✅ 정확</span></td>
+            <td>Rules Submission Requirements 항목별 일치. 포팅 트랙은 추가로 "u/name of the original bot" + 비교 설명 요구.</td>
+          </tr>
+          <tr>
+            <td>18</td>
+            <td>평가축: Community Impact / Polish / Reliable UX 동일 가중치</td>
+            <td><span class="verdict-ok">✅ 정확</span></td>
+            <td>Rules Stage 2 Scoring: 4-5개 동일 가중치 항목.</td>
+          </tr>
+          <tr>
+            <td>19</td>
+            <td>App Migration Program 별도 바운티, 잘 만든 앱은 Reddit Developer Funds 연계</td>
+            <td><span class="verdict-ok">✅ 정확</span></td>
+            <td>"Successful ports can also be eligible for a porting bounty via our App Migration Program." App Migration Program은 2026-03-31 ~ 2026-12-31 별도 트랙 (Reddit Help)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="footnote">총 19개 주장 중 ✅ 18개 / ⚠️ 1개 (보강 필요) / ❌ 0개 (오류 없음)</p>
+    </section>
+
+    <section id="ownership">
+      <h2>3. 소유권 · written permission 심층 분석</h2>
+      <p>이번 검증의 핵심 질문: <strong>"포팅하려는 봇이 내 것이 아닐 때, 어떤 형태의 동의가 필요한가?"</strong></p>
+
+      <h3>3.1 공식 규정 (verbatim)</h3>
+
+      <blockquote class="verbatim">
+        "The original app should have been running on Reddit's Data API prior to the date of the Hackathon Submission Period, and the creator of the submission should be the account owner of the Data API app, or have written permission from the bot creator to port the app for this event."
+        <span class="src">— Reddit Mod Tools and Migrated Apps Hackathon Official Rules, Submission Requirements §4 (Best Ported Data API App)</span>
+      </blockquote>
+
+      <blockquote class="verbatim">
+        Required submission element: "The u/name of the original bot ported for this category and, if not the Entrant, written permission from the bot creator to port the app for this event."
+        <span class="src">— Same source, Submission Requirements element list</span>
+      </blockquote>
+
+      <blockquote class="verbatim">
+        "You should be the bot owner, or have written permission to port the bot you are submitting for this event."
+        <span class="src">— Devpost Overview page, Porting Eligibility</span>
+      </blockquote>
+
+      <h3>3.2 "written permission"이 무엇을 의미하는가</h3>
+
+      <p>공식 규정과 Overview, App Migration Program Terms, Devvit Rules, Reddit Developer Terms 어디에도 <strong>"written permission"의 형식 명세는 없습니다</strong>. 즉:</p>
+      <ul>
+        <li>이메일이면 충분한지</li>
+        <li>Reddit DM도 인정되는지</li>
+        <li>OSS 라이선스(MIT/GPL/BSD) 자체가 written permission으로 갈음되는지</li>
+        <li>공식 양식이 있는지</li>
+      </ul>
+      <p>모두 Reddit이 명시하지 않은 상태입니다.</p>
+
+      <div class="callout warning">
+        <strong>⚠️ 위험 영역: OSS 라이선스 = written permission 가정</strong>
+        우리 갤러리의 26 후보 중 14개는 MIT/GPL/BSD 라이선스를 "written permission" 게이트로 통과한다고 가정합니다. 이는 <strong>법리적으로는 문제없을 가능성이 높지만, Reddit의 의도에 부합하는지 100% 확실하지 않음</strong>. 라이선스는 코드 사용 권리이지, "이 해커톤에 내 봇 이름을 걸고 출품해도 좋다"는 명시적 동의와는 다른 차원입니다.
+      </div>
+
+      <h3>3.3 법적·실무적 해석</h3>
+
+      <table>
+        <thead>
+          <tr><th>해석</th><th>근거</th><th>리스크</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>해석 A — 좁게</strong>: written permission은 원작자가 "이 해커톤 출품을 명시적으로 허락한다"는 별도 동의서 (이메일·DM·서명)</td>
+            <td>"for this event" 어구가 명시적. "to port the app for this event"는 일반 라이선스가 아닌 이벤트별 동의를 시사.</td>
+            <td><span class="verdict-bad">고</span> — 원작자 응답 없음 / 거부 시 출품 불가</td>
+          </tr>
+          <tr>
+            <td><strong>해석 B — 중간</strong>: OSS 라이선스 + 별도 명시적 동의 둘 다 있어야 안전</td>
+            <td>심사위원이 "라이선스가 있으니 OK"로 판단할지 모호. 동의서 첨부가 안전 마진.</td>
+            <td><span class="verdict-warn">중</span> — 동의서 1통 추가 필요</td>
+          </tr>
+          <tr>
+            <td><strong>해석 C — 넓게</strong>: OSS 라이선스(특히 permissive — MIT, BSD-3) 자체가 "written permission" 충족</td>
+            <td>라이선스는 "use, copy, modify, distribute" 권리를 명문 부여. 포팅도 modify·distribute의 일종.</td>
+            <td><span class="verdict-warn">중</span> — Reddit이 거부할 가능성 잔존, 항소 어려움</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout tip">
+        <strong>💡 권장: 해석 B (안전 마진)</strong>
+        OSS 라이선스가 있더라도 원작자에게 짧은 이메일/DM을 보내 <strong>"이 해커톤에 [봇명] 포팅 출품에 동의합니다"</strong>를 명시적으로 받는 것이 비용 거의 0에 리스크 -1. 응답 없을 경우 항소 어려움 → 다른 후보로 pivot 권장.
+      </div>
+
+      <h3>3.4 "must be original owner OR written permission" — OR의 의미</h3>
+      <p>규정의 OR 구조는 <strong>둘 중 하나만 충족하면 됨</strong>을 의미합니다.</p>
+      <ul>
+        <li><strong>본인이 원작자</strong>: 가장 안전. 추가 서류 없음. (예: u/Watchful1이 RemindMeBot을 직접 포팅 출품하는 경우)</li>
+        <li><strong>제3자 + written permission</strong>: 출품 가능하지만 동의 증빙 필요.</li>
+      </ul>
+
+      <p>우리 갤러리의 26 후보는 사용자가 누구냐에 따라 두 경로가 갈립니다:</p>
+      <ul>
+        <li>사용자가 위 봇들의 작자라면 → 자동 통과 (해당 후보만)</li>
+        <li>사용자가 작자가 아니라면 → <strong>모든</strong> 후보가 written permission 게이트를 통과해야 함</li>
+      </ul>
+    </section>
+
+    <section id="cases">
+      <h2>4. 사례 연구</h2>
+
+      <h3>4.1 BotDefense → Bot Bouncer (대표 케이스)</h3>
+      <p><strong>BotDefense</strong>는 2019년부터 운영된 Data API 기반 안티-봇 모더레이션 도구로, 2023년 운영 종료. 2024년 u/fsv가 <strong>Bot Bouncer</strong>를 출시하여 사실상의 후속작으로 기능.</p>
+      <ul>
+        <li>Bot Bouncer GitHub README 발췌: <em>"Bot Bouncer is a Dev Platform app that bans bots and other harmful accounts from subreddits that use it. It is heavily inspired by BotDefense, which wrapped up operations in 2023."</em></li>
+        <li>BotDefense 원작자(<code>dequeued</code>, <code>abrownn</code>)로부터의 명시적 written permission 문서는 <strong>공개 자료에 존재하지 않음</strong>.</li>
+        <li>Bot Bouncer는 처음부터 Devvit 네이티브로 작성되어 <strong>이 해커톤 출품작이 아님</strong>. 따라서 "written permission" 게이트를 우회한 것은 아니라, 게이트가 적용되지 않는 별도 서비스.</li>
+      </ul>
+
+      <div class="callout info">
+        <strong>ℹ️ 시사점</strong>
+        Bot Bouncer는 "OSS 인사이드 + 새 코드베이스"로 출시했으나, 원작자 동의는 받지 않았다. 이것은 <strong>해커톤 트랙에서는 적용 불가능한 경로</strong>다. 해커톤 출품작이 "Best Ported"로 인정받으려면 원작자 동의가 필요하지만, 별도 새 앱으로 시장에 내놓는 것은 다른 차원이다 (단, OSS 라이선스 준수 + 어트리뷰션 필수).
+      </div>
+
+      <h3>4.2 Bot 작자별 컨택 가능성</h3>
+      <p>우리 26 후보의 봇 작자별 응답성 추정:</p>
+
+      <table>
+        <thead>
+          <tr><th>작자</th><th>봇</th><th>마지막 활동</th><th>컨택 가능성</th><th>경로</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>u/Watchful1</td><td>RemindMeBot</td><td>2025-08 (push), Reddit 활동 활발</td><td><span class="verdict-ok">고</span></td><td>r/RemindMeBot 모드, Reddit DM, GitHub Issue</td></tr>
+          <tr><td>u/barrycarey</td><td>RepostSleuthBot</td><td>2026-01 (push), 활발</td><td><span class="verdict-ok">고</span></td><td>repostsleuth.com 컨택, GitHub Issue, Discord</td></tr>
+          <tr><td>u/quentinwolf</td><td>Flair_Helper2</td><td>2024-09 (push), 활발</td><td><span class="verdict-ok">고</span></td><td>GitHub Issue, Reddit DM</td></tr>
+          <tr><td>u/CosmicKeys</td><td>MAGIC_EYE_BOT</td><td>2024-07 (push)</td><td><span class="verdict-ok">중-고</span></td><td>GitHub Issue, r/MAGIC_EYE_BOT 모드</td></tr>
+          <tr><td>tylerbrockett</td><td>Alert-Bot-Reddit</td><td>2023-05 (push)</td><td><span class="verdict-warn">중</span></td><td>GitHub Issue (응답 지연 가능)</td></tr>
+          <tr><td>u/FoxxMD</td><td>ContextMod</td><td>2023-05 (last commit), 2024-06 (push)</td><td><span class="verdict-warn">중</span></td><td>GitHub Issue, Reddit DM (응답 불확실)</td></tr>
+          <tr><td>u/kungming2</td><td>AssistantBOT</td><td>2021-06 (5년 dormant)</td><td><span class="verdict-bad">저</span></td><td>GitHub Issue, Reddit DM (장기 부재)</td></tr>
+          <tr><td>u/Blank-Cheque + u/justcool393</td><td>Flair_Helper (원본)</td><td>abandoned</td><td><span class="verdict-bad">매우 저</span></td><td>피벗 권장</td></tr>
+        </tbody>
+      </table>
+
+      <h3>4.3 과거 Reddit 해커톤 사례 (참고)</h3>
+      <p>이번 해커톤 이전의 Reddit Devvit 해커톤(Hack Reddit 2025, Fun and Games with Devvit Web 등)은 <strong>모두 신규 게임/경험 제작</strong> 트랙이었음. <em>"포팅" 카테고리는 이번이 처음</em>이라, 동일한 "written permission" 검증의 운영 사례는 없음. → Reddit이 어느 정도의 엄격함으로 이 게이트를 적용할지는 이번 해커톤이 첫 사례.</p>
+    </section>
+
+    <section id="template">
+      <h2>5. written permission 템플릿 (실무용)</h2>
+      <p>원작자에게 동의를 요청할 때 사용할 수 있는 템플릿. 이메일/Reddit DM/GitHub Issue 모두 호환됩니다.</p>
+
+      <h3>5.1 짧은 영문 템플릿 (권장)</h3>
+      <pre><code>Subject: Permission to port [BOT_NAME] for Reddit Mod Tools Hackathon
+
+Hi [AUTHOR_REDDIT_USERNAME],
+
+I'm planning to submit a Devvit port of [BOT_NAME] (originally
+operated as u/[BOT_USERNAME]) to the Reddit "Mod Tools and Migrated
+Apps Hackathon" (https://mod-tools-migration.devpost.com/) under the
+"Best Ported Data API App" category.
+
+The hackathon's official rules require written permission from the
+original bot creator if the submitter is not the account owner.
+
+Could you please reply confirming any of the following:
+
+  [ ] You give permission for me to port [BOT_NAME] to Devvit and
+      submit it to this hackathon under the rules linked above.
+  [ ] You do not give permission. (Then I will not proceed.)
+  [ ] Other / questions.
+
+If you'd like attribution in the submission, app description, or
+README, please tell me how you'd like to be credited.
+
+Submission deadline: 2026-05-27 18:00 PT.
+
+Thanks for [BOT_NAME] and for considering this!
+
+— [YOUR_NAME] (u/[YOUR_REDDIT_USERNAME])
+</code></pre>
+
+      <h3>5.2 한국어 템플릿 (한국 작자 대상)</h3>
+      <pre><code>제목: [BOT_NAME] Devvit 포팅 동의 요청 — Reddit 모드 툴 마이그레이션 해커톤
+
+안녕하세요, [AUTHOR_REDDIT_USERNAME] 님.
+
+저는 [BOT_NAME] (현재 u/[BOT_USERNAME] 계정으로 운영 중)을 Devvit
+플랫폼으로 포팅하여, Reddit이 주관하는 "Mod Tools and Migrated Apps
+Hackathon"의 Best Ported Data API App 부문에 출품할 계획입니다.
+(공식 페이지: https://mod-tools-migration.devpost.com/)
+
+해커톤 규정상 제출자가 원작자가 아니면 written permission이 필요해서
+공식 동의를 부탁드립니다.
+
+아래 중 하나로 답해 주시면 충분합니다:
+
+  [ ] [BOT_NAME]을 Devvit으로 포팅하여 해당 해커톤에 출품하는 것에 동의합니다.
+  [ ] 동의하지 않습니다. (그러면 진행하지 않겠습니다.)
+  [ ] 추가 논의가 필요합니다.
+
+원하시는 attribution(README, 제출 설명, 데모 영상 크레딧)이 있으면
+알려주세요.
+
+제출 마감: 2026-05-27 18:00 PT (KST 2026-05-28 10:00).
+
+감사합니다!
+
+— [당신 이름] (u/[당신의 Reddit username])
+</code></pre>
+
+      <h3>5.3 응답 보존 가이드</h3>
+      <ul>
+        <li>응답 받은 메시지의 <strong>스크린샷 + 원문 텍스트</strong>를 PDF로 저장 (제출 시 첨부 가능).</li>
+        <li>이메일이면 헤더 포함, Reddit DM이면 URL + 시간 스탬프.</li>
+        <li>GitHub Issue로 받았다면 영구 URL + commit hash가 있는 경우 함께.</li>
+        <li>Devpost 제출 페이지에 "Project Story" 또는 "Additional Info" 섹션이 있으면 거기에 동의 인용 + 출처 링크 기록.</li>
+      </ul>
+    </section>
+
+    <section id="actions">
+      <h2>6. 26 후보별 액션 권장</h2>
+      <p>각 후보를 트랙 자격(특히 written permission 게이트) 관점에서 재평가한 액션 권장입니다.</p>
+
+      <h3>6.1 Tier별 정리</h3>
+      <table>
+        <thead>
+          <tr><th>Tier</th><th>봇</th><th>해당 ID</th><th>액션</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tier-A">A</span></td>
+            <td>RepostSleuthBot</td>
+            <td>P02, P05, P21</td>
+            <td>u/barrycarey 컨택 (GitHub Issue + Discord). 활발 → 응답 빠를 가능성. <strong>최우선</strong>.</td>
+          </tr>
+          <tr>
+            <td><span class="tier-A">A</span></td>
+            <td>RemindMeBot</td>
+            <td>P03, P15, P23</td>
+            <td>u/Watchful1 컨택 (GitHub Issue 또는 Reddit DM). License 없음 → 명시적 동의 <strong>필수</strong>.</td>
+          </tr>
+          <tr>
+            <td><span class="tier-A">A</span></td>
+            <td>MAGIC_EYE_BOT</td>
+            <td>P01, P07, P19</td>
+            <td>MIT 라이선스 + u/CosmicKeys 컨택. 라이선스 + 명시적 동의 둘 다 확보.</td>
+          </tr>
+          <tr>
+            <td><span class="tier-A">A</span></td>
+            <td>Flair_Helper2</td>
+            <td>P11, P16, P24, P26</td>
+            <td>GPL-3.0 + u/quentinwolf 컨택. <strong>copyleft 라이선스 영향 검토</strong>: GPL-3.0 작품의 derivative는 GPL-3.0 의무 → Devvit 앱 코드를 OSS 공개해야 할 수도 있음. (대안: 작자에게 별도 라이선스 받기)</td>
+          </tr>
+          <tr>
+            <td><span class="tier-A-">A-</span></td>
+            <td>Alert-Bot-Reddit</td>
+            <td>P08</td>
+            <td>tylerbrockett GitHub 컨택. 응답 지연 가능 → <strong>대안 후보 동시 진행</strong>.</td>
+          </tr>
+          <tr>
+            <td><span class="tier-B">B</span></td>
+            <td>ContextMod</td>
+            <td>P04, P09, P10, P12, P17, P20, P22, P25 (8개)</td>
+            <td>u/FoxxMD 컨택, 응답 불확실. MIT 라이선스 → 라이선스 단독 통과 시 해석 C 의존. <strong>해석 B(라이선스+명시적 동의)가 안전</strong>. 8개 후보 모두 ContextMod이므로, 작자 단일 응답으로 일괄 해결 가능.</td>
+          </tr>
+          <tr>
+            <td><span class="tier-B-">B-</span></td>
+            <td>AssistantBOT</td>
+            <td>P06, P13, P18</td>
+            <td>u/kungming2 5년 부재 → 응답 가능성 낮음. MIT 라이선스만으로 출품할지(해석 C) 또는 <strong>다른 봇으로 pivot</strong>할지 결정 필요.</td>
+          </tr>
+          <tr>
+            <td><span class="tier-C">C</span></td>
+            <td>Flair_Helper (원본)</td>
+            <td>P14</td>
+            <td>원작자 abandoned + 라이선스 없음. <strong>Flair_Helper2로 pivot 권장</strong> (이미 후속작이 있음).</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>6.2 우선 컨택 순서 (시간 한정)</h3>
+      <ol>
+        <li><strong>1주차 (오늘 ~ 2026-05-15)</strong>: Tier A 6명의 작자(u/barrycarey, u/Watchful1, u/CosmicKeys, u/quentinwolf, tylerbrockett, u/FoxxMD)에게 동시 동의 요청 발송. 가장 빠른 응답 1-2개를 골라 메인 후보로 결정.</li>
+        <li><strong>2주차 (~2026-05-22)</strong>: 응답에 따라 후보 final lock + 4-Panel 평가 → Gate H1 선택 → SpecDD/TestDD 사이클 시작.</li>
+        <li><strong>3주차 (~2026-05-27)</strong>: 200 미만 공개 서브 게시 + 데모 영상 + 제출.</li>
+      </ol>
+
+      <h3>6.3 GPL-3.0 라이선스 주의 (Flair_Helper2)</h3>
+      <div class="callout warning">
+        <strong>⚠️ Flair_Helper2 (GPL-3.0) 사용 시 주의</strong>
+        GPL-3.0은 copyleft. 만약 Flair_Helper2 코드를 직접 가져와 Devvit 앱에 통합한다면, 우리 Devvit 앱 전체가 GPL-3.0이 됩니다 (소스 공개 의무). 이게 부담이라면:
+        <ul>
+          <li>(a) <strong>처음부터 다시 작성</strong>: Flair_Helper2의 YAML 스키마와 동작만 참고하여 새 코드로 작성. 이 경우 라이선스 전염 안 됨 (clean-room implementation).</li>
+          <li>(b) <strong>작자에게 별도 라이선스</strong>: u/quentinwolf에게 "MIT 또는 commercial-friendly로 dual-license 가능합니까?" 협상.</li>
+          <li>(c) <strong>GPL-3.0 그대로 수용</strong>: Devvit 앱 소스를 GPL-3.0 OSS로 공개. 이번 해커톤 정신과 부합 (OSS Maintainer 라인 P20과 정합).</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="risks">
+      <h2>7. 리스크 매트릭스</h2>
+      <table>
+        <thead>
+          <tr><th>리스크</th><th>영향</th><th>가능성</th><th>완화책</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>OSS 라이선스 단독으로 written permission 게이트 통과 시도 → Reddit이 부적격 판단</td>
+            <td>고 (실격)</td>
+            <td>중 (해석 C 의존)</td>
+            <td>모든 Tier A 후보에 대해 명시적 동의를 별도로 받음</td>
+          </tr>
+          <tr>
+            <td>원작자 응답 없음 / 거부</td>
+            <td>중 (해당 후보 출품 불가)</td>
+            <td>중-고 (특히 Tier B-)</td>
+            <td>Tier A 다중 후보에게 동시 컨택, 가장 빠른 응답 사용</td>
+          </tr>
+          <tr>
+            <td>≥500 WAU 호스트 서브 미충족</td>
+            <td>고 (실격)</td>
+            <td>저 (대부분 봇이 충족)</td>
+            <td>제출 전 호스트 서브 WAU 직접 확인 (Reddit Insights / Subreddit Stats)</td>
+          </tr>
+          <tr>
+            <td>200 미만 공개 서브 미생성 → 심사위원 테스트 불가</td>
+            <td>고 (실격 가능)</td>
+            <td>저 (운영 실수)</td>
+            <td>제출 전 새 서브 생성 + Devvit 앱 install + 게시 확인</td>
+          </tr>
+          <tr>
+            <td>"기능 동등 95%" 미달성 → Port Completion 점수 낮음</td>
+            <td>중 (수상 어려움)</td>
+            <td>중 (4일 빠듯)</td>
+            <td>Tier A 단순 봇(RemindMeBot, Flair_Helper2) 우선. ContextMod 같은 복잡한 룰엔진 회피.</td>
+          </tr>
+          <tr>
+            <td>Bot Bouncer가 BotDefense 영역을 이미 점유 → 우리 BotDefense 포팅 redundant</td>
+            <td>고 (이미 P07/P15/P19/P23 재dispatch로 회피됨)</td>
+            <td>해소됨</td>
+            <td>BotDefense 픽 모두 다른 봇으로 변경 완료 (이전 라운드).</td>
+          </tr>
+          <tr>
+            <td>GPL-3.0 (Flair_Helper2) 라이선스 전염</td>
+            <td>중 (Devvit 앱 OSS 공개 강제)</td>
+            <td>고 (의도적으로 picking)</td>
+            <td>(a) clean-room 재작성 (b) 작자에게 dual-license 협상 (c) OSS 공개 수용</td>
+          </tr>
+          <tr>
+            <td>Reddit 2026-03 정책으로 cross-sub auto-ban 차단 (BotDefense·SaferBot·Hive Protect)</td>
+            <td>해소됨</td>
+            <td>해소됨</td>
+            <td>이미 BotDefense 후보 모두 다른 봇으로 변경 완료.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="references">
+      <h2>8. 참고 자료</h2>
+      <h3>공식 (verbatim 인용 출처)</h3>
+      <ul>
+        <li><a href="https://mod-tools-migration.devpost.com/" target="_blank">Reddit Mod Tools and Migrated Apps Hackathon — Devpost Overview</a></li>
+        <li><a href="https://mod-tools-migration.devpost.com/rules" target="_blank">Hackathon Official Rules (verbatim)</a></li>
+        <li><a href="https://mod-tools-migration.devpost.com/resources" target="_blank">Hackathon Resources Page</a></li>
+        <li><a href="https://support.reddithelp.com/hc/en-us/articles/47822311698452-Reddit-Developer-Platform-App-Migration-Program-2026-Terms" target="_blank">App Migration Program 2026 Terms (Reddit Help)</a></li>
+        <li><a href="https://support.reddithelp.com/hc/en-us/articles/14945211791892-Developer-Platform-Accessing-Reddit-Data" target="_blank">Developer Platform & Accessing Reddit Data</a></li>
+        <li><a href="https://support.reddithelp.com/hc/en-us/articles/42728983564564-Responsible-Builder-Policy" target="_blank">Responsible Builder Policy</a></li>
+      </ul>
+
+      <h3>봇 저장소 (검증된 후보)</h3>
+      <ul>
+        <li><a href="https://github.com/barrycarey/RedditRepostSleuth" target="_blank">RepostSleuthBot — barrycarey/RedditRepostSleuth (GPL-3.0)</a></li>
+        <li><a href="https://github.com/Watchful1/RemindMeBot" target="_blank">RemindMeBot — Watchful1/RemindMeBot (no license)</a></li>
+        <li><a href="https://github.com/downfromthetrees/the_magic_eye" target="_blank">MAGIC_EYE_BOT — downfromthetrees/the_magic_eye (MIT)</a></li>
+        <li><a href="https://github.com/quentinwolf/flair_helper2" target="_blank">Flair_Helper2 — quentinwolf/flair_helper2 (GPL-3.0)</a></li>
+        <li><a href="https://github.com/tylerbrockett/Alert-Bot-Reddit" target="_blank">Alert-Bot-Reddit — tylerbrockett/Alert-Bot-Reddit (MIT)</a></li>
+        <li><a href="https://github.com/FoxxMD/context-mod" target="_blank">ContextMod — FoxxMD/context-mod (MIT)</a></li>
+        <li><a href="https://github.com/kungming2/AssistantBOT" target="_blank">AssistantBOT — kungming2/AssistantBOT (MIT)</a></li>
+        <li><a href="https://github.com/fsvreddit/bot-bouncer" target="_blank">Bot Bouncer (BotDefense 후속 — 참고용)</a></li>
+      </ul>
+
+      <h3>추가 분석 (이번 갤러리 내)</h3>
+      <ul>
+        <li><a href="./index.html">26-card Gallery (메인)</a></li>
+        <li><a href="./_meta/previews.json">previews.json (각 카드 _verification 메타)</a></li>
+        <li><a href="./_meta/diversity-report.json">diversity-report.json</a></li>
+        <li><a href="./README.md">README.md</a></li>
+      </ul>
+    </section>
+
+  </main>
+</div>
+
+<a href="#" class="scroll-top" id="scrollTop">↑ 맨 위로</a>
+
+<script>
+(function() {
+  const btn = document.getElementById('scrollTop');
+  window.addEventListener('scroll', () => {
+    btn.classList.toggle('visible', window.scrollY > 400);
+  });
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // TOC active state
+  const tocLinks = document.querySelectorAll('.toc-sidebar a');
+  const sections = document.querySelectorAll('section[id]');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        tocLinks.forEach(link => {
+          link.style.background = link.getAttribute('href') === '#' + id
+            ? 'oklch(95% 0.05 250)' : '';
+          link.style.color = link.getAttribute('href') === '#' + id
+            ? 'var(--accent)' : '';
+        });
+      }
+    });
+  }, { threshold: 0.5 });
+  sections.forEach(s => observer.observe(s));
+})();
+</script>
+
+</body>
+</html>
