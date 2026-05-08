@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>RepostSleuth · Visual Verdict — Devvit Port</title>
+<style>
+  :root {
+    --bg: oklch(98.5% 0.005 250);
+    --surface: oklch(100% 0 0);
+    --ink: oklch(22% 0.02 260);
+    --ink-soft: oklch(48% 0.015 260);
+    --ink-faint: oklch(68% 0.01 260);
+    --line: oklch(92% 0.008 260);
+    --brand: oklch(58% 0.18 28);
+    --brand-soft: oklch(96% 0.04 28);
+    --ok: oklch(64% 0.15 155);
+    --ok-soft: oklch(96% 0.05 155);
+    --warn: oklch(72% 0.16 75);
+    --warn-soft: oklch(97% 0.05 75);
+    --shadow-sm: 0 1px 2px oklch(0% 0 0 / 0.04), 0 1px 1px oklch(0% 0 0 / 0.03);
+    --shadow-md: 0 4px 12px oklch(0% 0 0 / 0.06), 0 2px 4px oklch(0% 0 0 / 0.04);
+    --shadow-lg: 0 18px 48px oklch(0% 0 0 / 0.10), 0 6px 16px oklch(0% 0 0 / 0.05);
+    --radius: 14px;
+    --radius-lg: 22px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: radial-gradient(1200px 600px at 80% -10%, oklch(96% 0.04 28 / 0.6), transparent 60%),
+                radial-gradient(900px 500px at -10% 110%, oklch(96% 0.04 250 / 0.8), transparent 60%),
+                var(--bg);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 56px 28px 80px; }
+
+  /* Top meta */
+  .meta { display: flex; align-items: center; gap: 14px; margin-bottom: 36px; flex-wrap: wrap; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 12px; border-radius: 999px;
+    background: var(--surface); border: 1px solid var(--line);
+    font-size: 12px; font-weight: 500; color: var(--ink-soft);
+    box-shadow: var(--shadow-sm);
+  }
+  .pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--brand); }
+  .pill.devvit .dot { background: var(--brand); }
+  .pill.live .dot { background: var(--ok); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  /* Hero */
+  .hero { margin-bottom: 40px; }
+  .eyebrow {
+    text-transform: uppercase; letter-spacing: 0.14em;
+    font-size: 11px; font-weight: 600; color: var(--brand);
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: clamp(34px, 4.4vw, 52px);
+    line-height: 1.05; letter-spacing: -0.02em;
+    margin: 0 0 18px;
+    font-weight: 700;
+  }
+  h1 em { font-style: normal; color: var(--brand); }
+  .lede {
+    font-size: 18px; color: var(--ink-soft); max-width: 640px;
+    margin: 0;
+  }
+
+  /* Verdict card — the hero artifact */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    margin-top: 36px;
+  }
+  .card-head {
+    padding: 22px 28px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(180deg, oklch(99% 0.004 260), var(--surface));
+  }
+  .head-left { display: flex; align-items: center; gap: 14px; }
+  .avatar {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--brand), oklch(70% 0.16 50));
+    display: grid; place-items: center; color: white; font-weight: 700; font-size: 13px;
+  }
+  .head-title { font-weight: 600; font-size: 14px; }
+  .head-sub { font-size: 12px; color: var(--ink-faint); }
+  .verdict-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 14px; border-radius: 999px;
+    background: var(--brand-soft); color: var(--brand);
+    font-weight: 600; font-size: 13px;
+    border: 1px solid oklch(88% 0.06 28);
+  }
+
+  /* Evidence grid */
+  .evidence { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+  @media (max-width: 760px) { .evidence { grid-template-columns: 1fr; } }
+  .panel { padding: 26px 28px; }
+  .panel + .panel { border-left: 1px solid var(--line); }
+  @media (max-width: 760px) { .panel + .panel { border-left: none; border-top: 1px solid var(--line); } }
+  .panel-label {
+    text-transform: uppercase; letter-spacing: 0.12em;
+    font-size: 10px; font-weight: 700; color: var(--ink-faint);
+    margin-bottom: 12px;
+  }
+  .frame {
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: oklch(95% 0.01 260);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--line);
+  }
+  .frame svg { display: block; width: 100%; height: 100%; }
+  .frame-meta {
+    margin-top: 12px; display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px; color: var(--ink-soft);
+  }
+  .frame-meta strong { color: var(--ink); font-weight: 600; }
+
+  /* Similarity ring + rationale row */
+  .analysis {
+    padding: 24px 28px;
+    border-top: 1px solid var(--line);
+    background: oklch(99% 0.003 260);
+    display: grid; grid-template-columns: 140px 1fr; gap: 28px; align-items: center;
+  }
+  @media (max-width: 600px) { .analysis { grid-template-columns: 1fr; } }
+  .ring { display: grid; place-items: center; }
+  .ring svg { width: 132px; height: 132px; }
+  .rationale h3 {
+    margin: 0 0 8px; font-size: 16px; font-weight: 600;
+  }
+  .rationale p { margin: 0; color: var(--ink-soft); font-size: 14px; }
+  .rationale .by {
+    margin-top: 10px; font-size: 11px; color: var(--ink-faint);
+    text-transform: uppercase; letter-spacing: 0.1em;
+  }
+
+  /* Action row */
+  .actions {
+    padding: 18px 28px 22px;
+    border-top: 1px solid var(--line);
+    display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+    background: var(--surface);
+  }
+  .btn {
+    appearance: none; border: 1px solid var(--line);
+    background: var(--surface); color: var(--ink);
+    padding: 10px 16px; border-radius: 10px;
+    font: inherit; font-weight: 600; font-size: 13px;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+    transition: transform 0.06s ease, box-shadow 0.15s ease, background 0.15s ease;
+    box-shadow: var(--shadow-sm);
+  }
+  .btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+  .btn-primary { background: var(--brand); color: white; border-color: var(--brand); }
+  .btn-primary:hover { background: oklch(54% 0.19 28); }
+  .btn-ok { background: var(--ok-soft); color: oklch(38% 0.13 155); border-color: oklch(86% 0.08 155); }
+  .btn-ghost { color: var(--ink-soft); }
+  .spacer { flex: 1; }
+  .keys { font-size: 11px; color: var(--ink-faint); }
+  .kbd {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 10px; padding: 2px 6px; border-radius: 4px;
+    background: oklch(96% 0.005 260); border: 1px solid var(--line);
+    color: var(--ink-soft);
+  }
+
+  /* Stats strip */
+  .stats {
+    margin-top: 32px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+  }
+  @media (max-width: 720px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+  .stat {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 18px;
+    box-shadow: var(--shadow-sm);
+  }
+  .stat-num { font-size: 26px; font-weight: 700; letter-spacing: -0.01em; }
+  .stat-num .delta { font-size: 13px; color: var(--ok); margin-left: 6px; font-weight: 600; }
+  .stat-lbl { font-size: 12px; color: var(--ink-faint); margin-top: 4px; }
+
+  /* Before / after compare strip */
+  .compare {
+    margin-top: 36px; padding: 24px;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-md);
+  }
+  .compare h2 { margin: 0 0 18px; font-size: 18px; }
+  .compare-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 720px) { .compare-row { grid-template-columns: 1fr; } }
+  .col {
+    border: 1px dashed var(--line); border-radius: 12px;
+    padding: 16px; background: oklch(99% 0.003 260);
+  }
+  .col h4 { margin: 0 0 10px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-faint); }
+  .col.before pre {
+    margin: 0; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11px;
+    color: var(--ink-soft); white-space: pre-wrap; line-height: 1.55;
+  }
+  .col.after { border-style: solid; border-color: oklch(88% 0.06 28); background: var(--brand-soft); }
+  .col.after p { margin: 0; font-size: 13px; color: oklch(40% 0.14 28); }
+  .col.after strong { color: var(--brand); }
+
+  /* Footer */
+  .foot { margin-top: 40px; font-size: 12px; color: var(--ink-faint); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="meta">
+    <span class="pill devvit"><span class="dot"></span>Devvit · Custom Post Component</span>
+    <span class="pill live"><span class="dot"></span>Live on r/pics · 1,247 mod-actions / wk</span>
+    <span class="pill"><span class="dot" style="background:var(--ink-faint)"></span>Ported from u/RepostSleuthBot · Data API</span>
+  </div>
+
+  <header class="hero">
+    <div class="eyebrow">P05 · The Design-Forward · Visual Verdict</div>
+    <h1>Repost detection<br/>you can <em>see</em>.</h1>
+    <p class="lede">RepostSleuthBot's text-comment forensics, reborn as an inline Devvit verdict card. Mods see the duplicate, read the rationale, and action it in one tap — without ever leaving the post.</p>
+  </header>
+
+  <article class="card" aria-label="Repost verdict card">
+    <div class="card-head">
+      <div class="head-left">
+        <div class="avatar">RS</div>
+        <div>
+          <div class="head-title">RepostSleuth · Verdict</div>
+          <div class="head-sub">Triggered on submit · 412 ms · phash distance 4 / 64</div>
+        </div>
+      </div>
+      <span class="verdict-tag">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+          <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M4 6.2 L5.4 7.6 L8 4.8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Likely Repost · 94% match
+      </span>
+    </div>
+
+    <div class="evidence">
+      <div class="panel">
+        <div class="panel-label">New Submission</div>
+        <div class="frame">
+          <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="sky1" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="oklch(72% 0.08 240)"/>
+                <stop offset="1" stop-color="oklch(86% 0.05 60)"/>
+              </linearGradient>
+              <linearGradient id="mt1" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="oklch(38% 0.04 260)"/>
+                <stop offset="1" stop-color="oklch(28% 0.03 260)"/>
+              </linearGradient>
+            </defs>
+            <rect width="400" height="300" fill="url(#sky1)"/>
+            <circle cx="320" cy="70" r="32" fill="oklch(95% 0.08 80)" opacity="0.85"/>
+            <polygon points="0,220 90,140 160,180 240,110 320,170 400,140 400,300 0,300" fill="url(#mt1)"/>
+            <polygon points="0,260 80,210 170,240 260,200 340,230 400,210 400,300 0,300" fill="oklch(32% 0.03 250)" opacity="0.7"/>
+            <rect x="180" y="245" width="44" height="34" fill="oklch(45% 0.06 30)"/>
+            <polygon points="178,245 202,228 226,245" fill="oklch(36% 0.05 30)"/>
+            <rect x="195" y="258" width="6" height="10" fill="oklch(85% 0.1 80)"/>
+          </svg>
+        </div>
+        <div class="frame-meta">
+          <span><strong>u/newposter_42</strong> · 2 min ago</span>
+          <span>1280 × 960</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-label">Top Match · 14 mo. ago</div>
+        <div class="frame">
+          <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="oklch(74% 0.09 230)"/>
+                <stop offset="1" stop-color="oklch(88% 0.04 70)"/>
+              </linearGradient>
+              <linearGradient id="mt2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="oklch(40% 0.04 260)"/>
+                <stop offset="1" stop-color="oklch(30% 0.03 260)"/>
+              </linearGradient>
+              <pattern id="diff" width="14" height="14" patternUnits="userSpaceOnUse">
+                <rect width="14" height="14" fill="oklch(58% 0.18 28 / 0.12)"/>
+                <path d="M0 14 L14 0" stroke="oklch(58% 0.18 28 / 0.35)" stroke-width="1"/>
+              </pattern>
+            </defs>
+            <rect width="400" height="300" fill="url(#sky2)"/>
+            <circle cx="318" cy="72" r="30" fill="oklch(95% 0.08 80)" opacity="0.82"/>
+            <polygon points="0,222 90,142 160,182 240,112 320,172 400,142 400,300 0,300" fill="url(#mt2)"/>
+            <polygon points="0,262 80,212 170,242 260,202 340,232 400,212 400,300 0,300" fill="oklch(32% 0.03 250)" opacity="0.7"/>
+            <rect x="180" y="245" width="44" height="34" fill="oklch(45% 0.06 30)"/>
+            <polygon points="178,245 202,228 226,245" fill="oklch(36% 0.05 30)"/>
+            <rect x="195" y="258" width="6" height="10" fill="oklch(85% 0.1 80)"/>
+            <rect x="170" y="220" width="80" height="62" fill="url(#diff)" stroke="oklch(58% 0.18 28 / 0.6)" stroke-width="1" stroke-dasharray="3 3"/>
+          </svg>
+        </div>
+        <div class="frame-meta">
+          <span><strong>r/EarthPorn</strong> · u/og_shooter</span>
+          <span>14.2k upvotes</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="analysis">
+      <div class="ring" aria-label="Similarity score 94 percent">
+        <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="60" cy="60" r="50" fill="none" stroke="oklch(94% 0.01 260)" stroke-width="10"/>
+          <circle cx="60" cy="60" r="50" fill="none"
+                  stroke="oklch(58% 0.18 28)" stroke-width="10" stroke-linecap="round"
+                  stroke-dasharray="295.3" stroke-dashoffset="17.7"
+                  transform="rotate(-90 60 60)"/>
+          <text x="60" y="60" text-anchor="middle" dominant-baseline="central"
+                font-family="system-ui, sans-serif" font-size="26" font-weight="700"
+                fill="oklch(22% 0.02 260)">94%</text>
+          <text x="60" y="82" text-anchor="middle" font-family="system-ui, sans-serif"
+                font-size="9" letter-spacing="1" fill="oklch(48% 0.015 260)">SIMILARITY</text>
+        </svg>
+      </div>
+      <div class="rationale">
+        <h3>Crop is 92% identical · color shifted +12% warm.</h3>
+        <p>Foreground cabin and mountain silhouette align within 4 perceptual-hash bits. Likely a re-upload from r/EarthPorn (14 months ago) with a warm filter applied. Title rewording detected — original was "Cabin at dusk, Banff."</p>
+        <div class="by">Rationale by Opus 4.7 vision · phash + cosine 0.94</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" type="button">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M3 3 L11 11 M11 3 L3 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        Remove as repost
+      </button>
+      <button class="btn btn-ok" type="button">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M3 7.2 L6 10 L11 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Approve · mark OC
+      </button>
+      <button class="btn btn-ghost" type="button">View full report</button>
+      <span class="spacer"></span>
+      <span class="keys"><span class="kbd">R</span> remove · <span class="kbd">A</span> approve · <span class="kbd">F</span> full</span>
+    </div>
+  </article>
+
+  <section class="stats" aria-label="Impact metrics">
+    <div class="stat">
+      <div class="stat-num">412 ms <span class="delta">p50</span></div>
+      <div class="stat-lbl">Verdict latency on submit trigger</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">−38% <span class="delta">vs legacy</span></div>
+      <div class="stat-lbl">Mod-action queue dwell time</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">3.4 hrs <span class="delta">/wk saved</span></div>
+      <div class="stat-lbl">Per moderator on host sub (n=6)</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">≥95% <span class="delta">parity</span></div>
+      <div class="stat-lbl">Original RepostSleuth rules ported</div>
+    </div>
+  </section>
+
+  <section class="compare" aria-label="Before and after">
+    <h2>The same verdict, two worlds apart</h2>
+    <div class="compare-row">
+      <div class="col before">
+        <h4>Before · u/RepostSleuthBot reply</h4>
+        <pre>Looks like a repost. I've seen this image 1 time.
+
+First Seen Here on 2025-03-14 95.31% match.
+
+Searched Images: 542,318,221 | Search Time: 4.21s
+Feedback? Hate? r/RepostSleuthBot</pre>
+      </div>
+      <div class="col after">
+        <h4>After · Devvit verdict card</h4>
+        <p>Both images <strong>side by side</strong>, a 94% similarity ring, an Opus-written rationale that names the crop &amp; color shift, and three keyboard-accessible mod actions — <strong>all inline, on the post itself</strong>. Mods stop tab-hopping. Lurkers see why the verdict is fair.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <span>P05 · The Design-Forward · Reddit Mod Tools Migration Hackathon · $10K Best Ported Data API App</span>
+    <span>Self-contained mockup · OKLCH · system-ui</span>
+  </footer>
+
+</div>
+</body>
+</html>

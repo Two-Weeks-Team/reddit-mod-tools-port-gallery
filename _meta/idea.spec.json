@@ -1,0 +1,60 @@
+{
+  "_schema_version": "1.0.0",
+  "_filled_ratio": 1.0,
+  "idea_summary": "Port one existing Reddit Data API moderation bot (owned or with written permission, with prior service to a ≥500 WAU subreddit) into a Devvit app that achieves functional parity, quantifies moderator time savings, and competes for the $10K 'Best Ported Data API App' prize at the Reddit Mod Tools Migration Hackathon (deadline 2026-05-27 18:00 PDT).",
+  "target_persona": {
+    "profile": "Bot author / mod-tool developer who currently operates a Data API moderation bot serving at least one ≥500 WAU subreddit, holds original ownership or written consent, and wants to keep the bot alive after Reddit's Data API deprecation by re-platforming on Devvit.",
+    "primary_pain": "The original PRAW/Data-API bot is on a deprecation runway — keeping it running costs hosting + token-rotation effort, while moderators on the host subreddit increasingly want native Reddit-surface integration (modqueue actions, post-submit hooks) that only Devvit can deliver. Manual context-gathering and spam triage on the modqueue still consume hours per week despite the legacy bot.",
+    "usage_frequency": "daily"
+  },
+  "primary_surface": {
+    "platform": "devvit",
+    "sync_model": "real-time",
+    "offline_capable": null
+  },
+  "jobs_to_be_done": {
+    "functional": "Replace a soon-to-be-broken Data-API moderation bot with a Devvit-native equivalent that preserves every rule/heuristic the host subreddit currently depends on, while adding install-from-Reddit simplicity so other ≥500 WAU subs can adopt it without ops work.",
+    "emotional": "Confidence that the bot will keep working after Data API deprecation; pride in shipping a polished Devvit port that the mod community trusts; relief from on-call hosting toil.",
+    "social": "Recognition from the Reddit moderator community and Devvit team as a reliable mod-tool maintainer; eligibility for Reddit Developer Funds post-hackathon; demonstration of stewardship to the original bot's user base."
+  },
+  "killer_feature": "Functional-parity port of a battle-tested Data-API mod bot with verifiable time-savings telemetry (before/after mod-action latency + queue depth) baked into the Devvit install — judges and adopting mods see quantified Community Impact on day one, not a promise.",
+  "must_have_constraints": [
+    {
+      "type": "regulatory",
+      "value": "Original bot ownership OR written permission from the original author (eligibility gate per hackathon rules)"
+    },
+    {
+      "type": "regulatory",
+      "value": "Original bot must have operated on Reddit Data API before the submission period opened"
+    },
+    {
+      "type": "regulatory",
+      "value": "Target subreddit must have ≥500 weekly active users (WAU) at submission time"
+    },
+    {
+      "type": "platform",
+      "value": "devvit (Reddit Developer Platform) — no external hosting allowed for the submitted app surface"
+    },
+    {
+      "type": "regulatory",
+      "value": "Devvit Rules + Reddit Developer Terms + Reddit User Agreement compliance (Polish judging axis)"
+    },
+    {
+      "type": "latency",
+      "value": "Real-time mod-action triggers must complete within Devvit trigger SLA (sub-second p50 for post/comment submit hooks)"
+    },
+    {
+      "type": "other",
+      "value": "Submission deadline 2026-05-27 18:00 PDT — hard cutoff, no extensions"
+    }
+  ],
+  "non_goals": [
+    "Building a brand-new moderation bot with no Data-API precursor (ineligible for the Ported track)",
+    "Multi-bot bundle / mod-tool suite — track rewards porting ONE bot well, not breadth",
+    "Non-Devvit surfaces (standalone web dashboard, mobile app, Slack/Discord bridge) as the primary deliverable",
+    "Monetization / paywall inside the Devvit app (hackathon judging is impact-based, not revenue-based)",
+    "Supporting subs under 500 WAU as the showcase install (eligibility requires ≥500 WAU host sub)"
+  ],
+  "monetization_model": "none-at-submission (hackathon prize $10K is the immediate payoff; post-hackathon path is Reddit Developer Funds eligibility + organic install growth across moderator community, not in-app monetization)",
+  "success_metric": "Primary: win the $10K 'Best Ported Data API App' prize. Secondary, judge-facing: (a) functional-parity coverage ≥95% of the original bot's rules/actions, (b) measured moderator time-saved per week on the host ≥500 WAU subreddit (target: ≥30% reduction in mod-action latency or queue dwell time vs. legacy bot baseline), (c) clean install on at least one additional ≥500 WAU subreddit as proof of Reliable UX."
+}

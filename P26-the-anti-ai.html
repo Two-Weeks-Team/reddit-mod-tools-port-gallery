@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Flair_Helper2 / Devvit — Deterministic Rulebook</title>
+<style>
+  :root{
+    --paper: oklch(98% 0.01 95);
+    --ink:   oklch(22% 0.02 260);
+    --rule:  oklch(55% 0.02 260);
+    --line:  oklch(88% 0.01 260);
+    --accent:oklch(48% 0.16 25);
+    --ok:    oklch(52% 0.14 145);
+    --warn:  oklch(70% 0.14 75);
+    --stamp: oklch(45% 0.18 25);
+    --mono:  ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,sans-serif;font-size:14px;line-height:1.45}
+  .wrap{max-width:1180px;margin:0 auto;padding:24px}
+  header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid var(--ink);padding-bottom:14px;margin-bottom:18px;gap:18px}
+  .title h1{margin:0;font-size:20px;letter-spacing:.2px}
+  .title h1 .slash{color:var(--rule)}
+  .title .sub{color:var(--rule);font-size:12px;margin-top:4px;font-family:var(--mono)}
+  .stamp{
+    border:2px solid var(--stamp);color:var(--stamp);
+    padding:8px 12px;border-radius:6px;text-align:center;
+    transform:rotate(-3deg);font-family:var(--mono);font-weight:700;
+    line-height:1.15;letter-spacing:.5px;flex-shrink:0
+  }
+  .stamp .big{font-size:13px}
+  .stamp .small{font-size:9px;opacity:.85;font-weight:500}
+  .grid{display:grid;grid-template-columns:1.15fr 1fr;gap:18px}
+  .panel{background:#fff;border:1px solid var(--line);border-radius:6px;padding:0;overflow:hidden}
+  .panel h2{margin:0;font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--rule);padding:10px 14px;border-bottom:1px solid var(--line);background:oklch(96% 0.005 260);font-family:var(--mono)}
+  .panel .body{padding:12px 14px}
+  /* Rulebook */
+  .rulebook{font-family:var(--mono);font-size:12.5px;background:#fff}
+  .rulebook ol{list-style:none;margin:0;padding:0;counter-reset:ln}
+  .rulebook li{display:grid;grid-template-columns:48px 1fr;gap:0;border-bottom:1px solid oklch(95% 0.005 260)}
+  .rulebook li .ln{
+    counter-increment:ln;
+    color:var(--rule);background:oklch(96% 0.005 260);
+    text-align:right;padding:4px 8px;border-right:1px solid var(--line);user-select:none
+  }
+  .rulebook li .ln::before{content:counter(ln,decimal-leading-zero)}
+  .rulebook li .src{padding:4px 10px;white-space:pre;overflow-x:auto}
+  .tk-key{color:oklch(40% 0.13 260)}
+  .tk-str{color:oklch(40% 0.13 145)}
+  .tk-num{color:oklch(45% 0.16 25)}
+  .tk-com{color:var(--rule);font-style:italic}
+  .tk-flag{color:oklch(40% 0.16 305)}
+  .rulebook li.match{background:oklch(97% 0.04 75)}
+  .rulebook li.match .ln{background:oklch(92% 0.08 75);color:var(--ink)}
+  /* Trigger */
+  .trigger{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);background:oklch(97% 0.005 260);font-family:var(--mono);font-size:12px;flex-wrap:wrap}
+  .trigger .ev{padding:2px 8px;border:1px solid var(--ink);border-radius:3px;background:#fff}
+  .trigger .arrow{color:var(--rule)}
+  /* Decision tree */
+  svg.tree{display:block;width:100%;height:auto;background:#fff}
+  .tree rect{fill:#fff;stroke:var(--ink);stroke-width:1.2}
+  .tree rect.match{fill:oklch(94% 0.05 75);stroke:var(--accent);stroke-width:1.6}
+  .tree rect.action{fill:oklch(96% 0.04 145);stroke:var(--ok);stroke-width:1.4}
+  .tree text{font-family:var(--mono);font-size:11px;fill:var(--ink)}
+  .tree text.label{fill:var(--rule);font-size:10px}
+  .tree path{fill:none;stroke:var(--rule);stroke-width:1.2}
+  .tree path.match{stroke:var(--accent);stroke-width:1.8}
+  /* Ledger */
+  table.ledger{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px}
+  table.ledger th,table.ledger td{padding:6px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  table.ledger th{background:oklch(96% 0.005 260);color:var(--rule);font-weight:600;font-size:11px;letter-spacing:.4px;text-transform:uppercase}
+  table.ledger td.cite{color:var(--accent);white-space:nowrap}
+  table.ledger td.act{color:var(--ok)}
+  table.ledger td.t{color:var(--rule);white-space:nowrap}
+  /* Provenance */
+  .prov{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-family:var(--mono);font-size:11.5px}
+  .prov .row{padding:6px 10px;border:1px solid var(--line);border-radius:4px;background:#fff;display:flex;justify-content:space-between;gap:8px}
+  .prov .row .k{color:var(--rule)}
+  .prov .row .v{color:var(--ink);text-align:right;word-break:break-all}
+  /* Buttons / status */
+  .actions{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--line);background:oklch(97% 0.005 260);align-items:center;flex-wrap:wrap}
+  button.btn{
+    font-family:var(--mono);font-size:12px;padding:6px 12px;
+    border:1px solid var(--ink);background:#fff;color:var(--ink);
+    border-radius:3px;cursor:pointer
+  }
+  button.btn.primary{background:var(--ink);color:var(--paper)}
+  button.btn:disabled{opacity:.4;cursor:not-allowed}
+  .pillrow{display:flex;gap:6px;flex-wrap:wrap}
+  .pill{font-family:var(--mono);font-size:10.5px;padding:2px 7px;border:1px solid var(--line);border-radius:99px;color:var(--rule);background:#fff}
+  .pill.ok{border-color:var(--ok);color:var(--ok)}
+  .pill.no{border-color:var(--accent);color:var(--accent)}
+  footer{margin-top:18px;padding-top:10px;border-top:1px solid var(--line);color:var(--rule);font-family:var(--mono);font-size:11px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  @media (max-width:880px){.grid{grid-template-columns:1fr}.prov{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="title">
+      <h1>Flair_Helper2 <span class="slash">//</span> Devvit Port</h1>
+      <div class="sub">deterministic flair-driven moderation &mdash; origin: quentinwolf/flair_helper2 (GPL-3.0, PRAW)</div>
+      <div class="pillrow" style="margin-top:8px">
+        <span class="pill ok">RULE-BASED</span>
+        <span class="pill ok">PURE FUNCTION</span>
+        <span class="pill no">NO LLM AT RUNTIME</span>
+        <span class="pill no">NO OUTBOUND NET</span>
+        <span class="pill">DEVVIT-NATIVE</span>
+      </div>
+    </div>
+    <div class="stamp" aria-label="Certified No AI">
+      <div class="big">CERTIFIED</div>
+      <div class="big">NO&nbsp;AI</div>
+      <div class="small">RUNTIME &middot; r/AskHistorians</div>
+      <div class="small">build 2026.05.08-a1</div>
+    </div>
+  </header>
+
+  <div class="trigger">
+    <span>EVENT</span>
+    <span class="ev">PostFlairUpdate</span>
+    <span class="arrow">&rarr;</span>
+    <span>post_id <strong>t3_1abcd9z</strong></span>
+    <span class="arrow">&rarr;</span>
+    <span>flair_template_id <strong>"sources-required"</strong></span>
+    <span class="arrow">&rarr;</span>
+    <span>matched <strong>flair_helper.yaml:14</strong></span>
+  </div>
+
+  <div class="grid">
+
+    <!-- LEFT: Rulebook -->
+    <section class="panel">
+      <h2>flair_helper.yaml &mdash; line-numbered source of truth</h2>
+      <div class="rulebook">
+        <ol>
+          <li><span class="ln"></span><span class="src"><span class="tk-com"># flair_helper.yaml :: r/AskHistorians :: rev 2026-04-22</span></span></li>
+          <li><span class="ln"></span><span class="src"><span class="tk-key">version</span>: <span class="tk-num">2</span></span></li>
+          <li><span class="ln"></span><span class="src"><span class="tk-key">subreddit</span>: <span class="tk-str">"AskHistorians"</span></span></li>
+          <li><span class="ln"></span><span class="src"><span class="tk-key">flairs</span>:</span></li>
+          <li><span class="ln"></span><span class="src">  - <span class="tk-key">id</span>: <span class="tk-str">"off-topic"</span></span></li>
+          <li><span class="ln"></span><span class="src">    <span class="tk-key">actions</span>:</span></li>
+          <li><span class="ln"></span><span class="src">      - <span class="tk-key">remove</span>: <span class="tk-flag">true</span></span></li>
+          <li><span class="ln"></span><span class="src">      - <span class="tk-key">lock</span>: <span class="tk-flag">true</span></span></li>
+          <li><span class="ln"></span><span class="src">      - <span class="tk-key">comment</span>: <span class="tk-str">"Off-topic per Rule 2."</span></span></li>
+          <li><span class="ln"></span><span class="src">      - <span class="tk-key">sticky</span>: <span class="tk-flag">true</span></span></li>
+          <li><span class="ln"></span><span class="src">      - <span class="tk-key">usernote</span>: <span class="tk-str">"off-topic-removal"</span></span></li>
+          <li><span class="ln"></span><span class="src"></span></li>
+          <li><span class="ln"></span><span class="src">  - <span class="tk-key">id</span>: <span class="tk-str">"sources-required"</span></span></li>
+          <li class="match"><span class="ln"></span><span class="src">    <span class="tk-key">actions</span>:                       <span class="tk-com"># &lt;-- MATCHED</span></span></li>
+          <li class="match"><span class="ln"></span><span class="src">      - <span class="tk-key">remove</span>: <span class="tk-flag">true</span></span></li>
+          <li class="match"><span class="ln"></span><span class="src">      - <span class="tk-key">comment</span>: <span class="tk-str">"Top-level answers must cite sources."</span></span></li>
+          <li class="match"><span class="ln"></span><span class="src">      - <span class="tk-key">sticky</span>: <span class="tk-flag">true</span></span></li>
+          <li class="match"><span class="ln"></span><span class="src">      - <span class="tk-key">usernote</span>: <span class="tk-str">"sources-removal"</span></span></li>
+          <li><span class="ln"></span><span class="src"></span></li>
+          <li><span class="ln"></span><span class="src">  - <span class="tk-key">id</span>: <span class="tk-str">"rule-1-ban"</span></span></li>
+          <li><span class="ln"></span><span class="src">    <span class="tk-key">actions</span>:</span></li>
+          <li><span class="ln"></span><span class="src">      - <span class="tk-key">remove</span>: <span class="tk-flag">true</span></span></li>
+          <li><span class="ln"></span><span class="src">      - <span class="tk-key">ban</span>: { <span class="tk-key">days</span>: <span class="tk-num">7</span>, <span class="tk-key">reason</span>: <span class="tk-str">"Rule 1"</span> }</span></li>
+          <li><span class="ln"></span><span class="src">      - <span class="tk-key">usernote</span>: <span class="tk-str">"rule-1-ban-7d"</span></span></li>
+        </ol>
+      </div>
+      <div class="actions">
+        <button class="btn primary" type="button">View compiled .ts</button>
+        <button class="btn" type="button">Diff vs prod</button>
+        <button class="btn" type="button" disabled>Edit (read-only on demo)</button>
+      </div>
+    </section>
+
+    <!-- RIGHT: Decision tree + ledger + provenance -->
+    <div style="display:flex;flex-direction:column;gap:18px">
+
+      <section class="panel">
+        <h2>decision tree &mdash; flair_template_id &rarr; action set</h2>
+        <div class="body" style="padding:8px 8px">
+          <svg class="tree" viewBox="0 0 560 280" role="img" aria-label="Decision tree">
+            <rect x="220" y="10" width="120" height="32" rx="3"></rect>
+            <text x="280" y="30" text-anchor="middle">flair_template_id</text>
+
+            <path d="M280,42 C280,70 110,60 110,90"></path>
+            <path d="M280,42 C280,70 280,70 280,90" class="match"></path>
+            <path d="M280,42 C280,70 450,60 450,90"></path>
+
+            <text x="170" y="72" class="label">== "off-topic"</text>
+            <text x="290" y="72" class="label">== "sources-required"</text>
+            <text x="430" y="72" class="label">== "rule-1-ban"</text>
+
+            <rect x="50" y="90" width="120" height="32" rx="3"></rect>
+            <text x="110" y="110" text-anchor="middle">yaml:05</text>
+
+            <rect x="220" y="90" width="120" height="32" rx="3" class="match"></rect>
+            <text x="280" y="110" text-anchor="middle">yaml:13</text>
+
+            <rect x="390" y="90" width="120" height="32" rx="3"></rect>
+            <text x="450" y="110" text-anchor="middle">yaml:20</text>
+
+            <path d="M110,122 V150"></path>
+            <path d="M280,122 V150" class="match"></path>
+            <path d="M450,122 V150"></path>
+
+            <rect x="20" y="150" width="180" height="110" rx="3" class="action"></rect>
+            <text x="110" y="170" text-anchor="middle">remove + lock</text>
+            <text x="110" y="188" text-anchor="middle">+ sticky comment</text>
+            <text x="110" y="206" text-anchor="middle">+ usernote</text>
+            <text x="110" y="240" text-anchor="middle" class="label">yaml:07-11</text>
+
+            <rect x="190" y="150" width="180" height="110" rx="3" class="action"></rect>
+            <text x="280" y="170" text-anchor="middle">remove</text>
+            <text x="280" y="188" text-anchor="middle">+ sticky comment</text>
+            <text x="280" y="206" text-anchor="middle">+ usernote</text>
+            <text x="280" y="240" text-anchor="middle" class="label">yaml:14-17</text>
+
+            <rect x="360" y="150" width="180" height="110" rx="3" class="action"></rect>
+            <text x="450" y="170" text-anchor="middle">remove</text>
+            <text x="450" y="188" text-anchor="middle">+ ban (7d)</text>
+            <text x="450" y="206" text-anchor="middle">+ usernote</text>
+            <text x="450" y="240" text-anchor="middle" class="label">yaml:21-23</text>
+          </svg>
+        </div>
+        <div class="actions">
+          <span class="pill ok">6 actions total</span>
+          <span class="pill ok">0 model calls</span>
+          <span class="pill">switch/case TS</span>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>action ledger &mdash; pure rule trace</h2>
+        <table class="ledger">
+          <thead>
+            <tr><th>t</th><th>post</th><th>action</th><th>cite</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="t">17:42:01.118</td>
+              <td>t3_1abcd9z</td>
+              <td class="act">removePost()</td>
+              <td class="cite">flair_helper.yaml:14</td>
+            </tr>
+            <tr>
+              <td class="t">17:42:01.121</td>
+              <td>t3_1abcd9z</td>
+              <td class="act">submitComment(sticky=true)</td>
+              <td class="cite">flair_helper.yaml:15</td>
+            </tr>
+            <tr>
+              <td class="t">17:42:01.122</td>
+              <td>t3_1abcd9z</td>
+              <td class="act">distinguish(sticky=true)</td>
+              <td class="cite">flair_helper.yaml:16</td>
+            </tr>
+            <tr>
+              <td class="t">17:42:01.124</td>
+              <td>u/example_user</td>
+              <td class="act">addUsernote("sources-removal")</td>
+              <td class="cite">flair_helper.yaml:17</td>
+            </tr>
+            <tr>
+              <td class="t">17:39:54.802</td>
+              <td>t3_1abcabc</td>
+              <td class="act">banUser(7d, "Rule 1")</td>
+              <td class="cite">flair_helper.yaml:22</td>
+            </tr>
+            <tr>
+              <td class="t">17:36:12.471</td>
+              <td>t3_1abc456</td>
+              <td class="act">lockPost()</td>
+              <td class="cite">flair_helper.yaml:08</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="actions">
+          <button class="btn" type="button">Export CSV</button>
+          <button class="btn" type="button">Replay against test fixture</button>
+          <span class="pill ok" style="margin-left:auto">100% cited</span>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>provenance &amp; runtime guarantees</h2>
+        <div class="body">
+          <div class="prov">
+            <div class="row"><span class="k">origin</span><span class="v">quentinwolf/flair_helper2</span></div>
+            <div class="row"><span class="k">license</span><span class="v">GPL-3.0</span></div>
+            <div class="row"><span class="k">consent</span><span class="v">written, on file</span></div>
+            <div class="row"><span class="k">host sub WAU</span><span class="v">~12,400 (&ge;500 OK)</span></div>
+            <div class="row"><span class="k">compiled bundle SHA256</span><span class="v">9f3c&hellip;e1a7</span></div>
+            <div class="row"><span class="k">opus 4.7 usage</span><span class="v">build-time only</span></div>
+            <div class="row"><span class="k">runtime model calls</span><span class="v" style="color:var(--ok)">0</span></div>
+            <div class="row"><span class="k">outbound net (non-Devvit)</span><span class="v" style="color:var(--ok)">0</span></div>
+            <div class="row"><span class="k">test fixtures</span><span class="v">312 / 312 passing</span></div>
+            <div class="row"><span class="k">flair coverage</span><span class="v">100% (3 / 3 flairs)</span></div>
+            <div class="row"><span class="k">p50 trigger latency</span><span class="v">412 ms</span></div>
+            <div class="row"><span class="k">queue dwell &Delta;</span><span class="v" style="color:var(--ok)">-37% vs PRAW baseline</span></div>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn primary" type="button">Install on subreddit</button>
+          <button class="btn" type="button">View build log</button>
+          <button class="btn" type="button">Verify bundle SHA</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <footer>
+    <span>Flair_Helper2 / Devvit &middot; deterministic by construction</span>
+    <span>every action cites a line. nothing is inferred.</span>
+  </footer>
+</div>
+</body>
+</html>

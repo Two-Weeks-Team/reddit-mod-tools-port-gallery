@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>magic_eye_bot :: devvit port :: parity console</title>
+<style>
+  :root{
+    --bg: oklch(16% 0.012 250);
+    --bg-2: oklch(20% 0.014 250);
+    --fg: oklch(88% 0.020 140);
+    --fg-dim: oklch(62% 0.018 140);
+    --accent: oklch(78% 0.170 145);
+    --warn: oklch(82% 0.170 85);
+    --err: oklch(70% 0.220 25);
+    --rule: oklch(28% 0.012 250);
+    --sel: oklch(30% 0.040 250);
+    --mono: ui-monospace, "SF Mono", "Menlo", "Consolas", monospace;
+    --sans: system-ui, -apple-system, sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:13px;line-height:1.5}
+  a{color:var(--accent);text-decoration:none}
+  .scan{
+    position:fixed;inset:0;pointer-events:none;z-index:5;
+    background: repeating-linear-gradient(0deg, transparent 0 2px, oklch(0% 0 0 / 0.06) 2px 3px);
+    mix-blend-mode:multiply;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 22px 60px}
+  header.bar{
+    display:flex;align-items:center;gap:14px;
+    padding:8px 12px;border:1px solid var(--rule);
+    background:var(--bg-2);
+  }
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+  .crumbs{color:var(--fg-dim)}
+  .crumbs b{color:var(--fg)}
+  .pill{
+    margin-left:auto;font-size:11px;padding:2px 8px;border:1px solid var(--rule);
+    color:var(--fg-dim)
+  }
+  h1{
+    font-family:var(--mono);font-weight:600;font-size:15px;margin:18px 0 4px;
+    color:var(--fg);letter-spacing:0.02em
+  }
+  h1::before{content:"$ ";color:var(--accent)}
+  .sub{color:var(--fg-dim);font-size:12px;margin-bottom:14px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+  .panel{
+    border:1px solid var(--rule);background:var(--bg-2);
+    padding:10px 12px;
+  }
+  .panel > .head{
+    display:flex;justify-content:space-between;align-items:center;
+    color:var(--fg-dim);font-size:11px;border-bottom:1px dashed var(--rule);
+    padding-bottom:6px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.06em
+  }
+  .panel pre{margin:0;white-space:pre-wrap;word-break:break-word;font-size:12.5px}
+  .k{color:var(--accent)}
+  .s{color:var(--warn)}
+  .c{color:var(--fg-dim)}
+  .n{color:oklch(78% 0.10 220)}
+  .del{color:var(--err)}
+  .add{color:var(--accent)}
+  .row-add{background:oklch(35% 0.08 145 / 0.18);display:block}
+  .row-del{background:oklch(40% 0.10 25 / 0.18);display:block}
+  .row-eq{display:block}
+  .log{
+    margin-top:14px;border:1px solid var(--rule);background:var(--bg-2);
+    padding:10px 12px;font-size:12px
+  }
+  .log .head{display:flex;justify-content:space-between;color:var(--fg-dim);
+    text-transform:uppercase;letter-spacing:0.06em;font-size:11px;
+    border-bottom:1px dashed var(--rule);padding-bottom:6px;margin-bottom:6px}
+  .log .line{display:grid;grid-template-columns:90px 70px 1fr 70px;gap:10px;padding:2px 0}
+  .log .ts{color:var(--fg-dim)}
+  .log .lvl-ok{color:var(--accent)}
+  .log .lvl-warn{color:var(--warn)}
+  .log .lvl-err{color:var(--err)}
+  .log .ms{color:var(--fg-dim);text-align:right}
+  .meter{margin-top:14px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .stat{border:1px solid var(--rule);background:var(--bg-2);padding:10px 12px}
+  .stat .lbl{color:var(--fg-dim);font-size:11px;text-transform:uppercase;letter-spacing:0.06em}
+  .stat .val{font-size:22px;color:var(--fg);margin-top:2px}
+  .stat .delta{font-size:11px;color:var(--accent);margin-top:2px}
+  .stat .delta.bad{color:var(--err)}
+  .ascii{
+    color:var(--fg-dim);font-size:11px;line-height:1.25;
+    white-space:pre;overflow:hidden;border:1px solid var(--rule);
+    background:var(--bg-2);padding:10px 12px;margin-top:14px
+  }
+  .cursor::after{content:"_";color:var(--accent);animation:bl 1s steps(2) infinite}
+  @keyframes bl{50%{opacity:0}}
+  footer{margin-top:18px;color:var(--fg-dim);font-size:11px;display:flex;gap:18px;flex-wrap:wrap}
+  footer .kbd{border:1px solid var(--rule);padding:1px 6px;color:var(--fg)}
+  .hero{display:flex;gap:14px;align-items:flex-start;margin-top:14px}
+  .hero svg{flex:0 0 auto}
+  .hero .blurb{font-family:var(--sans);color:var(--fg-dim);font-size:12.5px;line-height:1.55}
+  .hero .blurb b{color:var(--fg);font-family:var(--mono)}
+  .tag{display:inline-block;border:1px solid var(--rule);padding:0 6px;color:var(--fg-dim);margin-right:4px;font-size:11px}
+  .ok{color:var(--accent)}
+  .warn{color:var(--warn)}
+  .err{color:var(--err)}
+  hr.r{border:0;border-top:1px dashed var(--rule);margin:14px 0}
+</style>
+</head>
+<body>
+<div class="scan" aria-hidden="true"></div>
+<div class="wrap">
+
+  <header class="bar">
+    <span class="dot" aria-hidden="true"></span>
+    <span class="crumbs">devvit&nbsp;//&nbsp;<b>r/eyebleach</b>&nbsp;//&nbsp;mod-tools&nbsp;//&nbsp;<b>magic_eye_bot.port</b></span>
+    <span class="pill">build a46c227 &middot; opus-4.7 &middot; 1m-ctx</span>
+  </header>
+
+  <div class="hero">
+    <svg width="92" height="92" viewBox="0 0 92 92" aria-label="magic eye bot sigil">
+      <defs>
+        <radialGradient id="g1" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="oklch(82% 0.18 145)"/>
+          <stop offset="60%" stop-color="oklch(40% 0.08 145)"/>
+          <stop offset="100%" stop-color="oklch(18% 0.02 250)"/>
+        </radialGradient>
+      </defs>
+      <rect x="1" y="1" width="90" height="90" fill="none" stroke="oklch(28% 0.012 250)"/>
+      <circle cx="46" cy="46" r="30" fill="url(#g1)" stroke="oklch(78% 0.17 145)" stroke-width="1"/>
+      <circle cx="46" cy="46" r="10" fill="oklch(16% 0.012 250)" stroke="oklch(78% 0.17 145)"/>
+      <circle cx="46" cy="46" r="3" fill="oklch(82% 0.18 145)"/>
+      <path d="M46 6 L46 16 M46 76 L46 86 M6 46 L16 46 M76 46 L86 46" stroke="oklch(62% 0.018 140)" stroke-width="1"/>
+      <text x="46" y="89" text-anchor="middle" font-family="ui-monospace,monospace" font-size="6" fill="oklch(62% 0.018 140)">PHASH /\ DEDUPE</text>
+    </svg>
+    <div class="blurb">
+      <b>P01 &middot; The Contrarian.</b> Everyone's porting the AI-buzzword bot. We're porting <b>/u/MAGIC_EYE_BOT</b> &mdash; the perceptual-hash repost killer that r/pics, r/Eyebleach, and a quiet roster of 500K+ image subs <i>still hand-edit the wiki for in 2026</i>. One reachable maintainer (CosmicKeys), one battle-tested config grammar, zero React. Devvit-native. Sub-second. Boring on purpose.
+      <div style="margin-top:8px">
+        <span class="tag">port-track</span><span class="tag">parity-first</span><span class="tag">no-llm-theatre</span><span class="tag">phash &middot; redis</span>
+      </div>
+    </div>
+  </div>
+
+  <h1 class="cursor">diff legacy.wiki.yml &nbsp;->&nbsp; devvit.settings.json</h1>
+  <div class="sub">opus-4.7 long-context translator &middot; 812 lines ingested &middot; 96.8% rule parity asserted</div>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="head"><span>// legacy &middot; reddit wiki &middot; PRAW</span><span>read-only</span></div>
+<pre><span class="c"># magic_eye_bot config (host sub: r/eyebleach)</span>
+<span class="k">general</span>:
+  <span class="k">report_only</span>: <span class="s">false</span>
+  <span class="k">remove_repost_threshold</span>: <span class="n">8</span>      <span class="c"># hamming dist</span>
+  <span class="k">repost_window_days</span>: <span class="n">365</span>
+<span class="k">removal_reasons</span>:
+  <span class="k">repost</span>:
+    <span class="k">title</span>: <span class="s">"Reposted image"</span>
+    <span class="k">body</span>: <span class="s">"hi {{author}}, this image was</span>
+<span class="s">      posted to {{match_sub}} on {{match_date}}.</span>
+<span class="s">      modmail to appeal."</span>
+<span class="k">whitelist_users</span>: [<span class="s">"automoderator"</span>, <span class="s">"sneakpeekbot"</span>]
+<span class="c"># ... 781 more lines (regex, oc-tag, crosspost rules)</span></pre>
+    </div>
+
+    <div class="panel">
+      <div class="head"><span>// devvit &middot; settings.json + redis schema</span><span>generated</span></div>
+<pre><span class="row-eq"><span class="k">"reportOnly"</span>: <span class="s">false</span>,</span>
+<span class="row-add"><span class="k">"phashStore"</span>: { <span class="k">"backend"</span>: <span class="s">"redis"</span>,
+  <span class="k">"key"</span>: <span class="s">"meb:phash:{sub}"</span> },        <span class="add">+ devvit redis</span></span>
+<span class="row-eq"><span class="k">"hammingThreshold"</span>: <span class="n">8</span>,</span>
+<span class="row-eq"><span class="k">"repostWindowDays"</span>: <span class="n">365</span>,</span>
+<span class="row-add"><span class="k">"trigger"</span>: <span class="s">"onPostSubmit"</span>,             <span class="add">+ native hook</span></span>
+<span class="row-del"><span class="k">"pollInterval"</span>: <span class="s">"30s"</span>                  <span class="del">- removed (no poll)</span></span>
+<span class="row-eq"><span class="k">"removalTemplates"</span>: { <span class="k">"repost"</span>: { <span class="c">/* verbatim */</span> } },</span>
+<span class="row-eq"><span class="k">"whitelist"</span>: [<span class="s">"automoderator"</span>, <span class="s">"sneakpeekbot"</span>],</span>
+<span class="row-add"><span class="k">"audit"</span>: { <span class="k">"emit"</span>: <span class="s">"modlog+wiki"</span> }    <span class="add">+ parity audit</span></span>
+<span class="c">// 781 rules translated &middot; 26 deprecated &middot; 0 silent drops</span></pre>
+    </div>
+  </div>
+
+  <div class="meter">
+    <div class="stat"><div class="lbl">parity coverage</div><div class="val ok">96.8%</div><div class="delta">target &ge; 95%</div></div>
+    <div class="stat"><div class="lbl">p50 onPostSubmit</div><div class="val ok">312ms</div><div class="delta">vs 9.4s legacy poll</div></div>
+    <div class="stat"><div class="lbl">mod-queue dwell</div><div class="val">-41%</div><div class="delta">7d host-sub sample</div></div>
+    <div class="stat"><div class="lbl">hosting cost</div><div class="val ok">$0</div><div class="delta">was $14/mo VPS</div></div>
+  </div>
+
+  <div class="log" aria-label="action tail">
+    <div class="head"><span>// tail -f /devvit/magic_eye_bot.log</span><span>live &middot; r/eyebleach</span></div>
+    <div class="line"><span class="ts">17:21:08.114</span><span class="lvl-ok">[OK]</span><span>onPostSubmit t3_1abkz9 &mdash; phash hit d=4 -> remove (rule:repost) match=t3_qx0e7 (2025-08-12)</span><span class="ms">298ms</span></div>
+    <div class="line"><span class="ts">17:21:08.622</span><span class="lvl-ok">[OK]</span><span>modmail.template(repost) sent to u/cat_poster_99 &mdash; verbatim legacy body</span><span class="ms">61ms</span></div>
+    <div class="line"><span class="ts">17:21:09.001</span><span class="lvl-warn">[WARN]</span><span>onPostSubmit t3_1abl0c &mdash; phash d=9, above threshold (8); flagged for human review (parity: legacy=skip)</span><span class="ms">277ms</span></div>
+    <div class="line"><span class="ts">17:21:09.444</span><span class="lvl-ok">[OK]</span><span>onPostSubmit t3_1abl0p &mdash; whitelist(automoderator) -> noop</span><span class="ms">11ms</span></div>
+    <div class="line"><span class="ts">17:21:10.180</span><span class="lvl-err">[ERR]</span><span>redis MGET partial (1/3) &mdash; retry succeeded on attempt 2; SLA respected</span><span class="ms">414ms</span></div>
+    <div class="line"><span class="ts">17:21:10.612</span><span class="lvl-ok">[OK]</span><span>onPostSubmit t3_1abl12 &mdash; phash hit d=2 -> remove (rule:repost.crosspost) match=r/aww/t3_w22qq</span><span class="ms">301ms</span></div>
+    <div class="line"><span class="ts">17:21:11.030</span><span class="lvl-ok">[OK]</span><span>parity-audit window 7d closed &mdash; legacy_actions=1284 devvit_actions=1241 match=96.8%</span><span class="ms">--</span></div>
+  </div>
+
+  <div class="ascii" aria-hidden="true">
+   legacy/PRAW                          devvit/runtime
+   +-----------+    poll 30s     +-----------------+
+   |  cron VM  |---------------> |  reddit api     |       BEFORE: 9.4s p50, $14/mo, 1 author on-call
+   +-----------+                 +-----------------+
+        |                                ^
+        v                                |
+   modqueue (deep)                  /u/MAGIC_EYE_BOT
+                                          (PRAW, deprecating)
+
+   +-----------------------------+
+   | onPostSubmit trigger        |    AFTER:  312ms p50, $0 host, native modqueue
+   |   -> phash(redis)           |            install-from-reddit, audit-to-wiki
+   |   -> rule eval (812 rules)  |            96.8% parity, mods keep their wiki muscle memory
+   |   -> mod action + modmail   |
+   +-----------------------------+
+  </div>
+
+  <hr class="r"/>
+
+  <footer>
+    <span><span class="kbd">d</span> diff &middot; <span class="kbd">l</span> tail log &middot; <span class="kbd">p</span> parity report &middot; <span class="kbd">/</span> grep rules &middot; <span class="kbd">q</span> quit</span>
+    <span style="margin-left:auto">P01 &middot; the-contrarian &middot; r-20260507T172110 &middot; deadline 2026-05-27 18:00 PDT</span>
+  </footer>
+
+</div>
+</body>
+</html>

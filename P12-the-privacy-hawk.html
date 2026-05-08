@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ContextMod / Devvit — Privacy Receipt</title>
+<style>
+  :root{
+    --bg: oklch(18% 0.02 260);
+    --panel: oklch(22% 0.025 260);
+    --panel-2: oklch(26% 0.03 260);
+    --ink: oklch(96% 0.01 260);
+    --ink-dim: oklch(72% 0.015 260);
+    --line: oklch(34% 0.02 260);
+    --ok: oklch(74% 0.16 150);
+    --warn: oklch(78% 0.16 70);
+    --bad: oklch(66% 0.20 25);
+    --accent: oklch(78% 0.13 200);
+    --lock: oklch(82% 0.10 180);
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+  body{padding:32px 20px 80px;max-width:1080px;margin:0 auto;line-height:1.45}
+  header{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:0.2px}
+  .brand svg{flex:none}
+  .badges{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+  .badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;padding:5px 9px;border-radius:999px;border:1px solid var(--line);color:var(--ink-dim);background:oklch(24% 0.02 260)}
+  .badge.ok{color:var(--ok);border-color:oklch(40% 0.08 150)}
+  .badge.lock{color:var(--lock);border-color:oklch(40% 0.05 180)}
+  h1{font-size:22px;margin:6px 0 4px;font-weight:650;letter-spacing:-0.01em}
+  .sub{color:var(--ink-dim);font-size:13px;margin-bottom:24px}
+  .grid{display:grid;grid-template-columns:1.1fr 0.9fr;gap:18px}
+  @media (max-width:880px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+  .card h2{font-size:13px;font-weight:600;margin:0 0 12px;color:var(--ink-dim);text-transform:uppercase;letter-spacing:0.08em;display:flex;align-items:center;gap:8px}
+  .card h2 svg{flex:none}
+  .scope-diff{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:stretch}
+  .scope{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:12px}
+  .scope.before{border-color:oklch(40% 0.10 25)}
+  .scope.after{border-color:oklch(40% 0.10 150)}
+  .scope-title{font-size:11px;color:var(--ink-dim);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;display:flex;justify-content:space-between}
+  .scope-title .count.bad{color:var(--bad)}
+  .scope-title .count.ok{color:var(--ok)}
+  .scope ul{list-style:none;padding:0;margin:0;font-family:var(--mono);font-size:12px}
+  .scope li{padding:4px 0;display:flex;align-items:center;gap:6px;color:var(--ink-dim)}
+  .scope.before li{color:oklch(82% 0.04 25)}
+  .scope.after li{color:oklch(86% 0.05 150)}
+  .scope li .dot{width:6px;height:6px;border-radius:50%;flex:none}
+  .scope.before li .dot{background:var(--bad)}
+  .scope.after li .dot{background:var(--ok)}
+  .arrow{display:flex;align-items:center;justify-content:center;color:var(--ink-dim)}
+  .receipt{font-family:var(--mono);font-size:12.5px;background:oklch(20% 0.02 260);border:1px dashed var(--line);border-radius:10px;padding:14px;color:var(--ink-dim);white-space:pre-wrap;line-height:1.6;position:relative}
+  .receipt::before{content:"";position:absolute;inset:-1px;border-radius:11px;pointer-events:none;background:repeating-linear-gradient(90deg,transparent 0 8px,oklch(30% 0.02 260) 8px 9px) bottom/100% 1px no-repeat,repeating-linear-gradient(90deg,transparent 0 8px,oklch(30% 0.02 260) 8px 9px) top/100% 1px no-repeat}
+  .receipt .k{color:var(--accent)}
+  .receipt .v{color:var(--ink)}
+  .receipt .ok{color:var(--ok)}
+  .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+  .pill{font-family:var(--mono);font-size:11px;padding:5px 9px;border-radius:6px;background:var(--panel-2);border:1px solid var(--line);color:var(--ink-dim)}
+  .pill.ok{color:var(--ok);border-color:oklch(40% 0.08 150)}
+  .pill.warn{color:var(--warn);border-color:oklch(45% 0.10 70)}
+  .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+  .stat{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .stat .lbl{font-size:10px;color:var(--ink-dim);text-transform:uppercase;letter-spacing:0.08em}
+  .stat .val{font-size:18px;font-weight:600;margin-top:4px;font-family:var(--mono)}
+  .stat .val.ok{color:var(--ok)}
+  .stat .val.warn{color:var(--warn)}
+  .rule{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line)}
+  .rule:first-of-type{border-top:none;padding-top:0}
+  .rule .ico{flex:none;margin-top:2px}
+  .rule .body{flex:1;font-size:13px}
+  .rule .body .name{font-weight:600}
+  .rule .body .meta{font-family:var(--mono);font-size:11px;color:var(--ink-dim);margin-top:3px}
+  .rule .body .meta .sep{color:oklch(45% 0.02 260);margin:0 6px}
+  .dsar{display:flex;gap:8px;margin-top:12px}
+  .dsar input{flex:1;background:var(--panel-2);border:1px solid var(--line);color:var(--ink);font-family:var(--mono);font-size:12.5px;padding:9px 11px;border-radius:8px;outline:none}
+  .dsar button{background:oklch(28% 0.06 25);color:oklch(92% 0.05 25);border:1px solid oklch(40% 0.10 25);font-family:inherit;font-size:12px;font-weight:600;padding:9px 13px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  .dsar button:hover{background:oklch(32% 0.08 25)}
+  .footnote{margin-top:22px;font-size:11px;color:var(--ink-dim);font-family:var(--mono);text-align:center;letter-spacing:0.04em}
+  .footnote .lock{vertical-align:-2px;margin-right:4px}
+  .ttl-bar{height:6px;border-radius:3px;background:var(--panel-2);overflow:hidden;margin-top:6px}
+  .ttl-bar > span{display:block;height:100%;background:linear-gradient(90deg,var(--ok),var(--accent));width:38%}
+  .data-touched{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--mono);font-size:12px;color:var(--ink-dim)}
+  .data-touched b{color:var(--ink);font-weight:600;font-size:14px}
+  .install-strip{margin-top:18px;padding:14px 16px;border-radius:12px;border:1px solid oklch(40% 0.08 150);background:oklch(24% 0.04 150);display:flex;align-items:center;gap:14px}
+  .install-strip .copy{flex:1;font-size:13px;color:oklch(92% 0.04 150)}
+  .install-strip .copy b{color:var(--ok)}
+  .install-strip button{background:var(--ok);color:oklch(18% 0.05 150);border:0;font-weight:700;font-size:13px;padding:10px 16px;border-radius:8px;cursor:pointer;font-family:inherit}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="4" y="10" width="16" height="10" rx="2" stroke="oklch(82% 0.10 180)" stroke-width="1.6"/>
+      <path d="M8 10V7a4 4 0 1 1 8 0v3" stroke="oklch(82% 0.10 180)" stroke-width="1.6" stroke-linecap="round"/>
+      <circle cx="12" cy="15" r="1.4" fill="oklch(82% 0.10 180)"/>
+    </svg>
+    ContextMod &middot; Devvit Port
+  </div>
+  <div class="badges">
+    <span class="badge lock">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="2"/><path d="M8 11V8a4 4 0 1 1 8 0v3" stroke="currentColor" stroke-width="2"/></svg>
+      local-first
+    </span>
+    <span class="badge ok">E2E by default</span>
+    <span class="badge">data: <b style="color:var(--ink);margin-left:4px">Reddit sandbox &middot; us-east</b></span>
+    <span class="badge">no egress</span>
+  </div>
+</header>
+
+<h1>Privacy receipt &middot; r/Anime_Titties install</h1>
+<p class="sub">Every history field this rule engine touched in the last 24h, where it lived, and when it disappears. Generated from the rule AST &mdash; not marketing.</p>
+
+<div class="grid">
+
+  <section class="card">
+    <h2>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      OAuth scope diff &middot; legacy &rarr; Devvit
+    </h2>
+    <div class="scope-diff">
+      <div class="scope before">
+        <div class="scope-title"><span>Legacy PRAW bot</span><span class="count bad">7 scopes</span></div>
+        <ul>
+          <li><span class="dot"></span>history</li>
+          <li><span class="dot"></span>read</li>
+          <li><span class="dot"></span>modposts</li>
+          <li><span class="dot"></span>modcontributors</li>
+          <li><span class="dot"></span>edit</li>
+          <li><span class="dot"></span>wikiread</li>
+          <li><span class="dot"></span>identity</li>
+        </ul>
+      </div>
+      <div class="arrow">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="scope after">
+        <div class="scope-title"><span>Devvit port</span><span class="count ok">2 scopes</span></div>
+        <ul>
+          <li><span class="dot"></span>modposts (installed sub only)</li>
+          <li><span class="dot"></span>read (installed sub only)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="row">
+      <span class="pill ok">&minus;5 scopes removed</span>
+      <span class="pill ok">no cross-sub OAuth</span>
+      <span class="pill ok">no VPS, no logs on disk</span>
+      <span class="pill warn">history reads now bounded: last 90 items, hashed</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 6v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V6l-8-4Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Data touched today
+    </h2>
+    <div class="stat-row">
+      <div class="stat"><div class="lbl">Authors evaluated</div><div class="val">1,284</div></div>
+      <div class="stat"><div class="lbl">Raw bodies stored</div><div class="val ok">0</div></div>
+      <div class="stat"><div class="lbl">Egress bytes</div><div class="val ok">0</div></div>
+    </div>
+    <div class="data-touched">
+      <span>HMAC&minus;SHA256 author hashes &middot; TTL 30d</span>
+      <b>4,812 / 50,000</b>
+    </div>
+    <div class="ttl-bar"><span></span></div>
+    <div class="row">
+      <span class="pill">storage: Devvit Redis</span>
+      <span class="pill">key: <code>cm:auth:&lt;hmac&gt;:rule:&lt;id&gt;</code></span>
+      <span class="pill ok">PII fields: 0</span>
+    </div>
+  </section>
+
+</div>
+
+<div class="grid" style="margin-top:18px">
+
+  <section class="card">
+    <h2>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 4h16v4H4zM4 10h16v10H4z" stroke="currentColor" stroke-width="1.8"/><path d="M8 14h8M8 17h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      Rule trace &middot; last 1h (redacted)
+    </h2>
+
+    <div class="rule">
+      <svg class="ico" width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="oklch(74% 0.16 150)" stroke-width="1.8"/><path d="m8 12 3 3 5-6" stroke="oklch(74% 0.16 150)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="body">
+        <div class="name">recent_activity_in_banlist_subs &rarr; report</div>
+        <div class="meta">author <b style="color:var(--ink)">u/&lt;hmac:9f3a&hellip;c12&gt;</b><span class="sep">/</span>matched 2/8 subs<span class="sep">/</span>history window 90 items<span class="sep">/</span>ttl 30d<span class="sep">/</span>action: <span style="color:var(--ok)">report</span></div>
+      </div>
+    </div>
+
+    <div class="rule">
+      <svg class="ico" width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="oklch(78% 0.16 70)" stroke-width="1.8"/><path d="M12 7v6m0 3v.5" stroke="oklch(78% 0.16 70)" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <div class="body">
+        <div class="name">repeat_offender_window &rarr; modmail</div>
+        <div class="meta">author <b style="color:var(--ink)">u/&lt;hmac:01b7&hellip;ff4&gt;</b><span class="sep">/</span>3 prior actions in 14d<span class="sep">/</span>history window 30 items<span class="sep">/</span>ttl 14d<span class="sep">/</span>action: <span style="color:var(--warn)">modmail</span></div>
+      </div>
+    </div>
+
+    <div class="rule">
+      <svg class="ico" width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="oklch(74% 0.16 150)" stroke-width="1.8"/><path d="m8 12 3 3 5-6" stroke="oklch(74% 0.16 150)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="body">
+        <div class="name">karma_floor &rarr; filter</div>
+        <div class="meta">author <b style="color:var(--ink)">u/&lt;hmac:7c92&hellip;a08&gt;</b><span class="sep">/</span>combined karma below threshold<span class="sep">/</span>history not fetched<span class="sep">/</span>action: <span style="color:var(--ok)">filter</span></div>
+      </div>
+    </div>
+
+    <p style="font-size:11px;color:var(--ink-dim);font-family:var(--mono);margin:14px 0 0">All author identifiers above are derived via <code>HMAC&minus;SHA256(authorId, install_secret)</code>. The install_secret never leaves the Devvit sandbox; the unhashed username is unrecoverable from this log.</p>
+  </section>
+
+  <section class="card">
+    <h2>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 4h16v16H4z" stroke="currentColor" stroke-width="1.8"/><path d="M4 8h16M8 4v16" stroke="currentColor" stroke-width="1.8"/></svg>
+      install.json &middot; what mods sign
+    </h2>
+    <pre class="receipt"><span class="k">app</span>: <span class="v">contextmod-devvit@0.4.0</span>
+<span class="k">scopes</span>:
+  - <span class="v">modposts</span>   <span class="ok"># installed sub only</span>
+  - <span class="v">read</span>       <span class="ok"># installed sub only</span>
+<span class="k">storage</span>:
+  <span class="k">backend</span>: <span class="v">devvit.redis</span>
+  <span class="k">retention</span>: <span class="v">30d</span> <span class="ok"># mod-configurable, min 24h</span>
+  <span class="k">pii</span>: <span class="v">none</span>
+  <span class="k">author_id</span>: <span class="v">hmac-sha256</span>
+<span class="k">network</span>:
+  <span class="k">egress</span>: <span class="v">[]</span>      <span class="ok"># no fetch() allowed</span>
+  <span class="k">telemetry</span>: <span class="v">off</span>
+<span class="k">dsar</span>:
+  <span class="k">erase_on_request</span>: <span class="v">true</span>
+  <span class="k">turnaround</span>: <span class="v">&lt; 60s</span></pre>
+
+    <div class="dsar">
+      <input value="u/example_user" aria-label="DSAR username input" />
+      <button>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Erase &amp; receipt
+      </button>
+    </div>
+    <p style="font-size:11px;color:var(--ink-dim);font-family:var(--mono);margin:10px 0 0">One-click DSAR. Returns: every hashed record matched, action timestamps, then purges. Mods can paste the receipt straight into modmail.</p>
+  </section>
+
+</div>
+
+<div class="install-strip">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <rect x="4" y="10" width="16" height="10" rx="2" stroke="oklch(74% 0.16 150)" stroke-width="1.8"/>
+    <path d="M8 10V7a4 4 0 1 1 8 0v3" stroke="oklch(74% 0.16 150)" stroke-width="1.8"/>
+    <path d="m10 15 1.5 1.5L15 13" stroke="oklch(74% 0.16 150)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <div class="copy">Functional parity with ContextMod's YAML rule set, <b>5 fewer OAuth scopes</b>, hashed storage with TTL, zero outbound network. Defensible in modmail.</div>
+  <button>Install on /r/&hellip;</button>
+</div>
+
+<p class="footnote">
+  <svg class="lock" width="11" height="11" viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="2"/><path d="M8 11V8a4 4 0 1 1 8 0v3" stroke="currentColor" stroke-width="2"/></svg>
+  data residency: Reddit Devvit sandbox &middot; us-east &nbsp;|&nbsp; build: 0.4.0+r-20260507T172110 &nbsp;|&nbsp; signed: ed25519:9f3a&hellip;c12
+</p>
+
+</body>
+</html>

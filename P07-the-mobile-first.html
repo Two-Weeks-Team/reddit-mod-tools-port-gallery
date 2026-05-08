@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>P07 · MAGIC_EYE_BOT — Mobile-First Swipe Deck</title>
+<style>
+  :root {
+    --bg: oklch(96% 0.012 260);
+    --frame: oklch(16% 0.015 270);
+    --surface: oklch(99% 0.005 260);
+    --surface-2: oklch(95% 0.012 260);
+    --ink: oklch(20% 0.02 270);
+    --ink-2: oklch(42% 0.02 270);
+    --ink-3: oklch(60% 0.015 270);
+    --line: oklch(89% 0.01 260);
+    --accent: oklch(62% 0.20 28);
+    --approve: oklch(68% 0.16 150);
+    --warn: oklch(80% 0.16 80);
+    --info: oklch(62% 0.16 240);
+    --hash: oklch(60% 0.20 28);
+    --shadow: 0 18px 40px -16px oklch(10% 0.05 270 / 0.4);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background:
+      radial-gradient(circle at 18% 8%, oklch(82% 0.10 30 / 0.30), transparent 55%),
+      radial-gradient(circle at 82% 92%, oklch(80% 0.12 240 / 0.30), transparent 55%),
+      var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 28px 14px 56px; gap: 14px;
+  }
+  .caption {
+    max-width: 380px; text-align: center;
+    color: var(--ink-2); font-size: 13px; line-height: 1.5;
+  }
+  .caption strong { color: var(--ink); }
+  /* Phone frame */
+  .phone {
+    width: 380px; height: 800px;
+    background: var(--frame);
+    border-radius: 52px;
+    padding: 12px;
+    box-shadow: var(--shadow), 0 0 0 2px oklch(28% 0.02 270);
+    position: relative;
+  }
+  .phone::before {
+    content: ""; position: absolute;
+    top: 22px; left: 50%; transform: translateX(-50%);
+    width: 110px; height: 28px;
+    background: oklch(8% 0.01 270);
+    border-radius: 18px;
+    z-index: 5;
+  }
+  .screen {
+    width: 100%; height: 100%;
+    background: var(--surface);
+    border-radius: 42px;
+    overflow: hidden;
+    position: relative;
+    display: flex; flex-direction: column;
+  }
+  /* status bar */
+  .status {
+    height: 46px;
+    padding: 14px 28px 0;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    font-size: 14px; font-weight: 600;
+  }
+  .status .right { display: flex; gap: 6px; align-items: center; }
+  .battery {
+    width: 24px; height: 11px;
+    border: 1.5px solid var(--ink); border-radius: 3px;
+    position: relative;
+  }
+  .battery::after {
+    content: ""; position: absolute; inset: 1.5px;
+    width: 70%; background: var(--ink); border-radius: 1px;
+  }
+  /* app bar */
+  .app-bar {
+    padding: 10px 16px 12px;
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .logo {
+    width: 36px; height: 36px; border-radius: 11px;
+    background: linear-gradient(135deg, var(--accent), oklch(50% 0.20 25));
+    display: grid; place-items: center;
+  }
+  .app-bar h1 { margin: 0; font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+  .app-bar p { margin: 2px 0 0; font-size: 11px; color: var(--ink-3); }
+  .badge {
+    background: oklch(94% 0.06 150); color: oklch(38% 0.14 150);
+    font-size: 9px; padding: 2px 6px; border-radius: 999px;
+    font-weight: 700; letter-spacing: 0.05em;
+  }
+  .menu {
+    margin-left: auto; width: 36px; height: 36px;
+    border-radius: 50%; background: var(--surface-2);
+    display: grid; place-items: center;
+  }
+  /* meta strip */
+  .meta {
+    margin: 10px 14px 0;
+    padding: 9px 12px;
+    background: linear-gradient(90deg, oklch(96% 0.04 145), oklch(94% 0.03 145));
+    border: 1px solid oklch(88% 0.06 145);
+    border-radius: 12px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 11px;
+  }
+  .meta .v { font-size: 14px; font-weight: 800; color: oklch(38% 0.14 145); }
+  .meta .l { color: var(--ink-3); margin-top: 1px; font-size: 10px; letter-spacing: 0.04em; }
+  .meta .div { width: 1px; height: 26px; background: oklch(85% 0.05 145); }
+  /* pull to refresh */
+  .ptr {
+    text-align: center; color: var(--ink-3);
+    font-size: 10px; padding: 6px 0 2px; letter-spacing: 0.06em;
+  }
+  /* deck */
+  .deck {
+    flex: 1; margin: 0 14px;
+    position: relative;
+  }
+  .card {
+    position: absolute; inset: 0;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 8px 28px oklch(20% 0.04 270 / 0.10);
+    border: 1px solid var(--line);
+    padding: 12px;
+    display: flex; flex-direction: column;
+  }
+  .card.behind-2 { transform: scale(0.88) translateY(26px); opacity: 0.25; z-index: 0; }
+  .card.behind-1 { transform: scale(0.94) translateY(13px); opacity: 0.55; z-index: 1; }
+  .card.front    { z-index: 3; transform: rotate(-2deg); }
+  .row {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  }
+  .thumb {
+    aspect-ratio: 1 / 1;
+    border-radius: 12px;
+    position: relative; overflow: hidden;
+    background: oklch(85% 0.02 260);
+  }
+  .thumb svg { width: 100%; height: 100%; display: block; }
+  .thumb .tag {
+    position: absolute; top: 6px; left: 6px;
+    background: oklch(18% 0.02 270 / 0.78);
+    color: var(--surface);
+    font-size: 9px; padding: 3px 6px; border-radius: 6px;
+    letter-spacing: 0.06em; font-weight: 700;
+  }
+  /* similarity ring */
+  .ring-wrap {
+    display: flex; flex-direction: column; align-items: center;
+    margin: 8px 0 4px;
+    position: relative;
+  }
+  .ring-wrap svg { display: block; }
+  .ring-pct {
+    position: absolute; top: 28px;
+    font-size: 22px; font-weight: 800; color: var(--ink);
+  }
+  .ring-lbl {
+    font-size: 9px; color: var(--ink-3); letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .verdict {
+    margin: 6px 2px 8px;
+    font-size: 12px; line-height: 1.45;
+    color: var(--ink);
+  }
+  .verdict b { font-weight: 700; }
+  .chips { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 6px; }
+  .chip {
+    font-size: 10px; padding: 3px 7px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--ink-2);
+  }
+  .chip.warn {
+    background: oklch(95% 0.06 80);
+    color: oklch(38% 0.12 75);
+    border-color: oklch(85% 0.08 80);
+  }
+  .swipe-hints {
+    display: flex; justify-content: space-between;
+    margin-top: auto; padding-top: 6px;
+    font-size: 10px; letter-spacing: 0.04em;
+  }
+  .swipe-hints .l { color: oklch(45% 0.14 150); font-weight: 600; }
+  .swipe-hints .r { color: var(--accent); font-weight: 600; }
+  /* bottom sheet */
+  .sheet {
+    background: var(--surface);
+    border-top: 1px solid var(--line);
+    border-radius: 22px 22px 0 0;
+    padding: 8px 14px 8px;
+    box-shadow: 0 -6px 18px oklch(20% 0.04 270 / 0.06);
+  }
+  .grab {
+    width: 36px; height: 4px;
+    background: oklch(85% 0.01 260);
+    border-radius: 2px;
+    margin: 0 auto 8px;
+  }
+  .sheet h3 {
+    margin: 0 0 6px;
+    font-size: 11px; font-weight: 700;
+    display: flex; justify-content: space-between; align-items: center;
+    color: var(--ink-2);
+  }
+  .sheet h3 span { font-size: 9px; color: var(--ink-3); letter-spacing: 0.06em; }
+  .draft {
+    background: oklch(96% 0.015 240);
+    border: 1px solid oklch(86% 0.04 240);
+    border-radius: 11px;
+    padding: 9px 11px;
+    font-size: 11.5px; line-height: 1.45;
+    color: var(--ink);
+  }
+  .draft .by {
+    display: block;
+    font-size: 9px; color: var(--info); letter-spacing: 0.08em;
+    margin-bottom: 3px; text-transform: uppercase; font-weight: 700;
+  }
+  /* actions */
+  .actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 8px 14px 0;
+  }
+  .btn {
+    height: 56px;
+    border-radius: 16px;
+    border: 0;
+    font-size: 15px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    cursor: pointer; letter-spacing: 0.02em;
+  }
+  .btn.approve { background: oklch(94% 0.07 150); color: oklch(36% 0.14 150); }
+  .btn.remove  { background: var(--accent); color: oklch(99% 0 0); box-shadow: 0 6px 16px oklch(58% 0.20 28 / 0.30); }
+  /* bottom nav */
+  .nav {
+    display: flex; justify-content: space-around;
+    padding: 6px 0 4px;
+    border-top: 1px solid var(--line);
+    background: white;
+  }
+  .nav-item {
+    min-height: 48px; min-width: 56px;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    font-size: 10px; color: var(--ink-3);
+    padding: 4px 8px;
+    background: transparent; border: 0;
+    position: relative;
+    font-weight: 600; letter-spacing: 0.04em;
+  }
+  .nav-item.active { color: var(--accent); }
+  .nav-item.active::after {
+    content: ""; position: absolute; bottom: -2px;
+    width: 18px; height: 3px; border-radius: 2px;
+    background: var(--accent);
+  }
+  .home-ind {
+    width: 130px; height: 5px;
+    background: var(--ink); opacity: 0.85;
+    border-radius: 3px;
+    margin: 6px auto 0;
+  }
+</style>
+</head>
+<body>
+  <div class="caption">
+    <strong>P07 · The Mobile-First</strong> — MAGIC_EYE_BOT ported to Devvit as a thumb-swipe repost-triage deck.
+    Right-swipe removes, left-swipe approves, 56px primary CTA in the thumb zone.
+  </div>
+
+  <div class="phone">
+    <div class="screen">
+      <!-- status bar -->
+      <div class="status">
+        <span>9:41</span>
+        <span class="right" aria-hidden="true">
+          <svg width="16" height="11" viewBox="0 0 16 11"><path d="M0 8h2v3H0zM4 6h2v5H4zM8 4h2v7H8zM12 1h2v10h-2z" fill="currentColor"/></svg>
+          <svg width="14" height="11" viewBox="0 0 14 11"><path d="M7 2c2 0 3.7.7 5 2l-1.4 1.4C9.6 4.5 8.4 4 7 4s-2.6.5-3.6 1.4L2 4C3.3 2.7 5 2 7 2zm0 4c1 0 1.9.4 2.6 1L8 8.6 6.4 7c.7-.6 1.6-1 2.6-1zm0 3a1 1 0 110 2 1 1 0 010-2z" fill="currentColor"/></svg>
+          <span class="battery"></span>
+        </span>
+      </div>
+
+      <!-- app bar -->
+      <div class="app-bar">
+        <div class="logo" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/>
+            <circle cx="12" cy="12" r="3" fill="white"/>
+          </svg>
+        </div>
+        <div>
+          <h1>MAGIC_EYE <span class="badge">DEVVIT PORT</span></h1>
+          <p>r/EarthPorn · 23 reposts in queue</p>
+        </div>
+        <div class="menu" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+        </div>
+      </div>
+
+      <!-- meta strip -->
+      <div class="meta">
+        <div>
+          <div class="v">−38%</div>
+          <div class="l">queue dwell vs. legacy</div>
+        </div>
+        <div class="div"></div>
+        <div>
+          <div class="v">1.2s</div>
+          <div class="l">avg per swipe</div>
+        </div>
+        <div class="div"></div>
+        <div>
+          <div class="v">94%</div>
+          <div class="l">pHash hit rate</div>
+        </div>
+      </div>
+
+      <div class="ptr">↓ pull to refresh queue</div>
+
+      <!-- deck -->
+      <div class="deck">
+        <div class="card behind-2" aria-hidden="true"></div>
+        <div class="card behind-1" aria-hidden="true"></div>
+        <div class="card front">
+          <div class="row">
+            <div class="thumb">
+              <span class="tag">ORIGINAL · 11d</span>
+              <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+                <defs>
+                  <linearGradient id="sky1" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0" stop-color="oklch(70% 0.13 240)"/>
+                    <stop offset="1" stop-color="oklch(85% 0.07 60)"/>
+                  </linearGradient>
+                </defs>
+                <rect width="100" height="100" fill="url(#sky1)"/>
+                <circle cx="76" cy="22" r="8" fill="oklch(95% 0.10 90)"/>
+                <polygon points="0,72 22,48 38,60 58,38 78,55 100,42 100,100 0,100" fill="oklch(38% 0.06 150)"/>
+                <polygon points="0,80 30,62 48,72 70,55 100,68 100,100 0,100" fill="oklch(28% 0.05 150)"/>
+              </svg>
+            </div>
+            <div class="thumb">
+              <span class="tag">REPOST · NEW</span>
+              <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+                <rect width="100" height="100" fill="url(#sky1)"/>
+                <circle cx="74" cy="23" r="8" fill="oklch(95% 0.10 90)"/>
+                <polygon points="0,73 22,49 38,61 58,39 78,56 100,43 100,100 0,100" fill="oklch(38% 0.06 150)"/>
+                <polygon points="0,80 30,62 48,72 70,55 100,68 100,100 0,100" fill="oklch(28% 0.05 150)"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="ring-wrap" aria-label="pHash similarity 94 percent">
+            <svg width="84" height="84" viewBox="0 0 84 84">
+              <circle cx="42" cy="42" r="34" fill="none" stroke="oklch(88% 0.02 260)" stroke-width="7"/>
+              <circle cx="42" cy="42" r="34" fill="none" stroke="var(--hash)" stroke-width="7"
+                      stroke-linecap="round"
+                      stroke-dasharray="213.63" stroke-dashoffset="12.82"
+                      transform="rotate(-90 42 42)"/>
+            </svg>
+            <div class="ring-pct">94%</div>
+            <div class="ring-lbl">pHash match</div>
+          </div>
+
+          <p class="verdict">
+            <b>/u/skydive_42</b> reposted 11 days after original by <b>/u/lensgrace</b>.
+            3 prior near-duplicate removals on this account.
+          </p>
+          <div class="chips">
+            <span class="chip">dHash 6/64</span>
+            <span class="chip">EXIF stripped</span>
+            <span class="chip warn">Repeat offender</span>
+          </div>
+
+          <div class="swipe-hints">
+            <span class="l">← swipe · approve</span>
+            <span class="r">remove · swipe →</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- bottom sheet -->
+      <div class="sheet" aria-label="Removal comment draft">
+        <div class="grab" aria-hidden="true"></div>
+        <h3>Removal draft <span>OPUS 4.7 · TAP TO EDIT</span></h3>
+        <div class="draft">
+          <span class="by">Rule 5 · No reposts &lt; 6mo</span>
+          Hi /u/skydive_42 — this matches a post from 11 days ago at 94% pHash similarity. Per r/EarthPorn Rule 5, removing. Original credit: /u/lensgrace.
+        </div>
+      </div>
+
+      <!-- actions -->
+      <div class="actions">
+        <button class="btn approve" type="button" aria-label="Approve, keep post">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Approve
+        </button>
+        <button class="btn remove" type="button" aria-label="Remove repost and post draft">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+          Remove repost
+        </button>
+      </div>
+
+      <!-- bottom nav -->
+      <nav class="nav" aria-label="primary">
+        <button class="nav-item active" type="button" aria-current="page">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+          DECK
+        </button>
+        <button class="nav-item" type="button">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          SEARCH
+        </button>
+        <button class="nav-item" type="button">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>
+          STATS
+        </button>
+        <button class="nav-item" type="button">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+          RULES
+        </button>
+      </nav>
+
+      <div class="home-ind"></div>
+    </div>
+  </div>
+
+  <div class="caption">
+    Thumb zone owns the bottom 220px. Desktop is not considered. The 56px primary CTA sits exactly where
+    the right thumb rests — every other action is a swipe.
+  </div>
+</body>
+</html>

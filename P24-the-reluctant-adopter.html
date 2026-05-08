@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Flair_Helper2 (Devvit port) — Brakes On By Default</title>
+<style>
+  :root {
+    --bg: oklch(0.18 0.02 250);
+    --surface: oklch(0.22 0.02 250);
+    --surface-2: oklch(0.26 0.02 250);
+    --ink: oklch(0.96 0.01 250);
+    --ink-dim: oklch(0.74 0.02 250);
+    --line: oklch(0.34 0.02 250);
+    --warn: oklch(0.76 0.16 75);
+    --danger: oklch(0.66 0.20 25);
+    --ok: oklch(0.74 0.14 155);
+    --skeptic: oklch(0.78 0.13 60);
+    --accent: oklch(0.70 0.13 240);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink);
+    font-family: system-ui, -apple-system, sans-serif; line-height: 1.45; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 28px 22px 80px; }
+  header { display: flex; align-items: center; gap: 14px; padding: 8px 0 20px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .logo { width: 40px; height: 40px; }
+  .ttl { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
+  .sub { font-size: 13px; color: var(--ink-dim); }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border: 1px solid var(--line);
+    border-radius: 999px; font-size: 11px; color: var(--ink-dim); background: var(--surface); }
+  .pill b { color: var(--ink); font-weight: 600; }
+
+  .skeptic-card { margin-top: 24px; padding: 22px; border: 1px solid var(--skeptic);
+    border-radius: 12px; background: linear-gradient(180deg, oklch(0.24 0.04 70 / 0.35), oklch(0.22 0.02 250 / 0.5)); }
+  .skeptic-card h1 { margin: 0 0 6px; font-size: 22px; letter-spacing: -0.01em; }
+  .skeptic-card .lede { color: var(--ink-dim); font-size: 14px; margin: 0 0 16px; max-width: 720px; }
+  .fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .fail { padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+  .fail .num { font-size: 11px; color: var(--skeptic); letter-spacing: 0.08em; font-weight: 600; }
+  .fail .name { font-size: 14px; font-weight: 600; margin: 2px 0 4px; }
+  .fail .why { font-size: 12px; color: var(--ink-dim); }
+  .cta-row { display: flex; gap: 10px; align-items: center; margin-top: 18px; flex-wrap: wrap; }
+  .btn { padding: 9px 14px; border-radius: 8px; border: 1px solid var(--line); font-size: 13px;
+    background: var(--surface-2); color: var(--ink); cursor: pointer; }
+  .btn.primary { background: oklch(0.32 0.04 250); border-color: var(--accent); color: var(--ink); }
+  .btn.ghost { background: transparent; }
+  .btn small { color: var(--ink-dim); font-weight: 400; }
+
+  h2 { font-size: 16px; margin: 32px 0 10px; letter-spacing: -0.005em; }
+  .h2-sub { font-size: 12px; color: var(--ink-dim); margin: 0 0 12px; }
+  table.cmp { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  table.cmp th, table.cmp td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+  table.cmp th { background: var(--surface-2); font-weight: 600; font-size: 12px; color: var(--ink-dim); }
+  table.cmp tr:last-child td { border-bottom: none; }
+  .yes { color: var(--ok); }
+  .no  { color: var(--danger); }
+  .eh  { color: var(--warn); }
+  .col-self { background: oklch(0.24 0.02 250); }
+
+  .panel { margin-top: 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+  .panel-h { padding: 12px 14px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .panel-h h3 { margin: 0; font-size: 14px; }
+  .toggle { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; font-size: 12px; color: var(--ink-dim); }
+  .switch { width: 38px; height: 22px; border-radius: 999px; background: oklch(0.40 0.10 60); position: relative; border: 1px solid var(--line); }
+  .switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px;
+    border-radius: 50%; background: var(--ink); transition: left 0.15s; }
+  .switch.on { background: oklch(0.45 0.14 155); }
+  .switch.on::after { left: 18px; }
+  .ledger { font-size: 12.5px; }
+  .row { display: grid; grid-template-columns: 90px 1.4fr 1fr 110px 130px; gap: 8px; padding: 9px 14px;
+    border-bottom: 1px solid var(--line); align-items: center; }
+  .row:last-child { border-bottom: none; }
+  .row.head { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-dim); background: var(--surface-2); }
+  .verb { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11px; padding: 2px 6px; border-radius: 4px; background: oklch(0.30 0.02 250); display: inline-block; }
+  .verb.remove { background: oklch(0.32 0.10 25); }
+  .verb.lock   { background: oklch(0.30 0.06 60); }
+  .verb.ban    { background: oklch(0.32 0.10 25); }
+  .verb.comment{ background: oklch(0.30 0.06 240); }
+  .verb.sticky { background: oklch(0.30 0.06 200); }
+  .verb.usernote{ background: oklch(0.30 0.04 280); }
+  .mini { font-size: 11px; color: var(--ink-dim); }
+  .mini-btn { font-size: 11px; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--line);
+    background: var(--surface-2); color: var(--ink); cursor: pointer; }
+  .mini-btn.danger { color: var(--danger); border-color: oklch(0.45 0.12 25); }
+  .mini-btn.rollback { color: var(--warn); border-color: oklch(0.45 0.10 75); }
+
+  .fp-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 12px 14px; }
+  .fp { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--surface-2); }
+  .fp .label { font-size: 11px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.06em; }
+  .fp .num { font-size: 22px; font-weight: 600; margin-top: 2px; }
+  .fp .delta { font-size: 11px; color: var(--ink-dim); }
+  .fp.warn .num { color: var(--warn); }
+  .fp.ok .num { color: var(--ok); }
+
+  .disclose { margin-top: 24px; border: 1px dashed var(--skeptic); border-radius: 10px;
+    padding: 14px 16px; background: oklch(0.22 0.02 250 / 0.6); }
+  .disclose h3 { margin: 0 0 8px; font-size: 14px; color: var(--skeptic); }
+  .disclose ul { margin: 0; padding-left: 18px; font-size: 12.5px; color: var(--ink-dim); }
+  .disclose li { margin-bottom: 4px; }
+  .disclose li b { color: var(--ink); }
+
+  .trust { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 16px; }
+  .trust div { font-size: 11.5px; color: var(--ink-dim); border: 1px solid var(--line); border-radius: 8px; padding: 10px; background: var(--surface); }
+  .trust b { color: var(--ink); display: block; font-size: 13px; margin-bottom: 2px; }
+
+  footer { margin-top: 28px; font-size: 11px; color: var(--ink-dim); text-align: center; }
+  code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11.5px; color: var(--ink); }
+
+  @media (max-width: 720px) {
+    .fail-grid, .trust, .fp-grid { grid-template-columns: 1fr 1fr; }
+    .row { grid-template-columns: 70px 1fr; grid-auto-rows: auto; }
+    .row > div:nth-child(n+3), .row > button { grid-column: 2; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <svg class="logo" viewBox="0 0 40 40" aria-hidden="true">
+      <rect x="2" y="2" width="36" height="36" rx="9" fill="oklch(0.26 0.02 250)" stroke="oklch(0.45 0.04 250)"/>
+      <path d="M11 22 L18 28 L29 14" stroke="oklch(0.78 0.13 60)" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"/>
+      <circle cx="20" cy="20" r="6" fill="none" stroke="oklch(0.78 0.13 60)" stroke-width="2"/>
+      <line x1="20" y1="14" x2="20" y2="11" stroke="oklch(0.78 0.13 60)" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <div>
+      <div class="ttl">Flair_Helper2 — Devvit port (preview build)</div>
+      <div class="sub">Port of <code>quentinwolf/flair_helper2</code> · Python+PRAW · GPL-3.0 · written permission on file</div>
+    </div>
+    <div style="margin-left:auto; display:flex; gap:6px; flex-wrap:wrap;">
+      <span class="pill">eligibility <b>verified</b></span>
+      <span class="pill">host sub <b>≥500 WAU</b></span>
+      <span class="pill">shadow-mode <b>ON</b></span>
+    </div>
+  </header>
+
+  <section class="skeptic-card">
+    <h1>Why you probably shouldn't install this yet</h1>
+    <p class="lede">A reluctant-adopter intro. We'd rather you bounce now than auto-remove 400 posts on Tuesday and rage-quit Devvit. Read these four failure modes first — they describe what this port can still get wrong on your sub.</p>
+
+    <div class="fail-grid">
+      <div class="fail">
+        <div class="num">FAILURE MODE 01</div>
+        <div class="name">Flair-rule drift</div>
+        <div class="why">If your flairs were renamed in the last 90 days, rules silently match the wrong flair. Shadow mode catches this before any post is removed. Promote per-rule only after the dry-run report is clean.</div>
+      </div>
+      <div class="fail">
+        <div class="num">FAILURE MODE 02</div>
+        <div class="name">Cascading removal loops</div>
+        <div class="why">Combining <code>remove</code> + <code>comment</code> on the same flair can re-trigger a sticky reply chain. The legacy bot had this bug in 2022. Devvit triggers fire once per event, but cross-rule cascades are still possible — review the action graph.</div>
+      </div>
+      <div class="fail">
+        <div class="num">FAILURE MODE 03</div>
+        <div class="name">Mod-override blindness</div>
+        <div class="why">If your mod team frequently undoes the legacy bot's actions, this port will repeat those mistakes until you tune thresholds. The FP counter below shows how often that happened in the last 90 days. Don't promote any rule above its tolerance.</div>
+      </div>
+      <div class="fail">
+        <div class="num">FAILURE MODE 04</div>
+        <div class="name">Devvit trigger SLA tail latency</div>
+        <div class="why">Sub-second p50, but tail latency on <code>PostSubmit</code> can exceed 4s during Reddit incidents. Time-sensitive rules (lock-on-flair within N seconds) may fire late. Don't migrate rules that depend on hard real-time.</div>
+      </div>
+    </div>
+
+    <div class="cta-row">
+      <button class="btn primary">Install in shadow mode <small>(no actions taken)</small></button>
+      <button class="btn ghost">Read full audit-log spec</button>
+      <span class="mini" style="margin-left:auto;">You promote rules to live one at a time. There is no "enable all" button.</span>
+    </div>
+  </section>
+
+  <h2>Honest comparison: legacy Flair_Helper2 (PRAW) vs. this Devvit port vs. AutoModerator</h2>
+  <p class="h2-sub">We're not pretending the port is strictly better. Two columns where AutoMod or the legacy bot still win.</p>
+  <table class="cmp">
+    <thead>
+      <tr>
+        <th>Capability</th>
+        <th>Legacy Flair_Helper2 (PRAW)</th>
+        <th class="col-self">This Devvit port</th>
+        <th>AutoModerator</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>6 deterministic verbs (remove/lock/comment/sticky/ban/usernote)</td>
+        <td class="yes">Yes</td>
+        <td class="col-self yes">Yes (parity ≥95%)</td>
+        <td class="eh">Partial (no usernote)</td>
+      </tr>
+      <tr>
+        <td>Shadow-mode default ON</td>
+        <td class="no">No (live by default)</td>
+        <td class="col-self yes">Yes</td>
+        <td class="no">No</td>
+      </tr>
+      <tr>
+        <td>Per-action 30-day rollback token</td>
+        <td class="no">No</td>
+        <td class="col-self yes">Yes (one-click un-remove / un-lock / un-ban)</td>
+        <td class="no">No (manual modlog undo only)</td>
+      </tr>
+      <tr>
+        <td>YAML rule syntax familiar to legacy users</td>
+        <td class="yes">Yes</td>
+        <td class="col-self eh">Yes, but 3 directives renamed (see disclosure)</td>
+        <td class="yes">Yes (different schema)</td>
+      </tr>
+      <tr>
+        <td>Hosting / token-rotation toil</td>
+        <td class="no">You host it</td>
+        <td class="col-self yes">None (Devvit-managed)</td>
+        <td class="yes">None</td>
+      </tr>
+      <tr>
+        <td>Custom regex on full post body</td>
+        <td class="yes">Yes (PRAW raw access)</td>
+        <td class="col-self eh">Limited (Devvit string ops, no PCRE lookbehind)</td>
+        <td class="yes">Yes</td>
+      </tr>
+      <tr>
+        <td>Cross-subreddit Toolbox usernotes (read+write)</td>
+        <td class="yes">Yes</td>
+        <td class="col-self no">Read-only at submission · two-way bridge pending</td>
+        <td class="no">No</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="panel">
+    <div class="panel-h">
+      <h3>Action ledger — last 24h (shadow mode)</h3>
+      <span class="mini">6 would-have-actions logged · 0 executed</span>
+      <span class="toggle">Shadow mode <span class="switch on" aria-label="shadow mode on"></span></span>
+    </div>
+    <div class="ledger">
+      <div class="row head">
+        <div>Verb</div><div>Trigger / rule</div><div>Target</div><div>FP risk</div><div>Action</div>
+      </div>
+      <div class="row">
+        <div><span class="verb remove">remove</span></div>
+        <div>flair=<code>off-topic</code> · rule R-03</div>
+        <div>post <code>t3_1k9z…</code></div>
+        <div class="mini">8.2% (n=61)</div>
+        <div><button class="mini-btn">Promote rule</button></div>
+      </div>
+      <div class="row">
+        <div><span class="verb lock">lock</span></div>
+        <div>flair=<code>resolved</code> · rule R-07</div>
+        <div>post <code>t3_1k9y…</code></div>
+        <div class="mini">1.4% (n=212)</div>
+        <div><button class="mini-btn">Promote rule</button></div>
+      </div>
+      <div class="row">
+        <div><span class="verb comment">comment</span></div>
+        <div>flair=<code>question</code> · rule R-11</div>
+        <div>post <code>t3_1k9x…</code></div>
+        <div class="mini">0.3% (n=894)</div>
+        <div><button class="mini-btn">Promote rule</button></div>
+      </div>
+      <div class="row">
+        <div><span class="verb sticky">sticky</span></div>
+        <div>flair=<code>megathread</code> · rule R-02</div>
+        <div>post <code>t3_1k9w…</code></div>
+        <div class="mini">0.0% (n=33)</div>
+        <div><button class="mini-btn">Promote rule</button></div>
+      </div>
+      <div class="row">
+        <div><span class="verb ban">ban</span></div>
+        <div>flair=<code>spam-confirmed</code> · rule R-15</div>
+        <div>user <code>u/throw…</code></div>
+        <div class="mini">14.7% (n=27)</div>
+        <div><button class="mini-btn danger">Hold — over tolerance</button></div>
+      </div>
+      <div class="row">
+        <div><span class="verb usernote">usernote</span></div>
+        <div>flair=<code>warned</code> · rule R-09</div>
+        <div>user <code>u/example…</code></div>
+        <div class="mini">2.1% (n=148)</div>
+        <div><button class="mini-btn">Promote rule</button></div>
+      </div>
+    </div>
+    <div class="fp-grid">
+      <div class="fp ok">
+        <div class="label">Mod-override rate (legacy bot, 90d)</div>
+        <div class="num">3.7%</div>
+        <div class="delta">↓ baseline · n=1,415 actions</div>
+      </div>
+      <div class="fp warn">
+        <div class="label">Rules above 10% FP tolerance</div>
+        <div class="num">1 of 17</div>
+        <div class="delta">R-15 (ban) — held in shadow</div>
+      </div>
+      <div class="fp">
+        <div class="label">Rollback tokens issued (24h)</div>
+        <div class="num">0 / 0</div>
+        <div class="delta">no live actions taken yet</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:18px;">
+    <div class="panel-h">
+      <h3>Per-action rollback (preview — appears once a rule is promoted to live)</h3>
+      <span class="mini" style="margin-left:auto;">30-day token · auto-expires</span>
+    </div>
+    <div class="ledger">
+      <div class="row head">
+        <div>Verb</div><div>Live action taken</div><div>Token</div><div>Expires</div><div>Action</div>
+      </div>
+      <div class="row">
+        <div><span class="verb lock">lock</span></div>
+        <div>flair=<code>resolved</code> · post <code>t3_1k8a…</code> · by R-07</div>
+        <div class="mini"><code>rb_8f31…</code></div>
+        <div class="mini">in 29d 23h</div>
+        <div><button class="mini-btn rollback">Roll back</button></div>
+      </div>
+      <div class="row">
+        <div><span class="verb sticky">sticky</span></div>
+        <div>flair=<code>megathread</code> · post <code>t3_1k8b…</code> · by R-02</div>
+        <div class="mini"><code>rb_2d04…</code></div>
+        <div class="mini">in 29d 21h</div>
+        <div><button class="mini-btn rollback">Roll back</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="disclose">
+    <h3>Where this port is honestly weaker than the original</h3>
+    <ul>
+      <li><b>No raw HTTP escape hatch.</b> Devvit sandboxes outbound calls; if your legacy rules POST to an external classifier, drop those rules or wait for Devvit's HTTP allow-list.</li>
+      <li><b>Toolbox usernotes one-way at submission.</b> We write notes Toolbox can read, but we don't yet sync notes Toolbox writes back. Mod teams who rely on Toolbox-first workflows will see a gap.</li>
+      <li><b>YAML directive renames.</b> <code>action:</code> → <code>verb:</code>, <code>flair_text:</code> → <code>match.flair.text:</code>, <code>mod_note:</code> → <code>usernote.body:</code>. Migration script provided, but review the diff line-by-line.</li>
+      <li><b>No backfill.</b> Rules apply to events from install time forward. The legacy bot's <code>--rerun</code> flag is not ported, by design — backfill on a freshly-promoted rule is exactly how silent mass-removes happen.</li>
+    </ul>
+  </div>
+
+  <div class="trust">
+    <div><b>GPL-3.0 license</b>Original repo license preserved in the port. Source-available, audit-friendly, MIT-incompatible by intent.</div>
+    <div><b>Written permission</b>From u/quentinwolf, on file with hackathon submission. Eligibility receipt #FH2-2026-05.</div>
+    <div><b>≥500 WAU host sub</b>14.3K WAU · 7-day mod-team review window before any rule promotes from shadow to live.</div>
+    <div><b>Action ledger is public</b>Every promoted action posts to a mod-only sticky thread with the rollback token. Nothing is silent.</div>
+  </div>
+
+  <footer>
+    Reddit Mod Tools Migration Hackathon · Best Ported Data API App · preview build P24 (Reluctant Adopter)<br/>
+    "If you can't undo it within 30 days, we don't ship it."
+  </footer>
+</div>
+</body>
+</html>

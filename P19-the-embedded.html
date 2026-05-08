@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>@magic-eye/devvit — SDK Reference v0.4.0</title>
+<style>
+  :root {
+    --bg:        oklch(18% 0.012 260);
+    --panel:     oklch(22% 0.014 260);
+    --panel-2:   oklch(26% 0.016 260);
+    --line:      oklch(32% 0.014 260);
+    --ink:       oklch(94% 0.01 260);
+    --ink-dim:   oklch(72% 0.012 260);
+    --ink-mute:  oklch(56% 0.012 260);
+    --accent:    oklch(78% 0.16 165);
+    --accent-2:  oklch(72% 0.18 280);
+    --warn:      oklch(80% 0.16 75);
+    --bad:       oklch(72% 0.18 25);
+    --get:       oklch(74% 0.14 165);
+    --post:      oklch(76% 0.16 230);
+    --evt:       oklch(78% 0.15 305);
+    --kw:        oklch(82% 0.13 305);
+    --str:       oklch(82% 0.14 130);
+    --num:       oklch(82% 0.13 75);
+    --com:       oklch(56% 0.012 260);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink);
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, system-ui, -apple-system, sans-serif;
+    font-size: 13px; line-height: 1.55; }
+  body { display: grid; grid-template-columns: 240px 1fr 320px; min-height: 100vh; }
+  a { color: var(--accent); text-decoration: none; }
+
+  aside.nav { border-right: 1px solid var(--line); padding: 18px 14px; position: sticky; top: 0; height: 100vh; overflow: auto; }
+  .brand { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .brand svg { width: 22px; height: 22px; }
+  .brand b { font-size: 14px; letter-spacing: .2px; }
+  .ver { color: var(--ink-mute); font-size: 11px; margin-bottom: 18px; }
+  .nav h4 { color: var(--ink-mute); font-size: 10px; text-transform: uppercase; letter-spacing: .1em; margin: 14px 0 6px; font-weight: 600; }
+  .nav ul { list-style: none; margin: 0; padding: 0; }
+  .nav li { padding: 4px 8px; border-radius: 4px; color: var(--ink-dim); font-size: 12px; }
+  .nav li.on { background: var(--panel-2); color: var(--ink); border-left: 2px solid var(--accent); padding-left: 6px; }
+
+  main { padding: 24px 32px 60px; max-width: 880px; }
+  .crumb { color: var(--ink-mute); font-size: 11px; margin-bottom: 8px; }
+  h1 { font-size: 22px; margin: 0 0 4px; font-weight: 600; letter-spacing: -.1px; font-family: system-ui, -apple-system, sans-serif; }
+  h2 { font-size: 15px; margin: 32px 0 10px; font-weight: 600; padding-bottom: 6px; border-bottom: 1px solid var(--line); font-family: system-ui, -apple-system, sans-serif; }
+  h3 { font-size: 13px; margin: 18px 0 6px; font-weight: 600; color: var(--ink); font-family: system-ui, -apple-system, sans-serif; }
+  p { color: var(--ink-dim); margin: 6px 0 10px; }
+  .lead { color: var(--ink-dim); font-size: 14px; max-width: 640px; font-family: system-ui, -apple-system, sans-serif; }
+
+  .badges { display: flex; gap: 6px; margin: 10px 0 18px; flex-wrap: wrap; }
+  .badge { font-size: 10px; padding: 3px 7px; border-radius: 3px; background: var(--panel-2); color: var(--ink-dim); border: 1px solid var(--line); letter-spacing: .04em; }
+  .badge.ok { color: var(--accent); border-color: oklch(40% 0.08 165); }
+  .badge.purple { color: var(--accent-2); border-color: oklch(40% 0.08 280); }
+
+  pre { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px;
+    overflow: auto; margin: 8px 0 12px; font-size: 12.5px; }
+  pre.head { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: var(--panel-2); border-bottom: 1px solid var(--line); border-radius: 6px 6px 0 0; margin-bottom: 0; }
+  pre.head + pre { border-top: 0; border-radius: 0 0 6px 6px; margin-top: 0; }
+  .tab { font-size: 10px; color: var(--ink-mute); padding: 2px 6px; border-radius: 3px; }
+  .tab.on { background: var(--bg); color: var(--ink); }
+  code { font-family: inherit; }
+  .kw { color: var(--kw); }
+  .str { color: var(--str); }
+  .num { color: var(--num); }
+  .com { color: var(--com); font-style: italic; }
+  .fn { color: var(--accent); }
+  .ty { color: var(--accent-2); }
+  .pn { color: var(--ink); }
+
+  .ep { border: 1px solid var(--line); border-radius: 6px; margin: 8px 0; overflow: hidden; }
+  .ep-head { display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: var(--panel-2); }
+  .verb { font-size: 10px; padding: 2px 7px; border-radius: 3px; font-weight: 700; letter-spacing: .06em; font-family: system-ui, -apple-system, sans-serif; }
+  .verb.evt { background: oklch(30% 0.08 305); color: var(--evt); }
+  .verb.fn  { background: oklch(30% 0.08 165); color: var(--get); }
+  .verb.cli { background: oklch(30% 0.08 230); color: var(--post); }
+  .ep-path { font-weight: 600; color: var(--ink); }
+  .ep-desc { color: var(--ink-mute); margin-left: auto; font-size: 11.5px; font-family: system-ui, -apple-system, sans-serif; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 14px; font-size: 12px; font-family: system-ui, -apple-system, sans-serif; }
+  th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--ink-mute); font-weight: 500; font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; }
+  td code { color: var(--accent); background: var(--panel); padding: 1px 5px; border-radius: 3px; font-size: 11.5px; font-family: ui-monospace, monospace; }
+  td.ty code { color: var(--accent-2); }
+  td.req { color: var(--warn); font-size: 11px; }
+
+  aside.rail { border-left: 1px solid var(--line); padding: 18px 16px; position: sticky; top: 0; height: 100vh; overflow: auto; background: var(--panel); }
+  .rail h5 { font-size: 10px; color: var(--ink-mute); text-transform: uppercase; letter-spacing: .1em; margin: 0 0 8px; font-family: system-ui, -apple-system, sans-serif; }
+  .rail .pill { display: inline-block; font-size: 10px; padding: 2px 6px; border-radius: 3px; background: var(--bg); border: 1px solid var(--line); color: var(--ink-dim); margin-right: 4px; margin-bottom: 4px; }
+  .rail pre { font-size: 11.5px; }
+  .kv { display: grid; grid-template-columns: 90px 1fr; gap: 4px 10px; font-size: 11.5px; color: var(--ink-dim); margin-bottom: 12px; font-family: system-ui, -apple-system, sans-serif; }
+  .kv span:nth-child(odd) { color: var(--ink-mute); }
+  .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; vertical-align: middle; }
+
+  .install { display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: center; padding: 14px 16px; border: 1px solid var(--line); border-radius: 6px; background: linear-gradient(180deg, var(--panel) 0%, var(--bg) 100%); margin: 16px 0 24px; }
+  .install code { font-size: 13px; color: var(--accent); }
+  .install .copy { font-size: 10px; color: var(--ink-mute); padding: 4px 8px; border: 1px solid var(--line); border-radius: 4px; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .callout { border-left: 2px solid var(--accent); padding: 8px 12px; background: var(--panel); border-radius: 0 4px 4px 0; color: var(--ink-dim); font-size: 12px; margin: 10px 0; font-family: system-ui, -apple-system, sans-serif; }
+  .callout b { color: var(--ink); }
+
+  @media (max-width: 1100px) { body { grid-template-columns: 200px 1fr; } aside.rail { display: none; } }
+  @media (max-width: 720px)  { body { grid-template-columns: 1fr; } aside.nav { display: none; } }
+</style>
+</head>
+<body>
+
+<aside class="nav">
+  <div class="brand">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="color: var(--accent);">
+      <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="M3 12h3M18 12h3M12 3v3M12 18v3"/>
+    </svg>
+    <b>@magic-eye/devvit</b>
+  </div>
+  <div class="ver">v0.4.0 &middot; MIT &middot; headless SDK</div>
+
+  <h4>Getting started</h4>
+  <ul>
+    <li class="on">Quickstart</li>
+    <li>Why headless?</li>
+    <li>Migrating from snoowrap</li>
+  </ul>
+  <h4>Reference</h4>
+  <ul>
+    <li>MagicEyeRepostCheck.run()</li>
+    <li>RepostVerdict</li>
+    <li>HashStore (Redis)</li>
+    <li>Triggers &amp; composition</li>
+    <li>settings.json schema</li>
+  </ul>
+  <h4>CLI</h4>
+  <ul>
+    <li>magic-eye import</li>
+    <li>magic-eye export</li>
+    <li>magic-eye verify</li>
+  </ul>
+  <h4>Recipes</h4>
+  <ul>
+    <li>Compose with AutoModerator</li>
+    <li>Compose with custom mod app</li>
+    <li>Telemetry &amp; time-saved</li>
+  </ul>
+</aside>
+
+<main>
+  <div class="crumb">Reference / Quickstart</div>
+  <h1>MagicEyeRepostCheck — image repost detection as a Devvit library</h1>
+  <p class="lead">A headless port of /u/MAGIC_EYE_BOT (downfromthetrees/the_magic_eye, MIT). No menus. No forms. No panels. Three lines of code inside your existing Devvit app's <code>onPostSubmit</code> trigger.</p>
+
+  <div class="badges">
+    <span class="badge ok">&#9679; npm: published</span>
+    <span class="badge">devvit &ge; 0.11</span>
+    <span class="badge">peerDeps: @devvit/public-api</span>
+    <span class="badge purple">no UI surface</span>
+    <span class="badge">tree-shakeable</span>
+    <span class="badge">SLA: p50 &lt; 380ms</span>
+  </div>
+
+  <div class="install">
+    <div>
+      <div style="color:var(--ink-mute); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; margin-bottom:4px; font-family: system-ui, -apple-system, sans-serif;">Install</div>
+      <code>npm i @magic-eye/devvit</code>
+    </div>
+    <span class="copy">copy</span>
+  </div>
+
+  <h2>Three-line integration</h2>
+  <p>Drop into any existing Devvit app. The SDK never registers a menu item, never renders a block, never opens a form. It returns a verdict; your app decides.</p>
+
+  <pre class="head">
+    <span class="tab on">main.ts</span><span class="tab">TypeScript</span>
+    <span style="margin-left:auto; color: var(--ink-mute); font-size: 10px;">12 lines</span>
+  </pre>
+<pre><code><span class="kw">import</span> { Devvit } <span class="kw">from</span> <span class="str">'@devvit/public-api'</span>;
+<span class="kw">import</span> { <span class="ty">MagicEyeRepostCheck</span> } <span class="kw">from</span> <span class="str">'@magic-eye/devvit'</span>;
+
+Devvit.<span class="fn">addTrigger</span>({
+  event: <span class="str">'PostSubmit'</span>,
+  <span class="kw">async</span> <span class="fn">onEvent</span>(event, ctx) {
+    <span class="kw">const</span> verdict = <span class="kw">await</span> <span class="ty">MagicEyeRepostCheck</span>.<span class="fn">run</span>(event.post, ctx);
+    <span class="kw">if</span> (verdict.isRepost &amp;&amp; verdict.confidence &gt; <span class="num">0.92</span>) {
+      <span class="kw">await</span> ctx.reddit.<span class="fn">remove</span>(event.post.id, <span class="kw">false</span>);
+    }
+  }
+});</code></pre>
+
+  <div class="callout"><b>That's the entire surface.</b> No <code>Devvit.addMenuItem</code>, no <code>Devvit.addCustomPostType</code>, no settings UI we render for you. Your app keeps its identity; we ship a function.</div>
+
+  <h2>Reference</h2>
+
+  <div class="ep">
+    <div class="ep-head">
+      <span class="verb fn">FN</span>
+      <span class="ep-path">MagicEyeRepostCheck.run(post, ctx)</span>
+      <span class="ep-desc">Perceptual-hash a submitted image &amp; query the per-sub HashStore</span>
+    </div>
+  </div>
+
+  <h3>Parameters</h3>
+  <table>
+    <thead><tr><th style="width:24%;">Name</th><th style="width:24%;">Type</th><th style="width:14%;">Required</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>post</code></td><td class="ty"><code>Post</code></td><td class="req">required</td><td>Devvit Post object from <code>PostSubmit</code> trigger.</td></tr>
+      <tr><td><code>ctx</code></td><td class="ty"><code>TriggerContext</code></td><td class="req">required</td><td>Provides <code>redis</code>, <code>media</code>, <code>reddit</code>. Used internally; not mutated.</td></tr>
+      <tr><td><code>options.threshold</code></td><td class="ty"><code>number</code></td><td>optional</td><td>Hamming distance ceiling. Default <code>5</code> (matches legacy bot).</td></tr>
+      <tr><td><code>options.window</code></td><td class="ty"><code>Duration</code></td><td>optional</td><td>Look-back window. Default <code>'90d'</code>.</td></tr>
+      <tr><td><code>options.algo</code></td><td class="ty"><code>'dhash'|'phash'|'ahash'</code></td><td>optional</td><td>Hashing strategy. Default <code>'dhash'</code>.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Returns <code class="ty">Promise&lt;RepostVerdict&gt;</code></h3>
+  <pre class="head"><span class="tab on">RepostVerdict</span><span class="tab">type</span></pre>
+<pre><code><span class="kw">type</span> <span class="ty">RepostVerdict</span> = {
+  isRepost:        <span class="ty">boolean</span>;
+  confidence:      <span class="ty">number</span>;       <span class="com">// 0..1</span>
+  hammingDistance: <span class="ty">number</span> | <span class="kw">null</span>;
+  originalPostId:  <span class="ty">string</span> | <span class="kw">null</span>;
+  originalAuthor:  <span class="ty">string</span> | <span class="kw">null</span>;
+  algo:            <span class="str">'dhash'</span> | <span class="str">'phash'</span> | <span class="str">'ahash'</span>;
+  suggestedAction: <span class="str">'remove'</span> | <span class="str">'report'</span> | <span class="str">'flair'</span> | <span class="str">'noop'</span>;
+  latencyMs:       <span class="ty">number</span>;
+};</code></pre>
+
+  <h3>Example response</h3>
+  <div class="grid2">
+    <div>
+      <pre class="head"><span class="tab on">200 &middot; repost</span></pre>
+<pre><code>{
+  <span class="pn">"isRepost"</span>: <span class="kw">true</span>,
+  <span class="pn">"confidence"</span>: <span class="num">0.97</span>,
+  <span class="pn">"hammingDistance"</span>: <span class="num">2</span>,
+  <span class="pn">"originalPostId"</span>: <span class="str">"t3_1abx9k2"</span>,
+  <span class="pn">"originalAuthor"</span>: <span class="str">"u/og_poster"</span>,
+  <span class="pn">"algo"</span>: <span class="str">"dhash"</span>,
+  <span class="pn">"suggestedAction"</span>: <span class="str">"remove"</span>,
+  <span class="pn">"latencyMs"</span>: <span class="num">312</span>
+}</code></pre>
+    </div>
+    <div>
+      <pre class="head"><span class="tab on">200 &middot; clean</span></pre>
+<pre><code>{
+  <span class="pn">"isRepost"</span>: <span class="kw">false</span>,
+  <span class="pn">"confidence"</span>: <span class="num">0.04</span>,
+  <span class="pn">"hammingDistance"</span>: <span class="kw">null</span>,
+  <span class="pn">"originalPostId"</span>: <span class="kw">null</span>,
+  <span class="pn">"originalAuthor"</span>: <span class="kw">null</span>,
+  <span class="pn">"algo"</span>: <span class="str">"dhash"</span>,
+  <span class="pn">"suggestedAction"</span>: <span class="str">"noop"</span>,
+  <span class="pn">"latencyMs"</span>: <span class="num">198</span>
+}</code></pre>
+    </div>
+  </div>
+
+  <h2>settings.json &mdash; config without UI</h2>
+  <p>The SDK reads its config from <code>devvit.yaml</code> &rarr; <code>settings</code>. No <code>Devvit.addSettings</code> form is rendered; mods edit the YAML once at install.</p>
+  <pre class="head"><span class="tab on">devvit.yaml</span></pre>
+<pre><code><span class="kw">name</span>: my-mod-app
+<span class="kw">version</span>: <span class="str">0.7.2</span>
+<span class="kw">settings</span>:
+  <span class="kw">magicEye</span>:
+    <span class="kw">enabled</span>: <span class="kw">true</span>
+    <span class="kw">threshold</span>: <span class="num">5</span>
+    <span class="kw">window</span>: <span class="str">"90d"</span>
+    <span class="kw">algo</span>: <span class="str">dhash</span>
+    <span class="kw">onMatch</span>: <span class="str">remove</span>     <span class="com"># or: report | flair | noop</span>
+    <span class="kw">telemetry</span>: <span class="kw">true</span>     <span class="com"># emit time-saved counter to Redis</span></code></pre>
+
+  <h2>CLI &mdash; hash-DB import / export</h2>
+  <p>The legacy snoowrap bot stored hashes in MongoDB. <code>magic-eye-cli</code> migrates them to Devvit Redis in one command.</p>
+
+  <div class="ep"><div class="ep-head"><span class="verb cli">CLI</span><span class="ep-path">magic-eye import &lt;file.jsonl&gt; --sub r/example</span><span class="ep-desc">Bulk-load perceptual hashes into the SDK's HashStore</span></div></div>
+  <div class="ep"><div class="ep-head"><span class="verb cli">CLI</span><span class="ep-path">magic-eye export --sub r/example &gt; backup.jsonl</span><span class="ep-desc">Stream a snapshot for offline analysis or backup</span></div></div>
+  <div class="ep"><div class="ep-head"><span class="verb cli">CLI</span><span class="ep-path">magic-eye verify --sub r/example --sample 200</span><span class="ep-desc">Sanity-check parity vs. legacy bot's reported matches</span></div></div>
+
+  <pre class="head"><span class="tab on">terminal</span></pre>
+<pre><code><span class="com">$</span> magic-eye import legacy_hashes.jsonl --sub r/aww --algo dhash
+<span class="com">  reading  </span> 412,883 records ............................. ok
+<span class="com">  hashing  </span> skipped (pre-computed dhash detected)
+<span class="com">  writing  </span> redis://devvit/r_aww/hashes ................. <span style="color:var(--accent);">412,883 / 412,883</span>
+<span class="com">  verify   </span> sample=200, parity=<span style="color:var(--accent);">99.5%</span>, drift=0.5%  ........ <span style="color:var(--accent);">PASS</span>
+<span class="com">  done     </span> 18.4s &middot; 6.1MB redis &middot; 0 errors</code></pre>
+
+  <h2>Telemetry &mdash; time-saved as data, not UI</h2>
+  <p>When <code>telemetry: true</code>, the SDK increments two Redis counters per match: <code>magic_eye:queue_skipped</code> and <code>magic_eye:seconds_saved</code> (28s per manual repost review, configurable). The host app reads them however it wants.</p>
+  <pre class="head"><span class="tab on">read counters from anywhere in your app</span></pre>
+<pre><code><span class="kw">const</span> saved = <span class="kw">await</span> ctx.redis.<span class="fn">get</span>(<span class="str">'magic_eye:seconds_saved'</span>);
+<span class="com">// =&gt; "11538340"   (~3,205 mod-hours saved across 90 days)</span></code></pre>
+
+  <h2>Why headless?</h2>
+  <div class="callout">
+    <b>MAGIC_EYE_BOT's value is invisible.</b> Mods don't celebrate when reposts are caught &mdash; they only notice when their queue is quiet. A second app, with its own settings panel and its own mod-mail, adds visibility cost to an invisible benefit. Shipping it as a library means the host app's existing surface absorbs all configuration; the mod team installs <i>one</i> app, not two.
+  </div>
+</main>
+
+<aside class="rail">
+  <h5>Package</h5>
+  <div class="kv">
+    <span>name</span><span>@magic-eye/devvit</span>
+    <span>version</span><span>0.4.0</span>
+    <span>license</span><span>MIT</span>
+    <span>size</span><span>34.2 kB &middot; gz</span>
+    <span>treeshake</span><span><span class="dot" style="background:var(--accent)"></span> yes</span>
+    <span>sideEffects</span><span>false</span>
+  </div>
+
+  <h5>Bot of origin</h5>
+  <div class="kv">
+    <span>handle</span><span>/u/MAGIC_EYE_BOT</span>
+    <span>repo</span><span>downfromthetrees/the_magic_eye</span>
+    <span>stars</span><span>42</span>
+    <span>last push</span><span>2024-07-30</span>
+    <span>stack</span><span>snoowrap &middot; Node</span>
+    <span>license</span><span>MIT</span>
+    <span>consent</span><span><span class="dot" style="background:var(--accent)"></span> written, on file</span>
+  </div>
+
+  <h5>Try it</h5>
+  <span class="pill">FN</span>
+  <span class="pill">async</span>
+  <span class="pill">idempotent</span>
+  <pre style="margin-top:8px;"><code><span class="com">// minimal</span>
+<span class="kw">await</span> <span class="ty">MagicEyeRepostCheck</span>
+  .<span class="fn">run</span>(post, ctx);</code></pre>
+
+  <h5>SLA</h5>
+  <div class="kv">
+    <span>p50</span><span>312 ms</span>
+    <span>p95</span><span>740 ms</span>
+    <span>p99</span><span>1.21 s</span>
+    <span>budget</span><span>&lt; 1.5 s</span>
+  </div>
+
+  <h5>Composes with</h5>
+  <div>
+    <span class="pill">AutoModerator</span>
+    <span class="pill">ContextMod</span>
+    <span class="pill">your-app.ts</span>
+    <span class="pill">RemovalReasons</span>
+  </div>
+</aside>
+
+</body>
+</html>

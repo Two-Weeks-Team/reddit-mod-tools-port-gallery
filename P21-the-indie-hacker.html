@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>RepostSleuth → Devvit · Build in Public</title>
+<style>
+  :root {
+    --bg: oklch(98% 0.01 95);
+    --ink: oklch(22% 0.02 270);
+    --muted: oklch(55% 0.02 270);
+    --line: oklch(90% 0.01 270);
+    --card: oklch(100% 0 0);
+    --brand: oklch(64% 0.19 28);
+    --brand-ink: oklch(98% 0.01 28);
+    --accent: oklch(72% 0.17 145);
+    --warn: oklch(78% 0.16 75);
+    --chip: oklch(95% 0.03 28);
+    --shadow: 0 1px 0 oklch(0% 0 0 / 0.04), 0 8px 24px oklch(0% 0 0 / 0.06);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink);
+    font-family: system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 24px 20px 64px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 0 24px; }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: -0.01em; }
+  .logo-mark { width: 32px; height: 32px; border-radius: 8px; background: var(--brand);
+    display: grid; place-items: center; color: var(--brand-ink); }
+  .nav { display: flex; gap: 18px; font-size: 14px; color: var(--muted); }
+  .nav b { color: var(--ink); }
+  .ph-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px;
+    border: 1px solid var(--line); border-radius: 999px; font-size: 12px; background: var(--card); }
+  .ph-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+
+  .hero { display: grid; grid-template-columns: 1.4fr 1fr; gap: 24px; align-items: stretch; }
+  @media (max-width: 880px) { .hero { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+    padding: 20px; box-shadow: var(--shadow); }
+  .pill { display: inline-block; padding: 4px 10px; border-radius: 999px;
+    background: var(--chip); color: var(--brand); font-size: 12px; font-weight: 600; }
+  h1 { font-size: 36px; line-height: 1.1; letter-spacing: -0.02em; margin: 12px 0 10px; }
+  h1 small { font-size: 16px; color: var(--muted); font-weight: 500; display: block; margin-top: 6px; }
+  .lede { color: var(--muted); font-size: 15px; line-height: 1.55; margin: 0 0 16px; }
+  .ctas { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn { padding: 10px 14px; border-radius: 10px; font-weight: 600; font-size: 14px;
+    border: 1px solid var(--line); background: var(--card); cursor: pointer; }
+  .btn.primary { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); }
+  .btn .arrow { margin-left: 6px; }
+
+  .install-counter { display: grid; grid-template-rows: auto 1fr auto; gap: 12px; }
+  .counter-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+  .counter-num { font-size: 56px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+  .counter-num span { color: var(--brand); }
+  .counter-sub { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); }
+  .live { display: inline-flex; align-items: center; gap: 6px; }
+  .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+    box-shadow: 0 0 0 0 oklch(72% 0.17 145 / 0.6); animation: pulse 1.6s infinite; }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 oklch(72% 0.17 145 / 0.6); }
+    70% { box-shadow: 0 0 0 10px oklch(72% 0.17 145 / 0); }
+    100% { box-shadow: 0 0 0 0 oklch(72% 0.17 145 / 0); }
+  }
+
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 24px; }
+  @media (max-width: 880px) { .grid-3 { grid-template-columns: 1fr; } }
+  .stat { padding: 16px; }
+  .stat .k { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+  .stat .v { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin-top: 4px; }
+  .stat .d { font-size: 12px; color: var(--accent); margin-top: 4px; }
+  .stat .d.warn { color: var(--warn); }
+
+  .section-title { display: flex; align-items: baseline; justify-content: space-between; margin: 32px 0 12px; }
+  .section-title h2 { font-size: 18px; margin: 0; letter-spacing: -0.01em; }
+  .section-title small { color: var(--muted); font-size: 12px; }
+
+  .chart { width: 100%; height: 220px; }
+  .chart-legend { display: flex; gap: 14px; font-size: 12px; color: var(--muted); margin-top: 8px; }
+  .chart-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 10px; height: 10px; border-radius: 2px; }
+
+  .roadmap { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  @media (max-width: 880px) { .roadmap { grid-template-columns: 1fr 1fr; } }
+  .step { padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); }
+  .step .when { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+  .step .what { font-weight: 600; margin-top: 4px; }
+  .step .why { font-size: 12px; color: var(--muted); margin-top: 4px; line-height: 1.45; }
+  .step.done { background: oklch(96% 0.04 145); border-color: oklch(85% 0.08 145); }
+  .step.now { background: oklch(96% 0.04 28); border-color: oklch(85% 0.10 28); }
+
+  .log { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px;
+    background: oklch(20% 0.02 270); color: oklch(95% 0.01 270); padding: 14px 16px;
+    border-radius: 12px; line-height: 1.6; overflow: hidden; }
+  .log .t { color: oklch(72% 0.04 270); }
+  .log .ok { color: oklch(78% 0.17 145); }
+  .log .hi { color: oklch(82% 0.16 75); }
+  .log .br { color: oklch(80% 0.18 28); }
+
+  footer { margin-top: 32px; color: var(--muted); font-size: 12px; display: flex;
+    justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="logo">
+      <div class="logo-mark" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="6.5"/>
+          <path d="M16 16l5 5"/>
+        </svg>
+      </div>
+      <div>RepostSleuth<span style="color:var(--muted);font-weight:500"> → Devvit</span></div>
+    </div>
+    <nav class="nav"><b>Build Log</b><span>Roadmap</span><span>Funds Math</span><span>Install</span></nav>
+    <div class="ph-badge"><span class="ph-dot"></span> Shipping live · Day 2 of 4</div>
+  </header>
+
+  <section class="hero">
+    <div class="card">
+      <span class="pill">Reddit Mod Tools Migration · Ported Track</span>
+      <h1>The bot every mod already begs for, ported to Devvit.
+        <small>One-click install. pHash + text similarity. Modqueue card with one-tap Remove.</small>
+      </h1>
+      <p class="lede">
+        We took <b>RepostSleuthBot</b> — a battle-tested Data-API bot serving image-heavy subs since 2018 —
+        and re-platformed it on Devvit with full functional parity. Mods get sub-second post-submit
+        triggers and a quantified time-saved telemetry panel out of the box. No hosting. No PRAW. No deprecation cliff.
+      </p>
+      <div class="ctas">
+        <button class="btn primary">Install on r/yoursub <span class="arrow">→</span></button>
+        <button class="btn">Watch 90s demo</button>
+        <button class="btn">Read the build log</button>
+      </div>
+    </div>
+
+    <div class="card install-counter">
+      <div class="counter-label live"><span class="live-dot"></span> Live install counter</div>
+      <div>
+        <div class="counter-num"><span>1,284</span></div>
+        <div style="font-size:13px;color:var(--muted);margin-top:6px">subreddits with the Devvit port enabled</div>
+      </div>
+      <div class="counter-sub">
+        <span>+47 today</span><span>≥500 WAU subs: 312</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="grid-3">
+    <div class="card stat">
+      <div class="k">Mod-action latency</div>
+      <div class="v">−38%</div>
+      <div class="d">vs. legacy PRAW baseline (host sub, 7d)</div>
+    </div>
+    <div class="card stat">
+      <div class="k">Modqueue dwell time</div>
+      <div class="v">−41%</div>
+      <div class="d">image reposts auto-flagged in ≤900ms p50</div>
+    </div>
+    <div class="card stat">
+      <div class="k">Functional parity</div>
+      <div class="v">96%</div>
+      <div class="d">rules/actions ported from upstream config</div>
+    </div>
+  </div>
+
+  <div class="section-title">
+    <h2>MRR projection · Developer Funds engagement milestones</h2>
+    <small>not in-app revenue · post-prize compounding only</small>
+  </div>
+
+  <div class="card">
+    <svg class="chart" viewBox="0 0 720 220" preserveAspectRatio="none" aria-label="MRR projection chart">
+      <defs>
+        <linearGradient id="g1" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stop-color="oklch(64% 0.19 28 / 0.35)"/>
+          <stop offset="100%" stop-color="oklch(64% 0.19 28 / 0)"/>
+        </linearGradient>
+      </defs>
+      <g stroke="oklch(90% 0.01 270)" stroke-width="1">
+        <line x1="40" y1="40"  x2="700" y2="40"/>
+        <line x1="40" y1="90"  x2="700" y2="90"/>
+        <line x1="40" y1="140" x2="700" y2="140"/>
+        <line x1="40" y1="190" x2="700" y2="190"/>
+      </g>
+      <g font-size="10" fill="oklch(55% 0.02 270)" font-family="system-ui">
+        <text x="6"  y="44">$12k</text>
+        <text x="6"  y="94">$8k</text>
+        <text x="6"  y="144">$4k</text>
+        <text x="6"  y="194">$0</text>
+        <text x="40"  y="210">M1</text>
+        <text x="150" y="210">M2</text>
+        <text x="260" y="210">M3</text>
+        <text x="370" y="210">M4</text>
+        <text x="480" y="210">M5</text>
+        <text x="590" y="210">M6</text>
+      </g>
+      <path d="M40,182 L150,170 L260,150 L370,118 L480,82 L590,55 L700,42 L700,190 L40,190 Z"
+            fill="url(#g1)"/>
+      <path d="M40,182 L150,170 L260,150 L370,118 L480,82 L590,55 L700,42"
+            fill="none" stroke="oklch(64% 0.19 28)" stroke-width="2.5"/>
+      <path d="M40,188 L150,184 L260,178 L370,168 L480,152 L590,132 L700,108"
+            fill="none" stroke="oklch(72% 0.17 145)" stroke-width="2" stroke-dasharray="4 4"/>
+      <g fill="oklch(64% 0.19 28)">
+        <circle cx="40" cy="182" r="3"/><circle cx="150" cy="170" r="3"/>
+        <circle cx="260" cy="150" r="3"/><circle cx="370" cy="118" r="3"/>
+        <circle cx="480" cy="82" r="3"/><circle cx="590" cy="55" r="3"/>
+        <circle cx="700" cy="42" r="3.5"/>
+      </g>
+      <g font-size="11" font-family="system-ui" fill="oklch(22% 0.02 270)">
+        <text x="610" y="36" font-weight="700">$10.4k MRR</text>
+      </g>
+    </svg>
+    <div class="chart-legend">
+      <span><span class="swatch" style="background:oklch(64% 0.19 28)"></span> Projected Developer Funds payout</span>
+      <span><span class="swatch" style="background:oklch(72% 0.17 145)"></span> Conservative floor (50% install retention)</span>
+    </div>
+  </div>
+
+  <div class="section-title">
+    <h2>4-day shipping plan</h2>
+    <small>scope discipline · one bot, ported well</small>
+  </div>
+
+  <div class="roadmap">
+    <div class="step done">
+      <div class="when">Day 1 · Done</div>
+      <div class="what">Written consent + parity audit</div>
+      <div class="why">Got upstream maintainer sign-off; mapped 41 rules to Devvit triggers.</div>
+    </div>
+    <div class="step now">
+      <div class="when">Day 2 · Now</div>
+      <div class="what">pHash index + post-submit trigger</div>
+      <div class="why">Seeding 90-day backfill on host sub (612k WAU). p50 lookup ≤ 900ms.</div>
+    </div>
+    <div class="step">
+      <div class="when">Day 3</div>
+      <div class="what">Modqueue card + telemetry panel</div>
+      <div class="why">One-tap Remove/Approve/Whitelist. Before/after latency chart for judges.</div>
+    </div>
+    <div class="step">
+      <div class="when">Day 4</div>
+      <div class="what">Install on 2nd ≥500 WAU sub</div>
+      <div class="why">Reliable-UX proof point. Submission video + writeup. Ship.</div>
+    </div>
+  </div>
+
+  <div class="section-title">
+    <h2>Build log · live</h2>
+    <small>tail -f shipping.log</small>
+  </div>
+
+  <div class="card" style="padding:0; overflow:hidden;">
+    <pre class="log" style="margin:0;white-space:pre-wrap;">
+<span class="t">[09:14]</span> <span class="ok">✓</span> upstream maintainer signed CLA — eligibility gate cleared
+<span class="t">[10:02]</span> <span class="ok">✓</span> pHash index seeded · 184,221 posts · 90d window
+<span class="t">[11:47]</span> <span class="hi">~</span> post-submit trigger p50 = 912ms (target ≤1000ms)
+<span class="t">[13:06]</span> <span class="ok">✓</span> modqueue card renders match thumb + similarity %
+<span class="t">[14:21]</span> <span class="br">!</span> low-confidence band (0.78–0.85) noisy → Opus 4.7 explainer pass
+<span class="t">[15:30]</span> <span class="ok">✓</span> "cropped 12% from 2024-08 r/pics post" copy lands · false-positive ↓ 31%
+<span class="t">[16:48]</span> <span class="ok">✓</span> telemetry panel: latency −38%, dwell −41% on host sub
+<span class="t">now  </span> <span class="hi">▸</span> shipping day 3 plan to roadmap…
+    </pre>
+  </div>
+
+  <footer>
+    <div>P21 · The Indie Hacker · $10k MRR-shaped via Developer Funds, not paywalls</div>
+    <div>Made for the Reddit Mod Tools Migration Hackathon · deadline 2026-05-27</div>
+  </footer>
+
+</div>
+</body>
+</html>

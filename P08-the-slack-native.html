@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>P08 · AlertBot Reborn — ModMail Thread (The Slack-Native)</title>
+<style>
+  :root {
+    --bg: oklch(0.18 0.02 260);
+    --panel: oklch(0.22 0.02 260);
+    --panel-2: oklch(0.26 0.02 260);
+    --line: oklch(0.32 0.02 260);
+    --text: oklch(0.96 0.01 260);
+    --muted: oklch(0.68 0.02 260);
+    --accent: oklch(0.72 0.18 28);
+    --accent-2: oklch(0.78 0.14 200);
+    --bot: oklch(0.72 0.18 145);
+    --warn: oklch(0.78 0.16 75);
+    --danger: oklch(0.65 0.22 25);
+    --bubble-mod: oklch(0.30 0.04 260);
+    --bubble-bot: oklch(0.26 0.05 200);
+    --bubble-system: oklch(0.24 0.02 260);
+    --code: oklch(0.30 0.04 290);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
+    font-family: system-ui, -apple-system, sans-serif; font-size: 14px; line-height: 1.5; }
+  .app { max-width: 980px; margin: 0 auto; padding: 20px; }
+  .top {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--line);
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--panel-2); border: 1px solid var(--line);
+    border-radius: 999px; padding: 4px 10px; font-size: 12px; color: var(--muted);
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bot); }
+  h1 { font-size: 18px; margin: 0; font-weight: 600; letter-spacing: -0.01em; }
+  .sub { color: var(--muted); font-size: 12px; margin-top: 2px; }
+  code, .kbd {
+    background: var(--code); padding: 1px 6px; border-radius: 4px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px;
+    color: oklch(0.94 0.04 290);
+  }
+
+  .grid { display: grid; grid-template-columns: 220px 1fr; gap: 16px; }
+  .sidebar {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    padding: 12px; height: fit-content;
+  }
+  .side-h { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--muted); margin: 4px 6px 8px; }
+  .conv {
+    display: flex; gap: 10px; padding: 8px; border-radius: 8px;
+    align-items: flex-start;
+  }
+  .conv.active { background: var(--panel-2); }
+  .conv .meta { min-width: 0; flex: 1; }
+  .conv .title { font-size: 13px; font-weight: 600; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis; }
+  .conv .preview { font-size: 11px; color: var(--muted); white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis; }
+  .pill { display: inline-block; font-size: 10px; padding: 1px 6px;
+    border-radius: 4px; margin-right: 4px; }
+  .pill.alert { background: oklch(0.30 0.10 25); color: var(--danger); }
+  .pill.mute  { background: oklch(0.30 0.06 75); color: var(--warn); }
+  .pill.ack   { background: oklch(0.28 0.06 145); color: var(--bot); }
+
+  .thread {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    overflow: hidden; display: flex; flex-direction: column; min-height: 720px;
+  }
+  .thread-h {
+    padding: 12px 16px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; gap: 10px; background: var(--panel-2);
+  }
+  .thread-h .title { font-weight: 600; }
+  .thread-h .crumb { color: var(--muted); font-size: 12px; }
+
+  .msgs { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+  .msg { display: flex; gap: 10px; }
+  .msg .body { flex: 1; min-width: 0; }
+  .msg .head { display: flex; gap: 8px; align-items: baseline; margin-bottom: 4px;
+    flex-wrap: wrap; }
+  .msg .name { font-weight: 600; font-size: 13px; }
+  .msg .name.bot { color: var(--bot); }
+  .msg .name.mod { color: var(--accent-2); }
+  .msg .time { color: var(--muted); font-size: 11px; }
+  .tag {
+    font-size: 10px; padding: 1px 6px; border-radius: 4px;
+    background: var(--panel-2); color: var(--muted); border: 1px solid var(--line);
+  }
+  .tag.devvit { color: var(--bot); border-color: oklch(0.45 0.10 145); }
+
+  .bubble {
+    padding: 10px 12px; border-radius: 10px; font-size: 13px;
+    background: var(--bubble-mod); border: 1px solid var(--line);
+  }
+  .bubble.bot { background: var(--bubble-bot); border-color: oklch(0.40 0.06 200); }
+  .bubble.system { background: var(--bubble-system); color: var(--muted);
+    font-size: 12px; text-align: center; border-style: dashed; }
+
+  .alert-card {
+    background: oklch(0.20 0.04 25); border: 1px solid oklch(0.42 0.10 25);
+    border-radius: 8px; padding: 10px 12px; margin-top: 8px;
+  }
+  .alert-card .row { display: flex; gap: 8px; align-items: center; font-size: 12px; }
+  .alert-card .label { color: var(--muted); width: 80px; flex-shrink: 0; }
+  .alert-card .val { color: var(--text); }
+  .alert-card .post-title { font-weight: 600; color: var(--text); margin: 4px 0 8px; }
+  .signals { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .sig { font-size: 11px; padding: 2px 8px; border-radius: 999px;
+    background: oklch(0.28 0.08 25); color: oklch(0.92 0.05 25);
+    border: 1px solid oklch(0.42 0.10 25); }
+
+  .composer {
+    border-top: 1px solid var(--line); padding: 10px 14px; background: var(--panel-2);
+    margin-top: auto;
+  }
+  .input-wrap {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+    padding: 8px 10px; display: flex; align-items: center; gap: 4px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px;
+  }
+  .input-wrap .slash { color: var(--accent); font-weight: 700; }
+  .input-wrap .typed { color: var(--text); }
+  .input-wrap .cursor { display: inline-block; width: 2px; height: 14px;
+    background: var(--text); margin-left: 2px; vertical-align: middle;
+    animation: blink 1s steps(2, start) infinite; }
+  @keyframes blink { to { visibility: hidden; } }
+
+  .suggest {
+    margin-top: 8px; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 10px; overflow: hidden;
+  }
+  .suggest-h { padding: 6px 12px; font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--muted); background: var(--panel-2);
+    border-bottom: 1px solid var(--line); }
+  .cmd {
+    display: grid; grid-template-columns: 140px 1fr 110px;
+    padding: 8px 12px; gap: 10px; align-items: center; font-size: 12px;
+    border-bottom: 1px solid oklch(0.28 0.02 260);
+  }
+  .cmd:last-child { border-bottom: none; }
+  .cmd.hl { background: oklch(0.28 0.04 28); }
+  .cmd .name { color: var(--accent); font-family: ui-monospace, monospace; font-weight: 600; }
+  .cmd .desc { color: var(--text); }
+  .cmd .src { color: var(--muted); text-align: right; font-size: 11px; }
+
+  .footer-strip {
+    margin-top: 14px; padding: 10px 14px; background: var(--panel);
+    border: 1px solid var(--line); border-radius: 10px;
+    display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--muted);
+  }
+  .footer-strip b { color: var(--text); }
+  .stat { display: flex; align-items: center; gap: 6px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="top">
+    <div>
+      <h1>AlertBot Reborn — ModMail Thread</h1>
+      <div class="sub">P08 · The Slack-Native · Port of <code>tylerbrockett/Alert-Bot-Reddit</code> (Python+PRAW · MIT · 136★) → Devvit</div>
+    </div>
+    <div class="badge"><span class="dot"></span> u/AlertBot live on r/exampleSub (812 WAU)</div>
+  </div>
+
+  <div class="grid">
+
+    <aside class="sidebar">
+      <div class="side-h">ModMail · Inbox</div>
+
+      <div class="conv active">
+        <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true">
+          <rect width="32" height="32" rx="8" fill="oklch(0.40 0.10 145)"/>
+          <text x="16" y="21" text-anchor="middle" font-size="14" font-weight="700" fill="oklch(0.96 0.02 145)">AB</text>
+        </svg>
+        <div class="meta">
+          <div class="title">Alert · keyword "doxx" match</div>
+          <div class="preview"><span class="pill alert">ALERT</span>r/exampleSub · 2m</div>
+        </div>
+      </div>
+
+      <div class="conv">
+        <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true">
+          <rect width="32" height="32" rx="8" fill="oklch(0.40 0.10 145)"/>
+          <text x="16" y="21" text-anchor="middle" font-size="14" font-weight="700" fill="oklch(0.96 0.02 145)">AB</text>
+        </svg>
+        <div class="meta">
+          <div class="title">Alert · brand mention spike</div>
+          <div class="preview"><span class="pill ack">ACK</span>r/exampleSub · 14m</div>
+        </div>
+      </div>
+
+      <div class="conv">
+        <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true">
+          <rect width="32" height="32" rx="8" fill="oklch(0.40 0.10 145)"/>
+          <text x="16" y="21" text-anchor="middle" font-size="14" font-weight="700" fill="oklch(0.96 0.02 145)">AB</text>
+        </svg>
+        <div class="meta">
+          <div class="title">Alert · raid signal cross-sub</div>
+          <div class="preview"><span class="pill mute">MUTED 24h</span>1h</div>
+        </div>
+      </div>
+
+      <div class="side-h" style="margin-top:14px;">Today</div>
+      <div style="font-size:12px;color:var(--muted);padding:0 6px;line-height:1.7;">
+        Alerts: <b style="color:var(--text)">17</b><br/>
+        Median ack: <b style="color:var(--text)">42 s</b><br/>
+        vs. legacy PM: <b style="color:var(--bot)">−61%</b>
+      </div>
+    </aside>
+
+    <section class="thread">
+      <div class="thread-h">
+        <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
+          <rect width="28" height="28" rx="7" fill="oklch(0.40 0.10 145)"/>
+          <text x="14" y="19" text-anchor="middle" font-size="12" font-weight="700" fill="oklch(0.96 0.02 145)">AB</text>
+        </svg>
+        <div>
+          <div class="title">Alert · keyword "doxx" match in r/exampleSub</div>
+          <div class="crumb">ModMail conversation · started by u/AlertBot · 3 participants</div>
+        </div>
+      </div>
+
+      <div class="msgs">
+
+        <div class="msg">
+          <div class="bubble system" style="margin: 0 auto;">
+            ModMail thread opened by <b>u/AlertBot</b> · 14:02:11 PDT
+          </div>
+        </div>
+
+        <div class="msg">
+          <svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true">
+            <rect width="36" height="36" rx="9" fill="oklch(0.40 0.10 145)"/>
+            <text x="18" y="23" text-anchor="middle" font-size="14" font-weight="700" fill="oklch(0.96 0.02 145)">AB</text>
+          </svg>
+          <div class="body">
+            <div class="head">
+              <span class="name bot">u/AlertBot</span>
+              <span class="tag devvit">DEVVIT APP</span>
+              <span class="time">14:02:11</span>
+            </div>
+            <div class="bubble bot">
+              Spec match on subscription <code>doxx-watch</code>. New post by <code>u/throwaway_8821</code>.
+              <div class="alert-card">
+                <div class="post-title">"how to find someone's home address from username"</div>
+                <div class="row"><span class="label">Subreddit</span><span class="val">r/exampleSub</span></div>
+                <div class="row"><span class="label">Author age</span><span class="val">2 days · 3 karma</span></div>
+                <div class="row"><span class="label">Spec hit</span><span class="val">doxx-watch (keywords: doxx, address, dox)</span></div>
+                <div class="signals">
+                  <span class="sig">new account</span>
+                  <span class="sig">low karma</span>
+                  <span class="sig">2 keyword hits</span>
+                  <span class="sig">no flair</span>
+                </div>
+              </div>
+              <div style="margin-top:8px;font-size:12px;color:var(--muted);">
+                Reply with a slash command. Try <code>!ack</code>, <code>!mute 24h</code>, or <code>!route slack #mod-alerts</code>.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="msg">
+          <svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true">
+            <rect width="36" height="36" rx="9" fill="oklch(0.45 0.14 200)"/>
+            <text x="18" y="23" text-anchor="middle" font-size="13" font-weight="700" fill="oklch(0.98 0.02 200)">mk</text>
+          </svg>
+          <div class="body">
+            <div class="head">
+              <span class="name mod">u/mod_kira</span>
+              <span class="tag">MOD</span>
+              <span class="time">14:02:48</span>
+            </div>
+            <div class="bubble">
+              <code>!ack</code> taking it. removing &amp; banning, this is textbook.
+            </div>
+          </div>
+        </div>
+
+        <div class="msg">
+          <svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true">
+            <rect width="36" height="36" rx="9" fill="oklch(0.40 0.10 145)"/>
+            <text x="18" y="23" text-anchor="middle" font-size="14" font-weight="700" fill="oklch(0.96 0.02 145)">AB</text>
+          </svg>
+          <div class="body">
+            <div class="head">
+              <span class="name bot">u/AlertBot</span>
+              <span class="tag devvit">DEVVIT APP</span>
+              <span class="time">14:02:49</span>
+            </div>
+            <div class="bubble bot">
+              Acknowledged by <b>u/mod_kira</b>. Suppressing duplicate alerts on this post for 6h.
+              <div style="margin-top:6px;font-size:11px;color:var(--muted);">
+                Audit logged · redis key <code>alert:doxx:p_19zk1q</code> · onModMail trigger 380 ms
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="msg">
+          <svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true">
+            <rect width="36" height="36" rx="9" fill="oklch(0.55 0.16 28)"/>
+            <text x="18" y="23" text-anchor="middle" font-size="13" font-weight="700" fill="oklch(0.98 0.02 28)">tb</text>
+          </svg>
+          <div class="body">
+            <div class="head">
+              <span class="name mod">u/tbrockett</span>
+              <span class="tag">HEAD MOD</span>
+              <span class="time">14:03:30</span>
+            </div>
+            <div class="bubble">
+              <code>!route slack #mod-alerts</code> mirror future doxx-watch hits to slack so the offline crew sees them too
+            </div>
+          </div>
+        </div>
+
+        <div class="msg">
+          <svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true">
+            <rect width="36" height="36" rx="9" fill="oklch(0.40 0.10 145)"/>
+            <text x="18" y="23" text-anchor="middle" font-size="14" font-weight="700" fill="oklch(0.96 0.02 145)">AB</text>
+          </svg>
+          <div class="body">
+            <div class="head">
+              <span class="name bot">u/AlertBot</span>
+              <span class="tag devvit">DEVVIT APP</span>
+              <span class="time">14:03:31</span>
+            </div>
+            <div class="bubble bot">
+              Routing rule saved · spec <code>doxx-watch</code> → mirror to Slack channel <code>#mod-alerts</code>.
+              <div style="margin-top:4px;font-size:11px;color:var(--muted);">
+                ModMail remains primary surface; Slack is a read-only mirror.
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="composer">
+        <div class="input-wrap">
+          <span class="slash">!</span>
+          <span class="typed">mute</span>
+          <span class="cursor"></span>
+        </div>
+
+        <div class="suggest">
+          <div class="suggest-h">Slash commands · matching <code>!mute</code></div>
+          <div class="cmd hl">
+            <span class="name">!mute &lt;dur&gt;</span>
+            <span class="desc">Suppress this spec for a duration (e.g. <code>!mute 24h</code>, <code>!mute 7d</code>)</span>
+            <span class="src">→ Devvit redis</span>
+          </div>
+          <div class="cmd">
+            <span class="name">!ack</span>
+            <span class="desc">Claim this alert; suppress duplicates for 6h</span>
+            <span class="src">→ Devvit redis</span>
+          </div>
+          <div class="cmd">
+            <span class="name">!route &lt;dest&gt;</span>
+            <span class="desc">Mirror future hits to <code>slack &lt;ch&gt;</code> or <code>discord &lt;ch&gt;</code></span>
+            <span class="src">→ Devvit fetch</span>
+          </div>
+          <div class="cmd">
+            <span class="name">!escalate</span>
+            <span class="desc">Page head mods + open priority modmail</span>
+            <span class="src">→ Devvit modmail</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="footer-strip">
+    <span class="stat"><b>Port:</b> Alert-Bot-Reddit (Py+PRAW, MIT, 136★) → Devvit</span>
+    <span class="stat"><b>Trigger:</b> onPostSubmit / onCommentSubmit / onModMail</span>
+    <span class="stat"><b>Surface:</b> ModMail conversation (chat-native)</span>
+    <span class="stat"><b>Opus 4.7:</b> intent parser + 1-line context summary</span>
+    <span class="stat"><b>Parity:</b> 96% of legacy specs ported</span>
+    <span class="stat"><b>Mod-action latency:</b> 108 s → 42 s (−61%)</span>
+  </div>
+
+</div>
+</body>
+</html>

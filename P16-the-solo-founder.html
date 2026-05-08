@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>P16 · Flair_Helper2 → Devvit · Solo Founder Panel</title>
+<style>
+  :root {
+    --bg:        oklch(0.18 0.012 260);
+    --panel:     oklch(0.22 0.014 260);
+    --panel-2:   oklch(0.26 0.016 260);
+    --line:      oklch(0.32 0.018 260);
+    --ink:       oklch(0.96 0.005 260);
+    --ink-dim:   oklch(0.72 0.012 260);
+    --ink-mute:  oklch(0.55 0.012 260);
+    --accent:    oklch(0.78 0.17 75);   /* warm amber — maker desk lamp */
+    --accent-2:  oklch(0.72 0.16 145);  /* moss green — "on" */
+    --danger:    oklch(0.66 0.20 28);
+    --radius:    10px;
+    --mono:      ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; background:var(--bg); color:var(--ink);
+    font: 14px/1.5 system-ui, -apple-system, sans-serif; }
+  a { color: var(--accent); text-decoration: none; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 24px; }
+
+  /* top bar */
+  .bar { display:flex; align-items:center; justify-content:space-between;
+    padding: 10px 14px; background: var(--panel); border:1px solid var(--line);
+    border-radius: var(--radius); }
+  .brand { display:flex; align-items:center; gap:10px; font-weight:600; }
+  .brand .dot { width:8px; height:8px; border-radius:50%; background:var(--accent-2);
+    box-shadow: 0 0 0 3px oklch(0.72 0.16 145 / 0.18); }
+  .brand small { color: var(--ink-mute); font-weight:400; margin-left:6px; }
+  .who { display:flex; align-items:center; gap:8px; color:var(--ink-dim); font-size:12.5px; }
+  .who .av { width:22px; height:22px; border-radius:50%;
+    background: linear-gradient(135deg, var(--accent), var(--danger)); }
+
+  /* hero */
+  .hero { margin-top:18px; padding: 28px; border:1px solid var(--line);
+    border-radius: var(--radius); background:
+      radial-gradient(800px 240px at 85% -20%, oklch(0.78 0.17 75 / 0.18), transparent 60%),
+      var(--panel); position:relative; overflow:hidden; }
+  .hero h1 { margin:0 0 6px; font-size: 28px; letter-spacing:-0.01em; }
+  .hero h1 .hl { color: var(--accent); }
+  .hero p.sub { margin:0; color: var(--ink-dim); max-width: 60ch; }
+  .hero .meta { display:flex; gap:14px; margin-top:16px; font-size:12.5px; color: var(--ink-mute); flex-wrap:wrap; }
+  .hero .meta b { color: var(--ink); font-weight:600; }
+  .hero .lamp { position:absolute; right:24px; top:24px; opacity:.95; }
+
+  /* before/after */
+  .ba { display:grid; grid-template-columns: 1fr 56px 1fr; gap: 14px;
+    margin-top: 18px; align-items:stretch; }
+  .card { background: var(--panel); border:1px solid var(--line);
+    border-radius: var(--radius); padding: 16px; }
+  .card.before { border-color: oklch(0.66 0.20 28 / 0.5); }
+  .card.after  { border-color: oklch(0.72 0.16 145 / 0.5); }
+  .card h3 { margin:0 0 10px; font-size: 13px; letter-spacing:.06em;
+    text-transform: uppercase; color: var(--ink-dim); display:flex;
+    align-items:center; gap:8px; }
+  .card h3 .pill { font-size:10.5px; padding:2px 8px; border-radius: 999px;
+    background: var(--panel-2); color: var(--ink-dim); letter-spacing:0; text-transform:none; }
+  .row { display:flex; justify-content:space-between; padding:6px 0;
+    border-bottom: 1px dashed var(--line); font-size:13px; }
+  .row:last-child { border-bottom: none; }
+  .row span:first-child { color: var(--ink-dim); }
+  .row span:last-child { font-family: var(--mono); }
+  .big { font-size: 30px; font-weight: 700; letter-spacing:-0.01em; margin: 6px 0 2px; font-family: var(--mono); }
+  .big.red { color: var(--danger); }
+  .big.green { color: var(--accent-2); }
+  .arrow { display:flex; align-items:center; justify-content:center; color: var(--ink-mute); }
+
+  /* settings panel */
+  .panel { margin-top:18px; background: var(--panel); border:1px solid var(--line);
+    border-radius: var(--radius); }
+  .panel header { padding: 14px 16px; border-bottom:1px solid var(--line);
+    display:flex; align-items:center; justify-content:space-between; }
+  .panel header h2 { margin:0; font-size: 15px; }
+  .panel header .hint { color: var(--ink-mute); font-size:12px; }
+  .grid { display:grid; grid-template-columns: 1fr 1fr; gap:0; }
+  .setting { padding: 14px 16px; border-bottom:1px solid var(--line);
+    display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+  .setting:nth-child(odd) { border-right: 1px solid var(--line); }
+  .setting .lbl { font-size: 13.5px; }
+  .setting .desc { color: var(--ink-mute); font-size:12px; margin-top:3px; max-width: 36ch; }
+
+  /* toggle */
+  .tog { width:38px; height:22px; border-radius: 999px; background: var(--panel-2);
+    border:1px solid var(--line); position:relative; cursor:pointer; flex:0 0 auto; }
+  .tog::after { content:""; position:absolute; top:2px; left:2px; width:16px; height:16px;
+    border-radius:50%; background: var(--ink-dim); transition: .15s; }
+  .tog.on { background: oklch(0.72 0.16 145 / 0.35); border-color: var(--accent-2); }
+  .tog.on::after { left: 18px; background: var(--accent-2); }
+
+  /* rule editor */
+  .editor { margin-top:18px; background: var(--panel); border:1px solid var(--line);
+    border-radius: var(--radius); overflow: hidden; }
+  .editor header { padding:12px 14px; background: var(--panel-2);
+    border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; }
+  .editor header h2 { margin:0; font-size:14px; }
+  .editor header .tabs { display:flex; gap:6px; }
+  .tab { font-size:12px; padding:4px 10px; border-radius:6px; color:var(--ink-dim);
+    border:1px solid transparent; }
+  .tab.active { background: var(--bg); border-color: var(--line); color: var(--ink); }
+  .editor pre { margin:0; padding:14px 16px; font-family: var(--mono); font-size:12.5px;
+    line-height:1.6; color: var(--ink-dim); white-space: pre-wrap; }
+  .editor pre .k { color: var(--accent); }
+  .editor pre .s { color: oklch(0.82 0.10 195); }
+  .editor pre .c { color: var(--ink-mute); font-style: italic; }
+  .editor pre .n { color: oklch(0.78 0.14 320); }
+
+  /* live tail */
+  .tail { margin-top:18px; background: var(--panel); border:1px solid var(--line);
+    border-radius: var(--radius); padding: 14px 16px; }
+  .tail h2 { margin:0 0 10px; font-size:14px; display:flex; align-items:center; gap:8px; }
+  .pulse { width:8px; height:8px; border-radius:50%; background: var(--accent-2);
+    animation: pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:1} }
+  .log { font-family: var(--mono); font-size:12px; color: var(--ink-dim); }
+  .log div { padding: 3px 0; border-bottom: 1px dashed var(--line); }
+  .log div:last-child { border-bottom: none; }
+  .log .t { color: var(--ink-mute); }
+  .log .ok { color: var(--accent-2); }
+  .log .fr { color: var(--accent); }
+
+  /* footer */
+  .foot { margin: 22px 0 8px; font-size:12px; color: var(--ink-mute);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap: 8px; }
+  .badge { display:inline-flex; align-items:center; gap:6px; padding:3px 8px;
+    border:1px solid var(--line); border-radius: 999px; }
+
+  @media (max-width: 760px) {
+    .ba { grid-template-columns: 1fr; }
+    .arrow { transform: rotate(90deg); padding: 4px 0; }
+    .grid { grid-template-columns: 1fr; }
+    .setting:nth-child(odd) { border-right: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- top bar -->
+  <div class="bar">
+    <div class="brand">
+      <span class="dot" aria-hidden="true"></span>
+      Flair_Helper2 <small>· on Devvit · solo build</small>
+    </div>
+    <div class="who">
+      <span>shipped by 1 person</span>
+      <span class="av" aria-hidden="true"></span>
+    </div>
+  </div>
+
+  <!-- hero -->
+  <section class="hero">
+    <svg class="lamp" width="74" height="74" viewBox="0 0 74 74" aria-hidden="true">
+      <defs>
+        <radialGradient id="g1" cx="50%" cy="35%" r="55%">
+          <stop offset="0%" stop-color="oklch(0.92 0.15 80)" stop-opacity="0.9"/>
+          <stop offset="100%" stop-color="oklch(0.78 0.17 75)" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <circle cx="37" cy="30" r="30" fill="url(#g1)"/>
+      <path d="M22 30 L52 30 L46 46 L28 46 Z" fill="oklch(0.32 0.018 260)" stroke="oklch(0.78 0.17 75)" stroke-width="1.5"/>
+      <line x1="37" y1="46" x2="37" y2="64" stroke="oklch(0.55 0.012 260)" stroke-width="2"/>
+      <ellipse cx="37" cy="66" rx="12" ry="3" fill="oklch(0.32 0.018 260)"/>
+    </svg>
+    <h1>Your weekend, <span class="hl">back.</span></h1>
+    <p class="sub">
+      Flair_Helper2 used to live on your VPS. Token rotations at 2am, modlog poller
+      crashes, OAuth re-auths — all yours. Ported to Devvit, it lives inside Reddit.
+      You install it, you forget about it. Same flair-driven actions. Zero pager.
+    </p>
+    <div class="meta">
+      <span><b>Bot:</b> Flair_Helper2 (Python/PRAW → Devvit)</span>
+      <span><b>Maintainer:</b> 1 person</span>
+      <span><b>Host sub:</b> ≥500 WAU · eligible</span>
+      <span><b>Track:</b> Best Ported Data API App · $10K</span>
+    </div>
+  </section>
+
+  <!-- before/after -->
+  <div class="ba">
+    <div class="card before">
+      <h3>Before <span class="pill">PRAW · personal VPS</span></h3>
+      <div class="big red">6.2h<span style="font-size:14px;color:var(--ink-mute);font-family:var(--mono);"> / week</span></div>
+      <div style="color:var(--ink-mute);font-size:12px;margin-bottom:10px;">solo on-call, last 8 weeks avg</div>
+      <div class="row"><span>VPS uptime babysitting</span><span>2.1h</span></div>
+      <div class="row"><span>OAuth / token rotations</span><span>1.4h</span></div>
+      <div class="row"><span>Modlog poller restarts</span><span>1.0h</span></div>
+      <div class="row"><span>Modmail "bot is down" replies</span><span>1.2h</span></div>
+      <div class="row"><span>Hosting cost</span><span>$11.40</span></div>
+    </div>
+    <div class="arrow" aria-hidden="true">
+      <svg width="36" height="36" viewBox="0 0 36 36">
+        <path d="M6 18 H28 M22 12 L28 18 L22 24" fill="none"
+          stroke="oklch(0.78 0.17 75)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="card after">
+      <h3>After <span class="pill">Devvit · runs inside Reddit</span></h3>
+      <div class="big green">0.3h<span style="font-size:14px;color:var(--ink-mute);font-family:var(--mono);"> / week</span></div>
+      <div style="color:var(--ink-mute);font-size:12px;margin-bottom:10px;">just reading modmail thank-yous</div>
+      <div class="row"><span>VPS uptime</span><span>—</span></div>
+      <div class="row"><span>OAuth rotations</span><span>—</span></div>
+      <div class="row"><span>Modlog poller</span><span>trigger-driven</span></div>
+      <div class="row"><span>p50 action latency</span><span>0.42s</span></div>
+      <div class="row"><span>Hosting cost</span><span>$0.00</span></div>
+    </div>
+  </div>
+
+  <!-- settings -->
+  <section class="panel">
+    <header>
+      <h2>Automation</h2>
+      <span class="hint">installer = admin = user · no roles, no seats</span>
+    </header>
+    <div class="grid">
+      <div class="setting">
+        <div>
+          <div class="lbl">Flair-triggered actions</div>
+          <div class="desc">Apply remove / approve / lock / comment when a mod sets a post flair.</div>
+        </div>
+        <div class="tog on" role="switch" aria-checked="true" aria-label="Flair-triggered actions"></div>
+      </div>
+      <div class="setting">
+        <div>
+          <div class="lbl">Removal-reason auto-comment</div>
+          <div class="desc">Stickied, distinguished. Templates pulled from your YAML.</div>
+        </div>
+        <div class="tog on" role="switch" aria-checked="true" aria-label="Removal-reason auto-comment"></div>
+      </div>
+      <div class="setting">
+        <div>
+          <div class="lbl">Modmail digest (1×/week)</div>
+          <div class="desc">One email-style summary. No real-time pings — protect your weekend.</div>
+        </div>
+        <div class="tog on" role="switch" aria-checked="true" aria-label="Weekly modmail digest"></div>
+      </div>
+      <div class="setting">
+        <div>
+          <div class="lbl">Pager / on-call alerts</div>
+          <div class="desc">Off by default. Devvit handles uptime — you don't need to know.</div>
+        </div>
+        <div class="tog" role="switch" aria-checked="false" aria-label="Pager alerts"></div>
+      </div>
+      <div class="setting">
+        <div>
+          <div class="lbl">Ship time-savings telemetry to judges</div>
+          <div class="desc">Anonymous mod-action latency + queue dwell. Hackathon Community Impact axis.</div>
+        </div>
+        <div class="tog on" role="switch" aria-checked="true" aria-label="Telemetry"></div>
+      </div>
+      <div class="setting">
+        <div>
+          <div class="lbl">Auto-port legacy YAML on install</div>
+          <div class="desc">Opus 4.7 reads your old Flair_Helper2 config + Python rules → emits Devvit triggers.</div>
+        </div>
+        <div class="tog on" role="switch" aria-checked="true" aria-label="Auto-port"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- editor -->
+  <section class="editor">
+    <header>
+      <h2>rules.yaml <span style="color:var(--ink-mute);font-weight:400;font-size:12px;">· 1 file, you own it</span></h2>
+      <div class="tabs">
+        <span class="tab">legacy</span>
+        <span class="tab active">devvit (ported)</span>
+      </div>
+    </header>
+<pre><span class="c"># ported by Opus 4.7 from Flair_Helper2 v2.4.1 — diff: 0 semantic regressions</span>
+<span class="k">flair</span>: <span class="s">"removed: off-topic"</span>
+  <span class="k">trigger</span>: <span class="n">PostFlairUpdate</span>
+  <span class="k">actions</span>:
+    - <span class="n">remove_post</span>
+    - <span class="n">lock_post</span>
+    - <span class="n">comment</span>: <span class="s">"Hi {{author}}, this was removed under Rule 2…"</span>
+    - <span class="n">distinguish</span>: <span class="k">true</span>
+    - <span class="n">sticky</span>: <span class="k">true</span>
+
+<span class="k">flair</span>: <span class="s">"approved"</span>
+  <span class="k">trigger</span>: <span class="n">PostFlairUpdate</span>
+  <span class="k">actions</span>: [<span class="n">approve_post</span>, <span class="n">unlock_post</span>]
+
+<span class="c"># 14 more rules ported · 0 manual rewrites</span></pre>
+  </section>
+
+  <!-- live tail -->
+  <section class="tail">
+    <h2><span class="pulse" aria-hidden="true"></span> Live · last 90s on r/your_host_sub</h2>
+    <div class="log">
+      <div><span class="t">17:21:08</span> · flair set <b>"removed: off-topic"</b> by u/mod_a → <span class="ok">remove_post ok (0.38s)</span> · <span class="ok">comment ok</span></div>
+      <div><span class="t">17:20:51</span> · flair set <b>"approved"</b> by u/mod_b → <span class="ok">approve_post ok (0.41s)</span></div>
+      <div><span class="t">17:20:12</span> · trigger <span class="fr">PostFlairUpdate</span> received · matched rule <b>"low-effort"</b></div>
+      <div><span class="t">17:19:47</span> · daily self-check: <span class="ok">all triggers healthy</span> · no action needed from you</div>
+      <div><span class="t">17:18:02</span> · install on r/another_500wau_sub <span class="ok">ok</span> · 0 ops work</div>
+    </div>
+  </section>
+
+  <!-- footer -->
+  <div class="foot">
+    <div>
+      <span class="badge">eligibility · original ownership ✓</span>
+      <span class="badge" style="margin-left:6px;">≥500 WAU host ✓</span>
+      <span class="badge" style="margin-left:6px;">deadline 2026-05-27 18:00 PDT</span>
+    </div>
+    <div>P16 · The Solo Founder · one person, one bot, one ship.</div>
+  </div>
+
+</div>
+</body>
+</html>

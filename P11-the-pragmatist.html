@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Flair_Helper2 on Devvit — Mod Console</title>
+<style>
+  :root {
+    --bg: oklch(98% 0.005 250);
+    --panel: oklch(100% 0 0);
+    --ink: oklch(22% 0.02 260);
+    --ink-2: oklch(45% 0.02 260);
+    --line: oklch(90% 0.01 260);
+    --line-2: oklch(82% 0.015 260);
+    --accent: oklch(58% 0.18 28);   /* reddit orangered */
+    --accent-2: oklch(50% 0.16 28);
+    --ok: oklch(60% 0.14 155);
+    --warn: oklch(72% 0.15 75);
+    --err: oklch(58% 0.20 25);
+    --side: oklch(96% 0.008 250);
+    --chip: oklch(94% 0.01 250);
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink);
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    font-size: 14px; line-height: 1.45; }
+  a { color: var(--accent-2); text-decoration: none; }
+
+  .app { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+
+  /* Sidebar */
+  aside {
+    background: var(--side);
+    border-right: 1px solid var(--line);
+    padding: 16px 0;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; padding: 4px 16px 16px;
+           border-bottom: 1px solid var(--line); }
+  .brand-mark { width: 28px; height: 28px; }
+  .brand-name { font-weight: 600; font-size: 14px; }
+  .brand-sub  { font-size: 11px; color: var(--ink-2); font-family: var(--mono); }
+
+  nav { padding: 12px 0; }
+  nav .group { font-size: 11px; text-transform: uppercase; letter-spacing: .06em;
+               color: var(--ink-2); padding: 10px 16px 4px; }
+  nav a { display: flex; align-items: center; gap: 10px;
+          padding: 7px 16px; color: var(--ink); }
+  nav a.active { background: oklch(92% 0.02 28 / 0.5); border-left: 3px solid var(--accent);
+                 padding-left: 13px; font-weight: 500; }
+  nav a:hover:not(.active) { background: oklch(94% 0.005 250); }
+  nav svg { width: 14px; height: 14px; opacity: 0.75; }
+
+  .install { margin: 16px; padding: 10px 12px; border: 1px solid var(--line-2);
+             border-radius: 6px; background: var(--panel); font-size: 12px; }
+  .install b { display: block; margin-bottom: 4px; }
+  .install code { font-family: var(--mono); font-size: 11px; color: var(--ink-2); }
+
+  /* Header */
+  header { background: var(--panel); border-bottom: 1px solid var(--line);
+           padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; }
+  .crumb { font-size: 13px; color: var(--ink-2); }
+  .crumb b { color: var(--ink); font-weight: 500; }
+  .head-right { display: flex; align-items: center; gap: 12px; font-size: 12px; }
+  .pill { padding: 3px 8px; border-radius: 10px; font-size: 11px; font-weight: 500;
+          font-family: var(--mono); }
+  .pill.ok { background: oklch(94% 0.06 155); color: var(--ok); }
+  .pill.ver { background: var(--chip); color: var(--ink-2); }
+
+  /* Main */
+  main { padding: 20px 24px 40px; }
+  h1 { font-size: 18px; margin: 0 0 4px; font-weight: 600; }
+  .lede { color: var(--ink-2); font-size: 13px; margin: 0 0 18px; }
+
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+          padding: 12px 14px; }
+  .stat .k { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-2); }
+  .stat .v { font-size: 22px; font-weight: 600; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .stat .d { font-size: 11px; color: var(--ok); margin-top: 2px; }
+  .stat .d.warn { color: var(--warn); }
+
+  .row2 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; margin-bottom: 20px; }
+
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; }
+  .card h2 { font-size: 13px; margin: 0; padding: 10px 14px; border-bottom: 1px solid var(--line);
+             font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+  .card h2 .meta { font-size: 11px; color: var(--ink-2); font-weight: 400; font-family: var(--mono); }
+  .card-body { padding: 12px 14px; }
+
+  /* Action log table */
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  th { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-2);
+       font-weight: 500; background: oklch(98% 0.003 250); }
+  tbody tr:last-child td { border-bottom: none; }
+  td.mono { font-family: var(--mono); font-size: 11.5px; color: var(--ink-2); }
+  td .tag { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 10.5px;
+           font-family: var(--mono); background: var(--chip); color: var(--ink-2); }
+  td .tag.remove { background: oklch(94% 0.06 25); color: var(--err); }
+  td .tag.lock   { background: oklch(94% 0.04 75); color: var(--warn); }
+  td .tag.comment{ background: oklch(94% 0.04 250); color: oklch(45% 0.12 250); }
+  td .tag.ban    { background: oklch(92% 0.08 25); color: var(--err); }
+  td .lat { font-variant-numeric: tabular-nums; color: var(--ok); font-family: var(--mono); }
+
+  /* YAML preview */
+  pre.yaml { margin: 0; padding: 12px 14px; background: oklch(98% 0.003 250);
+             border-top: 1px solid var(--line); font-family: var(--mono); font-size: 12px;
+             line-height: 1.55; overflow-x: auto; }
+  pre.yaml .k { color: oklch(45% 0.12 250); }
+  pre.yaml .s { color: oklch(45% 0.14 155); }
+  pre.yaml .c { color: var(--ink-2); font-style: italic; }
+  pre.yaml .n { color: oklch(50% 0.14 28); }
+
+  /* Footer band */
+  .foot { display: flex; gap: 14px; font-size: 11.5px; color: var(--ink-2);
+          padding: 12px 0 0; border-top: 1px solid var(--line); margin-top: 14px; }
+  .foot b { color: var(--ink); }
+
+  .btn { font: inherit; font-size: 12px; padding: 5px 10px; border-radius: 4px;
+         border: 1px solid var(--line-2); background: var(--panel); cursor: pointer; color: var(--ink); }
+  .btn.primary { background: var(--accent); color: white; border-color: var(--accent-2); }
+
+  /* tiny sparkline */
+  .spark { width: 100%; height: 38px; }
+
+  @media (max-width: 900px) {
+    .app { grid-template-columns: 1fr; }
+    aside { display: none; }
+    .grid { grid-template-columns: repeat(2, 1fr); }
+    .row2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside>
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="16" cy="16" r="14" fill="oklch(58% 0.18 28)"/>
+        <path d="M9 18 L14 22 L23 11" stroke="white" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div>
+        <div class="brand-name">Flair_Helper2</div>
+        <div class="brand-sub">devvit · v2.0.0-port</div>
+      </div>
+    </div>
+
+    <nav>
+      <div class="group">Overview</div>
+      <a class="active" href="#">
+        <svg viewBox="0 0 16 16"><path d="M2 8h4v6H2zM7 3h4v11H7zM12 6h4v8h-4z" fill="currentColor"/></svg>
+        Dashboard
+      </a>
+      <a href="#">
+        <svg viewBox="0 0 16 16"><path d="M3 3h10v2H3zm0 4h10v2H3zm0 4h7v2H3z" fill="currentColor"/></svg>
+        Action Log
+      </a>
+
+      <div class="group">Config</div>
+      <a href="#">
+        <svg viewBox="0 0 16 16"><path d="M8 1l2 3 4 .5-3 3 1 4-4-2-4 2 1-4-3-3 4-.5z" fill="currentColor"/></svg>
+        Flair Rules (wiki)
+      </a>
+      <a href="#">
+        <svg viewBox="0 0 16 16"><path d="M3 3h10v10H3zm2 2v6h6V5z" fill="currentColor"/></svg>
+        Settings
+      </a>
+
+      <div class="group">Port Status</div>
+      <a href="#">
+        <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 4v4l3 2" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+        Parity Report
+      </a>
+    </nav>
+
+    <div class="install">
+      <b>Source bot</b>
+      <code>github.com/GamesNap/flair_helper2</code><br/>
+      <code style="color:var(--ok)">consent: signed 2026-04-22</code>
+    </div>
+  </aside>
+
+  <div>
+    <header>
+      <div class="crumb">r/<b>askhistorians</b> &nbsp;/&nbsp; Mod Tools &nbsp;/&nbsp; <b>Flair_Helper2</b></div>
+      <div class="head-right">
+        <span class="pill ok">● running</span>
+        <span class="pill ver">devvit 0.11.18</span>
+        <button class="btn">Reload wiki</button>
+        <button class="btn primary">Install on another sub</button>
+      </div>
+    </header>
+
+    <main>
+      <h1>Dashboard</h1>
+      <p class="lede">Functional-parity port of the PRAW-based Flair_Helper2 mod bot. Same YAML wiki config, same actions, sub-second triggers — no external host.</p>
+
+      <section class="grid">
+        <div class="stat">
+          <div class="k">Actions today</div>
+          <div class="v">312</div>
+          <div class="d">+18 vs. legacy avg</div>
+        </div>
+        <div class="stat">
+          <div class="k">p50 mod-action latency</div>
+          <div class="v">0.42 s</div>
+          <div class="d">−71% vs. PRAW (1.45 s)</div>
+        </div>
+        <div class="stat">
+          <div class="k">Parity coverage</div>
+          <div class="v">96.4%</div>
+          <div class="d">26 / 27 rules ported</div>
+        </div>
+        <div class="stat">
+          <div class="k">Mod time saved / wk</div>
+          <div class="v">7.3 h</div>
+          <div class="d warn">measured, host sub only</div>
+        </div>
+      </section>
+
+      <section class="row2">
+        <div class="card">
+          <h2>Recent action log <span class="meta">last 24h · live tail</span></h2>
+          <table>
+            <thead>
+              <tr><th>Time</th><th>Post</th><th>Flair</th><th>Action</th><th>Latency</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="mono">17:24:09</td>
+                <td>"Why did the Roman census…"</td>
+                <td class="mono">no-sources</td>
+                <td><span class="tag remove">remove</span> <span class="tag comment">comment</span></td>
+                <td class="lat">0.38 s</td>
+              </tr>
+              <tr>
+                <td class="mono">17:21:50</td>
+                <td>"AMA: Tudor archives"</td>
+                <td class="mono">ama-approved</td>
+                <td><span class="tag">approve</span></td>
+                <td class="lat">0.29 s</td>
+              </tr>
+              <tr>
+                <td class="mono">17:18:02</td>
+                <td>"Was Genghis Khan…"</td>
+                <td class="mono">low-effort</td>
+                <td><span class="tag remove">remove</span> <span class="tag lock">lock</span> <span class="tag comment">comment</span></td>
+                <td class="lat">0.51 s</td>
+              </tr>
+              <tr>
+                <td class="mono">17:11:44</td>
+                <td>"Spam — link farm"</td>
+                <td class="mono">spam-perma</td>
+                <td><span class="tag remove">remove</span> <span class="tag ban">ban 999d</span></td>
+                <td class="lat">0.62 s</td>
+              </tr>
+              <tr>
+                <td class="mono">17:04:11</td>
+                <td>"Sources for WW1 logistics"</td>
+                <td class="mono">good-question</td>
+                <td><span class="tag">flair-only</span></td>
+                <td class="lat">0.21 s</td>
+              </tr>
+              <tr>
+                <td class="mono">16:57:30</td>
+                <td>"Repeated rule 2 break"</td>
+                <td class="mono">rule2-warn</td>
+                <td><span class="tag comment">comment</span> <span class="tag">usernote</span></td>
+                <td class="lat">0.44 s</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <h2>Latency, last 7 days <span class="meta">p50 / p95</span></h2>
+          <div class="card-body">
+            <svg class="spark" viewBox="0 0 280 60" preserveAspectRatio="none" aria-label="latency chart">
+              <defs>
+                <linearGradient id="g1" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stop-color="oklch(58% 0.18 28)" stop-opacity="0.35"/>
+                  <stop offset="100%" stop-color="oklch(58% 0.18 28)" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <path d="M0 50 L40 48 L80 46 L120 44 L160 42 L200 40 L240 38 L280 36 L280 60 L0 60 Z" fill="url(#g1)"/>
+              <path d="M0 50 L40 48 L80 46 L120 44 L160 42 L200 40 L240 38 L280 36"
+                    stroke="oklch(58% 0.18 28)" stroke-width="1.5" fill="none"/>
+              <path d="M0 22 L40 24 L80 21 L120 25 L160 20 L200 23 L240 19 L280 18"
+                    stroke="oklch(45% 0.02 260)" stroke-width="1" fill="none" stroke-dasharray="3 3"/>
+            </svg>
+            <table style="margin-top:10px">
+              <tbody>
+                <tr><td>p50 (Devvit port)</td><td class="lat">0.42 s</td></tr>
+                <tr><td>p95 (Devvit port)</td><td class="lat">0.91 s</td></tr>
+                <tr><td>p50 (legacy PRAW)</td><td class="mono">1.45 s</td></tr>
+                <tr><td>p95 (legacy PRAW)</td><td class="mono">3.20 s</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Flair rules — loaded from <code style="font-family:var(--mono);font-weight:400">/r/askhistorians/wiki/flair_helper</code> <span class="meta">last sync 2 min ago · 27 rules</span></h2>
+<pre class="yaml"><span class="c"># YAML config — identical schema to upstream Flair_Helper2 (zero migration)</span>
+<span class="k">no-sources</span>:
+  <span class="k">remove</span>: <span class="n">true</span>
+  <span class="k">lock</span>: <span class="n">false</span>
+  <span class="k">comment</span>: <span class="s">"Top-level answers require sources. See rule 3."</span>
+  <span class="k">comment_stickied</span>: <span class="n">true</span>
+  <span class="k">usernote</span>: <span class="s">"no-sources"</span>
+
+<span class="k">low-effort</span>:
+  <span class="k">remove</span>: <span class="n">true</span>
+  <span class="k">lock</span>: <span class="n">true</span>
+  <span class="k">comment</span>: <span class="s">"Removed under rule 2 (Serious, on-topic responses only)."</span>
+
+<span class="k">spam-perma</span>:
+  <span class="k">remove</span>: <span class="n">true</span>
+  <span class="k">ban</span>:
+    <span class="k">duration</span>: <span class="n">999</span>
+    <span class="k">message</span>: <span class="s">"Spam / link-farm. Permanent."</span>
+
+<span class="c"># 24 more rules… edit on the wiki, hit "Reload" — no redeploy.</span></pre>
+      </section>
+
+      <div class="foot">
+        <span><b>Stack:</b> Devvit 0.11 · TypeScript 5.4 · Redis KV · js-yaml · Zod</span>
+        <span><b>Trigger:</b> PostFlairUpdate (real-time)</span>
+        <span><b>Origin:</b> u/Flair_Helper2 · MIT · written consent on file</span>
+        <span><b>Host sub:</b> r/askhistorians (1.9M, 84k WAU)</span>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

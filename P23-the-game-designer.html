@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>RemindMeBot: Punctuality Engine — Devvit Port (P23)</title>
+<style>
+  :root{
+    --bg-0: oklch(18% 0.04 270);
+    --bg-1: oklch(24% 0.06 275);
+    --bg-2: oklch(30% 0.08 280);
+    --ink: oklch(96% 0.02 270);
+    --dim: oklch(72% 0.03 270);
+    --accent: oklch(78% 0.19 145);
+    --xp1: oklch(82% 0.18 145);
+    --xp2: oklch(72% 0.21 200);
+    --combo: oklch(82% 0.20 75);
+    --gold: oklch(86% 0.16 90);
+    --silver: oklch(82% 0.02 270);
+    --bronze: oklch(68% 0.13 55);
+    --mythic: oklch(72% 0.24 320);
+    --card: oklch(28% 0.05 275 / 0.85);
+    --bd: oklch(45% 0.06 275 / 0.5);
+    --shadow: 0 6px 24px oklch(8% 0.05 270 / 0.55);
+    --grid: oklch(30% 0.04 275 / 0.5);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg-0);color:var(--ink);
+    font-family:system-ui,-apple-system,sans-serif;font-feature-settings:"tnum" 1;
+    background-image:
+      radial-gradient(circle at 20% 10%, oklch(35% 0.12 280 / 0.45), transparent 45%),
+      radial-gradient(circle at 85% 80%, oklch(35% 0.14 200 / 0.35), transparent 50%),
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size:auto,auto,32px 32px,32px 32px;min-height:100vh}
+  .wrap{max-width:1180px;margin:0 auto;padding:22px}
+  header.hud{display:flex;align-items:center;justify-content:space-between;gap:14px;
+    padding:12px 16px;background:var(--card);border:1px solid var(--bd);
+    border-radius:14px;backdrop-filter:blur(8px);box-shadow:var(--shadow)}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand .logo{width:42px;height:42px}
+  .ttl{font-size:18px;font-weight:800;letter-spacing:.2px}
+  .sub{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:1.2px}
+  .pills{display:flex;gap:8px;align-items:center}
+  .pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;
+    font-size:11px;font-weight:700;background:oklch(30% 0.06 145 / 0.5);
+    color:var(--accent);border:1px solid oklch(60% 0.14 145 / 0.5)}
+  .pill.warn{background:oklch(30% 0.06 60 / 0.5);color:var(--combo);border-color:oklch(60% 0.14 60 / 0.5)}
+  .stats{display:flex;gap:16px;align-items:center}
+  .stat{text-align:right}
+  .stat .n{font-size:18px;font-weight:800;font-variant-numeric:tabular-nums}
+  .stat .l{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1.2px}
+
+  .level{margin-top:14px;padding:14px 16px;background:var(--card);
+    border:1px solid var(--bd);border-radius:14px}
+  .lvl-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+  .lvl-head .l1{font-size:14px;font-weight:800}
+  .lvl-head .l2{font-size:11px;color:var(--dim)}
+  .xpbar{position:relative;height:18px;border-radius:10px;overflow:hidden;
+    background:oklch(28% 0.04 275);border:1px solid oklch(40% 0.05 275 / 0.6)}
+  .xpfill{height:100%;width:62%;
+    background:linear-gradient(90deg,var(--xp1),var(--xp2));
+    box-shadow:inset 0 0 16px oklch(80% 0.18 170 / 0.7);
+    animation:pulse 2.4s ease-in-out infinite;position:relative}
+  .xpfill::after{content:"";position:absolute;inset:0;
+    background:repeating-linear-gradient(45deg,oklch(98% 0 0 / 0.18) 0 6px,transparent 6px 14px);
+    animation:slide 1.4s linear infinite}
+  @keyframes pulse{50%{filter:brightness(1.18)}}
+  @keyframes slide{to{background-position:28px 0}}
+  .xp-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:800;color:oklch(15% 0.02 270);
+    text-shadow:0 1px 0 oklch(98% 0 0 / 0.4)}
+
+  .grid{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;margin-top:16px}
+  @media (max-width:880px){.grid{grid-template-columns:1fr}}
+  .panel{background:var(--card);border:1px solid var(--bd);border-radius:14px;
+    padding:16px;backdrop-filter:blur(8px);box-shadow:var(--shadow)}
+  .panel h2{margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:1.4px;color:var(--dim)}
+  .quests-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .daily{font-size:11px;color:var(--dim)}
+  .daily b{color:var(--gold)}
+
+  .quest{display:grid;grid-template-columns:48px 1fr auto;gap:12px;align-items:center;
+    padding:10px;border-radius:10px;border:1px solid oklch(40% 0.04 275 / 0.5);
+    background:oklch(24% 0.04 275 / 0.6);margin-bottom:8px;position:relative;overflow:hidden}
+  .qicon{width:48px;height:48px;border-radius:10px;display:grid;place-items:center;
+    background:oklch(30% 0.06 275);border:1px solid oklch(50% 0.08 275 / 0.6)}
+  .qbody .qt{font-weight:700;font-size:14px}
+  .qbody .qd{font-size:11px;color:var(--dim);margin-top:2px}
+  .qmeta{text-align:right;font-size:11px}
+  .tier{display:inline-block;padding:2px 8px;border-radius:6px;font-weight:800;font-size:10px;letter-spacing:1px}
+  .tier.bronze{background:oklch(36% 0.09 55);color:var(--bronze);border:1px solid var(--bronze)}
+  .tier.silver{background:oklch(38% 0.02 270);color:var(--silver);border:1px solid var(--silver)}
+  .tier.gold{background:oklch(38% 0.10 90);color:var(--gold);border:1px solid var(--gold)}
+  .tier.mythic{background:oklch(34% 0.14 320);color:var(--mythic);border:1px solid var(--mythic);
+    animation:mythglow 2.2s ease-in-out infinite}
+  @keyframes mythglow{50%{box-shadow:0 0 14px var(--mythic)}}
+  .qreward{font-weight:800;color:var(--accent);font-size:13px;margin-top:2px}
+  .qprog{position:absolute;left:0;bottom:0;height:3px;background:linear-gradient(90deg,var(--xp1),var(--xp2))}
+  .quest.done{border-color:var(--accent)}
+  .quest.done .qicon{background:oklch(34% 0.12 145);border-color:var(--accent)}
+
+  .combo-row{margin-top:6px;padding:10px 12px;border-radius:10px;
+    background:linear-gradient(90deg,oklch(30% 0.14 320 / 0.5),oklch(30% 0.14 60 / 0.5));
+    border:1px solid oklch(70% 0.18 330 / 0.6);
+    display:flex;justify-content:space-between;align-items:center;
+    animation:comboPulse 1.8s ease-in-out infinite}
+  @keyframes comboPulse{50%{box-shadow:0 0 24px oklch(72% 0.22 330 / 0.45)}}
+  .combo-row .ct{font-weight:800;letter-spacing:.5px}
+  .combo-row .cm{font-size:11px;color:var(--dim)}
+  .combo-row .mult{font-size:24px;font-weight:900;color:var(--mythic);
+    text-shadow:0 0 12px oklch(75% 0.24 330 / 0.7)}
+
+  .lb{list-style:none;margin:0;padding:0}
+  .lb li{display:grid;grid-template-columns:28px 1fr auto auto;gap:10px;align-items:center;
+    padding:8px 6px;border-bottom:1px dashed oklch(40% 0.04 275 / 0.5);font-size:13px}
+  .lb li:last-child{border-bottom:none}
+  .lb li.you{background:oklch(28% 0.06 145 / 0.35);border-radius:8px;border-bottom:none;padding:8px 10px}
+  .rank{font-weight:900;text-align:center;font-size:14px}
+  .rank.r1{color:var(--gold)} .rank.r2{color:var(--silver)} .rank.r3{color:var(--bronze)}
+  .lb .u{font-weight:700}
+  .lb .strk{font-size:11px;color:var(--accent);font-weight:700}
+  .lb .pts{font-weight:800;font-variant-numeric:tabular-nums;color:var(--xp2)}
+
+  .achv{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:6px}
+  .badge{aspect-ratio:1;border-radius:12px;border:1px solid var(--bd);
+    background:oklch(24% 0.04 275);display:grid;place-items:center;position:relative;
+    transition:transform .2s}
+  .badge:hover{transform:translateY(-2px)}
+  .badge.locked{filter:grayscale(0.85) brightness(0.55)}
+  .badge .lbl{position:absolute;bottom:4px;left:4px;right:4px;font-size:9px;text-align:center;
+    color:var(--dim);text-transform:uppercase;letter-spacing:.6px}
+
+  .toast{position:fixed;top:24px;right:24px;width:340px;
+    background:linear-gradient(135deg,oklch(30% 0.12 145 / 0.95),oklch(28% 0.10 200 / 0.95));
+    border:1px solid var(--accent);border-radius:14px;padding:14px 16px;
+    box-shadow:0 10px 40px oklch(0% 0 0 / 0.5),0 0 30px oklch(80% 0.18 145 / 0.4);
+    display:flex;gap:12px;align-items:center;z-index:50;
+    animation:slideIn .6s cubic-bezier(.2,.9,.3,1.4) both}
+  @keyframes slideIn{from{transform:translateX(120%);opacity:0}}
+  .toast .ti{font-weight:800;font-size:13px;letter-spacing:.04em}
+  .toast .td{font-size:11px;color:var(--dim);margin-top:2px}
+  .toast .ic{width:42px;height:42px;flex-shrink:0}
+
+  .particles{position:absolute;inset:0;pointer-events:none;overflow:visible}
+  .p{position:absolute;width:6px;height:6px;border-radius:50%;
+    background:var(--accent);box-shadow:0 0 8px var(--accent);
+    animation:burst 1.6s ease-out infinite}
+  .p:nth-child(2){background:var(--combo);box-shadow:0 0 8px var(--combo);animation-delay:.2s}
+  .p:nth-child(3){background:var(--mythic);box-shadow:0 0 8px var(--mythic);animation-delay:.4s}
+  .p:nth-child(4){background:var(--xp2);box-shadow:0 0 8px var(--xp2);animation-delay:.6s}
+  .p:nth-child(5){background:var(--gold);box-shadow:0 0 8px var(--gold);animation-delay:.8s}
+  .p:nth-child(6){background:var(--accent);box-shadow:0 0 8px var(--accent);animation-delay:1.0s}
+  @keyframes burst{
+    0%{transform:translate(0,0) scale(0);opacity:1}
+    60%{opacity:1}
+    100%{transform:translate(var(--dx,40px),var(--dy,-40px)) scale(1.4);opacity:0}
+  }
+  .quest .particles .p:nth-child(1){left:10%;top:60%;--dx:30px;--dy:-30px}
+  .quest .particles .p:nth-child(2){left:18%;top:50%;--dx:-26px;--dy:-34px}
+  .quest .particles .p:nth-child(3){left:14%;top:55%;--dx:42px;--dy:-18px}
+  .toast .particles .p:nth-child(1){left:30px;top:30px;--dx:50px;--dy:-40px}
+  .toast .particles .p:nth-child(2){left:30px;top:30px;--dx:-30px;--dy:-50px}
+  .toast .particles .p:nth-child(3){left:30px;top:30px;--dx:60px;--dy:20px}
+  .toast .particles .p:nth-child(4){left:30px;top:30px;--dx:-50px;--dy:30px}
+  .toast .particles .p:nth-child(5){left:30px;top:30px;--dx:20px;--dy:-60px}
+  .toast .particles .p:nth-child(6){left:30px;top:30px;--dx:0px;--dy:-70px}
+
+  .footer{margin-top:18px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:11px;color:var(--dim)}
+  .fpill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;
+    background:oklch(22% 0.04 270);border:1px solid var(--bd)}
+  .fpill b{color:var(--accent);font-variant-numeric:tabular-nums}
+  .kbd{font-family:ui-monospace,monospace;background:oklch(28% 0.04 275);
+    padding:2px 6px;border-radius:5px;border:1px solid var(--bd)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hud" role="banner">
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 64 64" aria-hidden="true">
+        <defs><linearGradient id="g1" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0" stop-color="oklch(78% 0.19 145)"/>
+          <stop offset="1" stop-color="oklch(72% 0.21 200)"/></linearGradient></defs>
+        <circle cx="32" cy="32" r="28" fill="url(#g1)" stroke="oklch(96% 0.02 270)" stroke-width="2"/>
+        <circle cx="32" cy="32" r="20" fill="none" stroke="oklch(20% 0.04 270)" stroke-width="2"/>
+        <path d="M32 18 V32 L42 38" stroke="oklch(18% 0.04 270)" stroke-width="3" stroke-linecap="round" fill="none"/>
+        <circle cx="32" cy="32" r="2.5" fill="oklch(18% 0.04 270)"/>
+      </svg>
+      <div>
+        <div class="ttl">RemindMeBot · Punctuality Engine</div>
+        <div class="sub">P23 · The Game Designer · Devvit Port of Watchful1/RemindMeBot</div>
+      </div>
+    </div>
+    <div class="pills">
+      <span class="pill">QUEST LOG ACTIVE</span>
+      <span class="pill warn">r/AskHistorians · 12.4k WAU</span>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="n">u/Watchful1</div><div class="l">Mod-Author</div></div>
+    </div>
+  </header>
+
+  <div class="level">
+    <div class="lvl-head">
+      <div class="l1">LVL 27 · CHRONOMANCER
+        <span style="color:var(--accent);font-size:11px;margin-left:8px">STREAK 14d 🔥</span></div>
+      <div class="l2">3,140 / 5,000 XP — next: <strong style="color:var(--gold)">LVL 28 · TIME-LORD</strong></div>
+    </div>
+    <div class="xpbar">
+      <div class="xpfill"></div>
+      <div class="xp-text">3,140 XP · +120 from last fulfillment</div>
+    </div>
+  </div>
+
+  <div class="grid">
+
+    <section class="panel" aria-labelledby="qhead">
+      <div class="quests-head">
+        <h2 id="qhead">Quest Log · Pending Reminders</h2>
+        <div class="daily">Daily quest: <b>fulfill 5 reminders on time</b> · 3 / 5</div>
+      </div>
+
+      <article class="quest" aria-label="Pending reminder, Silver tier">
+        <div class="qicon">
+          <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" fill="none" stroke="oklch(82% 0.02 270)" stroke-width="2"/>
+            <path d="M12 7v5l3 2" stroke="oklch(82% 0.02 270)" stroke-width="2" stroke-linecap="round" fill="none"/>
+          </svg>
+        </div>
+        <div class="qbody">
+          <div class="qt">"RemindMe! 7 days — check if OP's PR landed"</div>
+          <div class="qd">r/programming · 4d 6h remaining · 12 followers piggybacked</div>
+        </div>
+        <div class="qmeta">
+          <span class="tier silver">SILVER · 7d</span>
+          <div class="qreward">+ 75 XP</div>
+        </div>
+        <div class="qprog" style="width:42%"></div>
+      </article>
+
+      <article class="quest" aria-label="Pending reminder, Mythic tier">
+        <div class="qicon">
+          <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
+            <path d="M3 12 L21 12 M12 3 L21 12 L12 21" stroke="oklch(72% 0.24 320)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="qbody">
+          <div class="qt">"RemindMe! 365 days — did the AGI prediction hold?"</div>
+          <div class="qd">r/singularity · 312d remaining · ack required · Opus 4.7 will validate</div>
+        </div>
+        <div class="qmeta">
+          <span class="tier mythic">MYTHIC · 365d</span>
+          <div class="qreward">+ 600 XP</div>
+        </div>
+        <div class="qprog" style="width:14%"></div>
+      </article>
+
+      <article class="quest done" aria-label="Quest complete">
+        <div class="particles">
+          <div class="p"></div><div class="p"></div><div class="p"></div>
+        </div>
+        <div class="qicon">
+          <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
+            <path d="M5 12 L10 17 L19 7" stroke="oklch(82% 0.18 145)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+        </div>
+        <div class="qbody">
+          <div class="qt" style="color:var(--accent)">QUEST COMPLETE — "RemindMe! 3 days — book deadline"</div>
+          <div class="qd">u/scrollkeeper acknowledged on time · Opus 4.7 ack-detected real follow-through</div>
+        </div>
+        <div class="qmeta">
+          <span class="tier bronze">BRONZE · 3d</span>
+          <div class="qreward">+ 30 XP ✓</div>
+        </div>
+        <div class="qprog" style="width:100%"></div>
+      </article>
+
+      <article class="quest" aria-label="Pending reminder, Gold tier">
+        <div class="qicon">
+          <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
+            <rect x="4" y="6" width="16" height="14" rx="2" fill="none" stroke="oklch(86% 0.16 90)" stroke-width="2"/>
+            <path d="M4 10 L20 10 M9 4 V8 M15 4 V8" stroke="oklch(86% 0.16 90)" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="qbody">
+          <div class="qt">"RemindMe! 30 days — vote count on this comment"</div>
+          <div class="qd">r/AskHistorians · 22d remaining · 14 followers piggybacked</div>
+        </div>
+        <div class="qmeta">
+          <span class="tier gold">GOLD · 30d</span>
+          <div class="qreward">+ 220 XP</div>
+        </div>
+        <div class="qprog" style="width:26%"></div>
+      </article>
+
+      <div class="combo-row">
+        <div>
+          <div class="ct">⚡ COMBO READY: 7-DAY ECHO</div>
+          <div class="cm">Reminding about a reminder fulfilled 7d ago — chain bonus active</div>
+        </div>
+        <div class="mult">×2.5</div>
+      </div>
+    </section>
+
+    <aside>
+      <section class="panel" aria-labelledby="lbhead">
+        <h2 id="lbhead">Punctuality Leaderboard · r/AskHistorians</h2>
+        <ol class="lb">
+          <li><span class="rank r1">1</span><span class="u">u/scrollkeeper</span><span class="strk">42d 🔥</span><span class="pts">18,420</span></li>
+          <li class="you"><span class="rank r2">2</span><span class="u">u/Watchful1 (you)</span><span class="strk">14d 🔥</span><span class="pts">12,310</span></li>
+          <li><span class="rank r3">3</span><span class="u">u/timekeeper99</span><span class="strk">9d</span><span class="pts">9,870</span></li>
+          <li><span class="rank">4</span><span class="u">u/punctuality_pro</span><span class="strk">22d 🔥</span><span class="pts">8,940</span></li>
+          <li><span class="rank">5</span><span class="u">u/never_late</span><span class="strk">3d</span><span class="pts">7,210</span></li>
+          <li><span class="rank">6</span><span class="u">u/quest_runner</span><span class="strk">11d</span><span class="pts">6,150</span></li>
+          <li><span class="rank">7</span><span class="u">u/reminder_addict</span><span class="strk">—</span><span class="pts">5,820</span></li>
+        </ol>
+      </section>
+
+      <section class="panel" style="margin-top:14px" aria-labelledby="ahead">
+        <h2 id="ahead">Achievements · 17 / 42 Unlocked</h2>
+        <div class="achv">
+          <div class="badge" title="100 Reminders Kept">
+            <svg viewBox="0 0 32 32" width="34" height="34" aria-hidden="true">
+              <polygon points="16,3 20,12 30,13 22,20 24,30 16,25 8,30 10,20 2,13 12,12"
+                fill="oklch(86% 0.16 90)" stroke="oklch(40% 0.10 90)" stroke-width="1"/>
+            </svg>
+            <div class="lbl">100 Kept</div>
+          </div>
+          <div class="badge" title="14-Day Streak">
+            <svg viewBox="0 0 32 32" width="34" height="34" aria-hidden="true">
+              <path d="M16 3 C12 12 20 14 16 22 C12 18 8 22 12 28 C18 30 26 24 24 16 C22 10 18 10 16 3 Z"
+                fill="oklch(72% 0.21 28)" stroke="oklch(40% 0.14 28)"/>
+            </svg>
+            <div class="lbl">Streak 14</div>
+          </div>
+          <div class="badge" title="7-Day Echo Combo">
+            <svg viewBox="0 0 32 32" width="34" height="34" aria-hidden="true">
+              <circle cx="12" cy="16" r="8" fill="none" stroke="oklch(72% 0.24 320)" stroke-width="2"/>
+              <circle cx="20" cy="16" r="8" fill="none" stroke="oklch(72% 0.21 200)" stroke-width="2"/>
+            </svg>
+            <div class="lbl">Echo ×2</div>
+          </div>
+          <div class="badge" title="Mythic Year-Long Reminder">
+            <svg viewBox="0 0 32 32" width="34" height="34" aria-hidden="true">
+              <path d="M16 4 L28 16 L16 28 L4 16 Z" fill="oklch(72% 0.24 320)" stroke="oklch(95% 0.05 320)" stroke-width="1.5"/>
+              <circle cx="16" cy="16" r="3" fill="oklch(98% 0 0)"/>
+            </svg>
+            <div class="lbl">Mythic</div>
+          </div>
+          <div class="badge locked" title="Locked: 1,000 Kept">
+            <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true">
+              <rect x="9" y="14" width="14" height="12" rx="2" fill="oklch(50% 0.02 270)"/>
+              <path d="M12 14 V10 a4 4 0 0 1 8 0 V14" fill="none" stroke="oklch(50% 0.02 270)" stroke-width="2"/>
+            </svg>
+            <div class="lbl">1k Kept</div>
+          </div>
+          <div class="badge locked" title="Locked: 365-Day Streak">
+            <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true">
+              <rect x="9" y="14" width="14" height="12" rx="2" fill="oklch(50% 0.02 270)"/>
+              <path d="M12 14 V10 a4 4 0 0 1 8 0 V14" fill="none" stroke="oklch(50% 0.02 270)" stroke-width="2"/>
+            </svg>
+            <div class="lbl">365d</div>
+          </div>
+          <div class="badge locked" title="Locked: 5x Combo">
+            <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true">
+              <rect x="9" y="14" width="14" height="12" rx="2" fill="oklch(50% 0.02 270)"/>
+              <path d="M12 14 V10 a4 4 0 0 1 8 0 V14" fill="none" stroke="oklch(50% 0.02 270)" stroke-width="2"/>
+            </svg>
+            <div class="lbl">Combo×5</div>
+          </div>
+          <div class="badge locked" title="Locked: Top 1 in Sub">
+            <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true">
+              <rect x="9" y="14" width="14" height="12" rx="2" fill="oklch(50% 0.02 270)"/>
+              <path d="M12 14 V10 a4 4 0 0 1 8 0 V14" fill="none" stroke="oklch(50% 0.02 270)" stroke-width="2"/>
+            </svg>
+            <div class="lbl">Top1 Sub</div>
+          </div>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <div class="footer" role="contentinfo">
+    <span class="fpill">Reminder delivery parity <b>99.7%</b></span>
+    <span class="fpill">Scheduler latency <b>−38%</b> vs legacy</span>
+    <span class="fpill">Ack-on-time rate <b>87%</b> (Opus 4.7 detected)</span>
+    <span class="fpill">Comments / quest <b>+22%</b></span>
+    <span style="margin-left:auto">RUN_ID r-20260507T172110 · Devvit-native · <span class="kbd">R</span> remind · <span class="kbd">L</span> board</span>
+  </div>
+</div>
+
+<div class="toast" role="status" aria-live="polite">
+  <div class="particles">
+    <div class="p"></div><div class="p"></div><div class="p"></div>
+    <div class="p"></div><div class="p"></div><div class="p"></div>
+  </div>
+  <svg class="ic" viewBox="0 0 48 48" aria-hidden="true">
+    <defs><radialGradient id="t1" cx="0.5" cy="0.4" r="0.7">
+      <stop offset="0" stop-color="oklch(96% 0.15 90)"/>
+      <stop offset="1" stop-color="oklch(60% 0.16 60)"/></radialGradient></defs>
+    <polygon points="24,4 30,18 45,20 33,30 37,45 24,37 11,45 15,30 3,20 18,18"
+      fill="url(#t1)" stroke="oklch(98% 0.05 90)" stroke-width="1.5"/>
+    <text x="24" y="28" text-anchor="middle" font-size="11" font-weight="900" fill="oklch(20% 0.05 90)">100</text>
+  </svg>
+  <div>
+    <div class="ti">ACHIEVEMENT UNLOCKED</div>
+    <div class="td">100 Reminders Kept · +500 XP · u/Watchful1 reaches LVL 27 · Chronomancer</div>
+  </div>
+</div>
+
+</body>
+</html>

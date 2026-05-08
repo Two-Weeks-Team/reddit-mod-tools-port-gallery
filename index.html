@@ -1,0 +1,758 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mod Tools Migration — 26 Verified Port Candidates</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, -apple-system, sans-serif; background: oklch(98% 0.01 250); color: oklch(20% 0.02 250); line-height: 1.5; padding: 24px; }
+header.top { background: oklch(20% 0.05 250); color: oklch(98% 0 0); padding: 24px 32px; border-radius: 12px; margin-bottom: 24px; }
+header.top h1 { font-size: 24px; margin-bottom: 8px; }
+header.top .sub { font-size: 14px; opacity: 0.85; }
+.legend { display: flex; gap: 16px; margin-top: 12px; flex-wrap: wrap; font-size: 12px; }
+.legend .item { display: flex; align-items: center; gap: 6px; }
+.legend .swatch { width: 14px; height: 14px; border-radius: 3px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 20px; }
+.card { background: white; border-radius: 12px; padding: 18px; box-shadow: 0 2px 8px oklch(40% 0.05 250 / 0.08); display: flex; flex-direction: column; gap: 10px; border-left: 4px solid; }
+.card.tier-A { border-left-color: oklch(75% 0.18 145); }
+.card.tier-Aminus { border-left-color: oklch(78% 0.14 100); }
+.card.tier-B { border-left-color: oklch(80% 0.15 75); }
+.card.tier-Bminus { border-left-color: oklch(72% 0.16 50); }
+.card.tier-C { border-left-color: oklch(65% 0.20 25); }
+.card-head { display: flex; justify-content: space-between; align-items: center; }
+.pid { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px; font-weight: 700; color: oklch(40% 0.05 250); }
+.advocate { font-size: 14px; font-weight: 600; margin-left: 8px; }
+.tier-badge { font-family: ui-monospace, monospace; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 4px; }
+.bot { font-size: 18px; font-weight: 700; }
+.meta { display: flex; gap: 6px; align-items: center; font-size: 11px; flex-wrap: wrap; color: oklch(40% 0.03 250); }
+.meta a.repo { color: oklch(45% 0.18 250); text-decoration: none; font-family: ui-monospace, monospace; }
+.meta a.repo:hover { text-decoration: underline; }
+.meta .dot { opacity: 0.4; }
+.note { font-size: 11px; padding: 6px 8px; background: oklch(94% 0.04 75); border-radius: 4px; color: oklch(35% 0.10 75); }
+.framing { font-size: 13px; color: oklch(30% 0.02 250); }
+.pitch { font-size: 13px; font-style: italic; padding: 8px 10px; border-left: 3px solid oklch(85% 0.05 250); background: oklch(97% 0.01 250); }
+.surface { font-size: 12px; color: oklch(40% 0.03 250); }
+.surface .lbl { font-weight: 700; color: oklch(20% 0.02 250); }
+iframe { width: 100%; aspect-ratio: 4/3; border: 1px solid oklch(90% 0.02 250); border-radius: 8px; background: white; }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>Reddit Mod Tools Migration — 26 Verified Port Candidates</h1>
+  <div class="sub">RUN: r-20260507T172110 · Best Ported Data API App ($10K, deadline 2026-05-27 PDT) · All bots verified via GitHub API + WebSearch</div>
+  <div class="legend">
+    <div class="item"><div class="swatch" style="background:oklch(75% 0.18 145)"></div>Tier A — active OSS, &lt;1y push</div>
+    <div class="item"><div class="swatch" style="background:oklch(78% 0.14 100)"></div>Tier A- — MIT, ~3y push</div>
+    <div class="item"><div class="swatch" style="background:oklch(80% 0.15 75)"></div>Tier B — codebase intact, ~3y dormant</div>
+    <div class="item"><div class="swatch" style="background:oklch(72% 0.16 50)"></div>Tier B- — ~5y dormant, permission risk</div>
+    <div class="item"><div class="swatch" style="background:oklch(65% 0.20 25)"></div>Tier C — abandoned; pivot recommended</div>
+  </div>
+</header>
+<main class="grid">
+
+<article class="card tier-A">
+  <header class="card-head">
+    <div class="head-left">
+      <span class="pid">P01</span>
+      <span class="advocate">The Contrarian</span>
+    </div>
+    <span class="tier-badge" style="background:oklch(75% 0.18 145);color:oklch(20% 0.05 145)">Tier A</span>
+  </header>
+  <h2 class="bot">/u/MAGIC_EYE_BOT</h2>
+  <div class="meta">
+    <a class="repo" href="https://github.com/downfromthetrees/the_magic_eye" target="_blank">downfromthetrees/the_magic_eye</a>
+    <span class="dot">·</span>
+    <span class="lic">MIT</span>
+    <span class="dot">·</span>
+    <span class="push">push 2024-07-30</span>
+    <span class="dot">·</span>
+    <span class="stars">42★</span>
+    <span class="dot">·</span>
+    <span class="owner">u/CosmicKeys</span>
+  </div>
+  
+  <p class="framing">While every other entrant ports the obvious AI-buzzword bot (RepostSleuth, BotDefense clones), the unfashionable truth is that MAGIC_EYE_BOT is the bot mods of large image subs actually still configur</p>
+  <p class="pitch">"Everyone&#x27;s porting the trendy bot. We&#x27;re porting the one r/pics mods actually still edit the wiki for — MAGIC_EYE_BOT, terminal-style, parity-proven, sub-second on Devvit."</p>
+  <p class="surface"><span class="lbl">Surface:</span> terminal-style mod console embedded in the subreddit&#x27;s Mod Tools tab — keyboard-first &#x27;config diff&#x27; viewer that shows the legacy wiki YAML o</p>
+  <iframe loading="lazy" src="P01-the-contrarian.html" title="P01 mockup"></iframe>
+</article>
+
+<article class="card tier-A">
+  <header class="card-head">
+    <div class="head-left">
+      <span class="pid">P02</span>
+      <span class="advocate">The Operations Veteran</span>
+    </div>
+    <span class="tier-badge" style="background:oklch(75% 0.18 145);color:oklch(20% 0.05 145)">Tier A</span>
+  </header>
+  <h2 class="bot">RepostSleuthBot</h2>
+  <div class="meta">
+    <a class="repo" href="https://github.com/barrycarey/RedditRepostSleuth" target="_blank">barrycarey/RedditRepostSleuth</a>
+    <span class="dot">·</span>
+    <span class="lic">GPL-3.0</span>
+    <span class="dot">·</span>
+    <span class="push">push 2026-01-17</span>
+    <span class="dot">·</span>
+    <span class="stars">186★</span>
+    <span class="dot">·</span>
+    <span class="owner">u/barrycarey</span>
+  </div>
+  
+  <p class="framing">Port RepostSleuthBot to Devvit so the moderator-author can finally turn off the always-on Postgres/Redis box, kill the cron-driven token rotation, and let Devvit&#x27;s managed runtime + media trigger abso</p>
+  <p class="pitch">"RepostSleuthBot, ported to Devvit — same rules, sub-second triggers, zero hosting bill, and an ops dashboard that proves the time saved instead of promising it."</p>
+  <p class="surface"><span class="lbl">Surface:</span> Operator status board: a Devvit subreddit-app settings page that doubles as a live ops dashboard — uptime %, p50/p95 trigger latency, hash-l</p>
+  <iframe loading="lazy" src="P02-the-ops-veteran.html" title="P02 mockup"></iframe>
+</article>
+
+<article class="card tier-A">
+  <header class="card-head">
+    <div class="head-left">
+      <span class="pid">P03</span>
+      <span class="advocate">The Speed-Obsessed</span>
+    </div>
+    <span class="tier-badge" style="background:oklch(75% 0.18 145);color:oklch(20% 0.05 145)">Tier A</span>
+  </header>
+  <h2 class="bot">u/RemindMeBot</h2>
+  <div class="meta">
+    <a class="repo" href="https://github.com/Watchful1/RemindMeBot" target="_blank">Watchful1/RemindMeBot</a>
+    <span class="dot">·</span>
+    <span class="lic">none</span>
+    <span class="dot">·</span>
+    <span class="push">push 2025-08-06</span>
+    <span class="dot">·</span>
+    <span class="stars">226★</span>
+    <span class="dot">·</span>
+    <span class="owner">u/Watchful1</span>
+  </div>
+  
+  <p class="framing">RemindMeBot is the perfect speed-port: a single comment-summon trigger plus a delayed-callback delivery. Strip Watchful1&#x27;s 7-year PRAW + sqlalchemy codebase to ONE Devvit trigger + ONE Scheduler job a</p>
+  <p class="pitch">"RemindMeBot, ported to Devvit in 4 days: one trigger, one scheduler, zero servers — Watchful1&#x27;s 1.5M reminders survive Data API deprecation with the smallest diff possible."</p>
+  <p class="surface"><span class="lbl">Surface:</span> Single Devvit install card with a 4-day countdown CTA, one-click &#x27;Install on r/test&#x27;, and an auto-firing demo reminder in 60 seconds. Onboar</p>
+  <iframe loading="lazy" src="P03-the-speed-obsessed.html" title="P03 mockup"></iframe>
+</article>
+
+<article class="card tier-B">
+  <header class="card-head">
+    <div class="head-left">
+      <span class="pid">P04</span>
+      <span class="advocate">The Cost-Conscious</span>
+    </div>
+    <span class="tier-badge" style="background:oklch(80% 0.15 75);color:oklch(20% 0.05 75)">Tier B</span>
+  </header>
+  <h2 class="bot">ContextMod</h2>
+  <div class="meta">
+    <a class="repo" href="https://github.com/FoxxMD/context-mod" target="_blank">FoxxMD/context-mod</a>
+    <span class="dot">·</span>
+    <span class="lic">MIT</span>
+    <span class="dot">·</span>
+    <span class="push">push 2024-06-13</span>
+    <span class="dot">·</span>
+    <span class="stars">54★</span>
+    <span class="dot">·</span>
+    <span class="owner">u/FoxxMD</span>
+  </div>
+  <div class="note">⚠ 3-year dormant runtime; codebase intact</div>
+  <p class="framing">ContextMod&#x27;s value is the rules YAML — its cost is the infra. Port the rules engine and YAML config loader to Devvit so every operator&#x27;s $30+/mo VPS bill collapses to $0, while the parity surface (pos</p>
+  <p class="pitch">"ContextMod&#x27;s $47/mo hosting bill ported to Devvit&#x27;s free runtime — same rules.yaml, zero VPS, zero token rotation, $564/year saved per operator."</p>
+  <p class="surface"><span class="lbl">Surface:</span> Devvit app (free Reddit-hosted runtime) + Redis-backed key-value (Devvit free tier) for rule cache + YAML rules pasted into Devvit settings </p>
+  <iframe loading="lazy" src="P04-the-cost-conscious.html" title="P04 mockup"></iframe>
+</article>
+
+<article class="card tier-A">
+  <header class="card-head">
+    <div class="head-left">
+      <span class="pid">P05</span>
+      <span class="advocate">The Design-Forward</span>
+    </div>
+    <span class="tier-badge" style="background:oklch(75% 0.18 145);color:oklch(20% 0.05 145)">Tier A</span>
+  </header>
+  <h2 class="bot">RepostSleuthBot</h2>
+  <div class="meta">
+    <a class="repo" href="https://github.com/barrycarey/RedditRepostSleuth" target="_blank">barrycarey/RedditRepostSleuth</a>
+    <span class="dot">·</span>
+    <span class="lic">GPL-3.0</span>
+    <span class="dot">·</span>
+    <span class="push">push 2026-01-17</span>
+    <span class="dot">·</span>
+    <span class="stars">186★</span>
+    <span class="dot">·</span>
+    <span class="owner">u/barrycarey</span>
+  </div>
+  
+  <p class="framing">Repost detection isn&#x27;t a data problem — it&#x27;s a perception problem. Mods need to see the duplicate to trust the verdict, not parse a wall of similarity percentages buried in a comment thread. Devvit le</p>
+  <p class="pitch">"RepostSleuth, reborn as a visual verdict card — mods see the duplicate, read the rationale, and action it in one tap, without ever leaving the post."</p>
+  <p class="surface"><span class="lbl">Surface:</span> First screen IS the pitch: a Devvit custom post that renders the flagged submission and the top-3 historical matches side-by-side as a polis</p>
+  <iframe loading="lazy" src="P05-the-design-forward.html" title="P05 mockup"></iframe>
+</article>
+
+<article class="card tier-Bminus">
+  <header class="card-head">
+    <div class="head-left">
+      <span class="pid">P06</span>
+      <span class="advocate">The Spreadsheet Jockey</span>
+    </div>
+    <span class="tier-badge" style="background:oklch(72% 0.16 50);color:oklch(20% 0.05 50)">Tier B-</span>
+  </header>
+  <h2 class="bot">AssistantBOT</h2>
+  <div class="meta">
+    <a class="repo" href="https://github.com/kungming2/AssistantBOT" target="_blank">kungming2/AssistantBOT</a>
+    <span class="dot">·</span>
+    <span class="lic">MIT</span>
+    <span class="dot">·</span>
+    <span class="push">push 2021-06-25</span>
+    <span class="dot">·</span>
+    <span class="stars">13★</span>
+    <span class="dot">·</span>
+    <span class="owner">u/kungming2</span>
+  </div>
+  <div class="note">⚠ 5-year dormant; permission-path uncertain</div>
+  <p class="framing">Mods don&#x27;t want one-off dashboards — they want a sortable, filterable grid of every modlog event, every removed post, every takedown reason, with CSV export. Port AssistantBOT&#x27;s stats engine into Devv</p>
+  <p class="pitch">"AssistantBOT, but the weekly stats comment is now a sortable Devvit grid: 8 columns, filter chips, CSV export, keyboard-driven — mods triage in rows, not tabs."</p>
+  <p class="surface"><span class="lbl">Surface:</span> Devvit custom-post &#x27;ModSheet&#x27; — sticky-header data grid with sortable columns (timestamp, author, action, rule, latency_ms, queue_depth), mu</p>
+  <iframe loading="lazy" src="P06-the-spreadsheet-jockey.html" title="P06 mockup"></iframe>
+</article>
+
+<article class="card tier-A">
+  <header class="card-head">
+    <div class="head-left">
+      <span class="pid">P07</span>
+      <span class="advocate">The Mobile-First</span>
+    </div>
+    <span class="tier-badge" style="background:oklch(75% 0.18 145);color:oklch(20% 0.05 145)">Tier A</span>
+  </header>
+  <h2 class="bot">/u/MAGIC_EYE_BOT</h2>
+  <div class="meta">
+    <a class="repo" href="https://github.com/downfromthetrees/the_magic_eye" target="_blank">downfromthetrees/the_magic_eye</a>
+    <span class="dot">·</span>
+    <span class="lic">MIT</span>
+    <span class="dot">·</span>
+    <span class="push">push 2024-07-30</span>
+    <span class="dot">·</span>
+    <span class="stars">42★</span>
+    <span class="dot">·</span>
+    <span class="owner">u/CosmicKeys</span>
+  </div>
+  
+  <p class="framing">Image-sub mods triage 80% of repost reports from a phone — in line, on transit, between meetings — but Reddit&#x27;s official mobile mod tools force pinch-zoom on tiny side-by-side thumbnails. The Devvit p</p>
+  <p class="pitch">"Tinder-for-reposts: MAGIC_EYE_BOT&#x27;s pHash queue, swipeable from the phone where mods actually live."</p>
+  <p class="surface"><span class="lbl">Surface:</span> Devvit custom post rendered as a phone-frame swipe deck — single-column, 48px minimum tap targets, status-bar safe area, bottom sheet for th</p>
+  <iframe loading="lazy" src="P07-the-mobile-first.html" title="P07 mockup"></iframe>
+</article>
+
+<article class="card tier-Aminus">
+  <header class="card-head">
+    <div class="head-left">
+      <span class="pid">P08</span>
+      <span class="advocate">The Slack-Native</span>
+    </div>
+    <span class="tier-badge" style="background:oklch(78% 0.14 100);color:oklch(20% 0.05 100)">Tier A-</span>
+  </header>
+  <h2 class="bot">u/AlertBot (Alert-Bot-Reddit)</h2>
+  <div class="meta">
+    <a class="repo" href="https://github.com/tylerbrockett/Alert-Bot-Reddit" target="_blank">tylerbrockett/Alert-Bot-Reddit</a>
+    <span class="dot">·</span>
+    <span class="lic">MIT</span>
+    <span class="dot">·</span>
+    <span class="push">push 2023-05-05</span>
+    <span class="dot">·</span>
+    <span class="stars">136★</span>
+    <span class="dot">·</span>
+    <span class="owner">tylerbrockett</span>
+  </div>
+  
+  <p class="framing">AlertBot&#x27;s legacy delivery surface (private DMs blasted at one subscribed user) is the exact wrong shape for moderator team workflows — alerts vanish into a single mod&#x27;s personal inbox with zero team </p>
+  <p class="pitch">"AlertBot reborn — keyword alerts arrive as modmail threads, mod teams reply with slash commands, Opus 4.7 parses intent. Chat is where moderation happens."</p>
+  <p class="surface"><span class="lbl">Surface:</span> primary_surface = Devvit ModMail conversation (the chat-thread surface) for both alert delivery AND command reply. Slash-style commands (`!a</p>
+  <iframe loading="lazy" src="P08-the-slack-native.html" title="P08 mockup"></iframe>
+</article>
+
+<article class="card tier-B">
+  <header class="card-head">
+    <div class="head-left">
+      <span class="pid">P09</span>
+      <span class="advocate">The CLI Devotee</span>
+    </div>
+    <span class="tier-badge" style="background:oklch(80% 0.15 75);color:oklch(20% 0.05 75)">Tier B</span>
+  </header>
+  <h2 class="bot">ContextMod</h2>
+  <div class="meta">
+    <a class="repo" href="https://github.com/FoxxMD/context-mod" target="_blank">FoxxMD/context-mod</a>
+    <span class="dot">·</span>
+    <span class="lic">MIT</span>
+    <span class="dot">·</span>
+    <span class="push">push 2024-06-13</span>
+    <span class="dot">·</span>
+    <span class="stars">54★</span>
+    <span class="dot">·</span>
+    <span class="owner">u/FoxxMD</span>
+  </div>
+  <div class="note">⚠ 3-year dormant runtime; codebase intact</div>
+  <p class="framing">ContextMod&#x27;s superpower was always the rule file — moderators who could write a JSON ruleset shipped policy in minutes, but the GUI ports always lost that keystroke velocity. Port ContextMod to Devvit</p>
+  <p class="pitch">"ContextMod, ported to Devvit, but you never leave the keyboard — vim-modal rule editing, `:dry-run` REPL, and Opus-powered `:explain` right inside the modqueue."</p>
+  <p class="surface"><span class="lbl">Surface:</span> Devvit custom post + settings page rendered as a terminal emulator (monospace, OKLCH phosphor palette, blinking caret). Web UI appears once </p>
+  <iframe loading="lazy" src="P09-the-cli-devotee.html" title="P09 mockup"></iframe>
+</article>
+
+<article class="card tier-B">
+  <header class="card-head">
+    <div class="head-left">
+      <span class="pid">P10</span>
+      <span class="advocate">The Dreamer</span>
+    </div>
+    <span class="tier-badge" style="background:oklch(80% 0.15 75);color:oklch(20% 0.05 75)">Tier B</span>
+  </header>
+  <h2 class="bot">ContextMod</h2>
+  <div class="meta">
+    <a class="repo" href="https://github.com/FoxxMD/context-mod" target="_blank">FoxxMD/context-mod</a>
+    <span class="dot">·</span>
+    <span class="lic">MIT</span>
+    <span class="dot">·</span>
+    <span class="push">push 2024-06-13</span>
+    <span class="dot">·</span>
+    <span class="stars">54★</span>
+    <span class="dot">·</span>
+    <span class="owner">u/FoxxMD</span>
+  </div>
+  <div class="note">⚠ 3-year dormant runtime; codebase intact</div>
+  <p class="framing">Port v1 of ContextMod isn&#x27;t just a bot migration — it&#x27;s the seed of a Community-AI Compact: a future where every subreddit has a native, mod-authored AI conscience that learns the sub&#x27;s values from re</p>
+  <p class="pitch">"ContextMod v1 ports the rules; v5 becomes your subreddit&#x27;s AI conscience — a mod-authored, mod-accountable assistant that learns your community&#x27;s values and explains every call."</p>
+  <p class="surface"><span class="lbl">Surface:</span> Devvit-native modqueue overlay with a single &#x27;Why?&#x27; glyph per item that opens a glass-morphism context card — natural-language reasoning, le</p>
+  <iframe loading="lazy" src="P10-the-dreamer.html" title="P10 mockup"></iframe>
+</article>
+
+<article class="card tier-A">
+  <header class="card-head">
+    <div class="head-left">
+      <span class="pid">P11</span>
+      <span class="advocate">The Pragmatist</span>
+    </div>
+    <span class="tier-badge" style="background:oklch(75% 0.18 145);color:oklch(20% 0.05 145)">Tier A</span>
+  </header>
+  <h2 class="bot">Flair_Helper2</h2>
+  <div class="meta">
+    <a class="repo" href="https://github.com/quentinwolf/flair_helper2" target="_blank">quentinwolf/flair_helper2</a>
+    <span class="dot">·</span>
+    <span class="lic">GPL-3.0</span>
+    <span class="dot">·</span>
+    <span class="push">push 2024-09-03</span>
+    <span class="dot">·</span>
+    <span class="stars">1★</span>
+    <span class="dot">·</span>
+    <span class="owner">u/quentinwolf</span>
+  </div>
+  
+  <p class="framing">Don&#x27;t reinvent. Port the smallest mod bot with the cleanest spec. Flair_Helper2 is one trigger (PostFlairUpdate), one config file (wiki YAML), and ~6 actions. That fits 4 days with margin to spare and</p>
+  <p class="pitch">"Flair_Helper2 reborn on Devvit — same YAML, same flairs, same actions, zero hosting. Ships day 4, works on day 5."</p>
+  <p class="surface"><span class="lbl">Surface:</span> Devvit Web app (TypeScript) + Postgres-equivalent via Devvit Redis KV. Stack: Devvit 0.11 stable (not preview), TS 5.4, Zod for YAML validat</p>
+  <iframe loading="lazy" src="P11-the-pragmatist.html" title="P11 mockup"></iframe>
+</article>
+
+<article class="card tier-B">
+  <header class="card-head">
+    <div class="head-left">
+      <span class="pid">P12</span>
+      <span class="advocate">The Privacy Hawk</span>
+    </div>
+    <span class="tier-badge" style="background:oklch(80% 0.15 75);color:oklch(20% 0.05 75)">Tier B</span>
+  </header>
+  <h2 class="bot">ContextMod</h2>
+  <div class="meta">
+    <a class="repo" href="https://github.com/FoxxMD/context-mod" target="_blank">FoxxMD/context-mod</a>
+    <span class="dot">·</span>
+    <span class="lic">MIT</span>
+    <span class="dot">·</span>
+    <span class="push">push 2024-06-13</span>
+    <span class="dot">·</span>
+    <span class="stars">54★</span>
+    <span class="dot">·</span>
+    <span class="owner">u/FoxxMD</span>
+  </div>
+  <div class="note">⚠ 3-year dormant runtime; codebase intact</div>
+  <p class="framing">ContextMod&#x27;s whole job is reading sensitive cross-subreddit user histories — exactly the data class that the legacy &#x27;self-hosted server + broad OAuth&#x27; model leaks worst. Porting to Devvit isn&#x27;t just &#x27;</p>
+  <p class="pitch">"ContextMod, ported to Devvit so user histories stop leaving Reddit — same rules, two OAuth scopes instead of seven, hashed storage, auto-expiring, with a privacy receipt every mod can show their community."</p>
+  <p class="surface"><span class="lbl">Surface:</span> Devvit-sandboxed rule engine (PostSubmit / CommentSubmit / ModAction triggers) with local-first evaluation in Devvit Redis (per-install, per</p>
+  <iframe loading="lazy" src="P12-the-privacy-hawk.html" title="P12 mockup"></iframe>
+</article>
+
+<article class="card tier-Bminus">
+  <header class="card-head">
+    <div class="head-left">
+      <span class="pid">P13</span>
+      <span class="advocate">The Data Nerd</span>
+    </div>
+    <span class="tier-badge" style="background:oklch(72% 0.16 50);color:oklch(20% 0.05 50)">Tier B-</span>
+  </header>
+  <h2 class="bot">AssistantBOT</h2>
+  <div class="meta">
+    <a class="repo" href="https://github.com/kungming2/AssistantBOT" target="_blank">kungming2/AssistantBOT</a>
+    <span class="dot">·</span>
+    <span class="lic">MIT</span>
+    <span class="dot">·</span>
+    <span class="push">push 2021-06-25</span>
+    <span class="dot">·</span>
+    <span class="stars">13★</span>
+    <span class="dot">·</span>
+    <span class="owner">u/kungming2</span>
+  </div>
+  <div class="note">⚠ 5-year dormant; permission-path uncertain</div>
+  <p class="framing">Re-platform AssistantBOT (Artemis) onto Devvit so its statistics engine — submission cadence, flair distribution, top contributors, traffic deltas, mod-action breakdowns — runs as a native Reddit dash</p>
+  <p class="pitch">"AssistantBOT, ported to Devvit as a live mod dashboard — the stats your sub already trusted, now charted inside Reddit with a measurable time-savings delta on the front page."</p>
+  <p class="surface"><span class="lbl">Surface:</span> Devvit custom-post dashboard pinned to the sub: KPI strip (WAU, submit rate, removal rate, mod-action p50 latency) + 30/90-day sparklines + </p>
+  <iframe loading="lazy" src="P13-the-data-nerd.html" title="P13 mockup"></iframe>
+</article>
+
+<article class="card tier-C">
+  <header class="card-head">
+    <div class="head-left">
+      <span class="pid">P14</span>
+      <span class="advocate">The Educator</span>
+    </div>
+    <span class="tier-badge" style="background:oklch(65% 0.20 25);color:oklch(20% 0.05 25)">Tier C</span>
+  </header>
+  <h2 class="bot">Flair_Helper</h2>
+  <div class="meta">
+    <a class="repo" href="https://github.com/(original by u/Blank-Cheque + u/justcool393)" target="_blank">(original by u/Blank-Cheque + u/justcool393)</a>
+    <span class="dot">·</span>
+    <span class="lic">none</span>
+    <span class="dot">·</span>
+    <span class="push">push abandoned</span>
+    <span class="dot">·</span>
+    <span class="stars">0★</span>
+    <span class="dot">·</span>
+    <span class="owner">abandoned</span>
+  </div>
+  <div class="note">⚠ Original abandoned; pivot to Flair_Helper2 likely</div>
+  <p class="framing">The original Flair_Helper already taught users why their post was removed via canned rule citations. Devvit lets us turn that one-shot removal comment into an in-thread learning moment: the OP sees an</p>
+  <p class="pitch">"Flair_Helper, ported to Devvit and turned into a teacher: every removal becomes an inline lesson on the OP&#x27;s post, so users learn the rules instead of rage-quitting modmail."</p>
+  <p class="surface"><span class="lbl">Surface:</span> Devvit post-level custom post + modqueue overlay. Onboarding-rich: every removal generates an inline &#x27;Why was this removed?&#x27; card on the OP&#x27;</p>
+  <iframe loading="lazy" src="P14-the-educator.html" title="P14 mockup"></iframe>
+</article>
+
+<article class="card tier-A">
+  <header class="card-head">
+    <div class="head-left">
+      <span class="pid">P15</span>
+      <span class="advocate">The Community Builder</span>
+    </div>
+    <span class="tier-badge" style="background:oklch(75% 0.18 145);color:oklch(20% 0.05 145)">Tier A</span>
+  </header>
+  <h2 class="bot">u/RemindMeBot</h2>
+  <div class="meta">
+    <a class="repo" href="https://github.com/Watchful1/RemindMeBot" target="_blank">Watchful1/RemindMeBot</a>
+    <span class="dot">·</span>
+    <span class="lic">none</span>
+    <span class="dot">·</span>
+    <span class="push">push 2025-08-06</span>
+    <span class="dot">·</span>
+    <span class="stars">226★</span>
+    <span class="dot">·</span>
+    <span class="owner">u/Watchful1</span>
+  </div>
+  
+  <p class="framing">RemindMeBot은 1인 알림 도구가 아니라 1.5M+ 활성 리마인더가 흐르는 거대한 멀티유저 그래프다. 모든 리마인더는 요청자(requestor) + 소환자(u/RemindMeBot) + N명의 &#x27;me too&#x27; bystander로 구성된 다인 스레드이며, Devvit 포팅의 핵심은 이 piggyback을 라이브 카운터·그래프·모드 핀 surface로 </p>
+  <p class="pitch">"RemindMeBot을 1인 타이머에서 다인 커뮤니티 모먼트 그래프로. 1.5M 리마인더가 만드는 네트워크를 모드가 직접 큐레이션하는 Devvit 포트."</p>
+  <p class="surface"><span class="lbl">Surface:</span> Devvit single-workspace = 한 reminder thread가 곧 다인 워크스페이스. role-based: requestor / summoner(bot) / bystanders / mod-curator. inline @mention </p>
+  <iframe loading="lazy" src="P15-the-community-builder.html" title="P15 mockup"></iframe>
+</article>
+
+<article class="card tier-A">
+  <header class="card-head">
+    <div class="head-left">
+      <span class="pid">P16</span>
+      <span class="advocate">The Solo Founder</span>
+    </div>
+    <span class="tier-badge" style="background:oklch(75% 0.18 145);color:oklch(20% 0.05 145)">Tier A</span>
+  </header>
+  <h2 class="bot">Flair_Helper2</h2>
+  <div class="meta">
+    <a class="repo" href="https://github.com/quentinwolf/flair_helper2" target="_blank">quentinwolf/flair_helper2</a>
+    <span class="dot">·</span>
+    <span class="lic">GPL-3.0</span>
+    <span class="dot">·</span>
+    <span class="push">push 2024-09-03</span>
+    <span class="dot">·</span>
+    <span class="stars">1★</span>
+    <span class="dot">·</span>
+    <span class="owner">u/quentinwolf</span>
+  </div>
+  
+  <p class="framing">A single human keeps Flair_Helper2 alive on a personal VPS — token rotations, OAuth re-auths, modlog poller crashes at 3am all land on one pager. Port it to Devvit and the bot lives inside Reddit&#x27;s ru</p>
+  <p class="pitch">"Flair_Helper2, ported to Devvit — same flair-driven mod actions, zero VPS, zero pager. Give the solo maintainer their weekend back."</p>
+  <p class="surface"><span class="lbl">Surface:</span> Devvit app with a single owner-admin panel (no role/permission matrix — installer = admin = user). One YAML-equivalent rules editor, one liv</p>
+  <iframe loading="lazy" src="P16-the-solo-founder.html" title="P16 mockup"></iframe>
+</article>
+
+<article class="card tier-B">
+  <header class="card-head">
+    <div class="head-left">
+      <span class="pid">P17</span>
+      <span class="advocate">The Enterprise Buyer</span>
+    </div>
+    <span class="tier-badge" style="background:oklch(80% 0.15 75);color:oklch(20% 0.05 75)">Tier B</span>
+  </header>
+  <h2 class="bot">ContextMod</h2>
+  <div class="meta">
+    <a class="repo" href="https://github.com/FoxxMD/context-mod" target="_blank">FoxxMD/context-mod</a>
+    <span class="dot">·</span>
+    <span class="lic">MIT</span>
+    <span class="dot">·</span>
+    <span class="push">push 2024-06-13</span>
+    <span class="dot">·</span>
+    <span class="stars">54★</span>
+    <span class="dot">·</span>
+    <span class="owner">u/FoxxMD</span>
+  </div>
+  <div class="note">⚠ 3-year dormant runtime; codebase intact</div>
+  <p class="framing">Reframe the port as a compliance-grade migration: every rule the legacy ContextMod instance ran becomes an auditable Devvit policy with signed change history, role-scoped overrides, and an SLA gauge —</p>
+  <p class="pitch">"ContextMod, re-shipped as a SOC2-vibe Devvit control plane: every removal signed, every rule role-scoped, every latency SLA-tracked — so head-mods of 500K+ subs can sign off on the migration."</p>
+  <p class="surface"><span class="lbl">Surface:</span> Devvit modtools panel rendered as an enterprise control center: (a) immutable Audit Log table (actor, rule_id, target, decision, hash, times</p>
+  <iframe loading="lazy" src="P17-the-enterprise-buyer.html" title="P17 mockup"></iframe>
+</article>
+
+<article class="card tier-Bminus">
+  <header class="card-head">
+    <div class="head-left">
+      <span class="pid">P18</span>
+      <span class="advocate">The Designer</span>
+    </div>
+    <span class="tier-badge" style="background:oklch(72% 0.16 50);color:oklch(20% 0.05 50)">Tier B-</span>
+  </header>
+  <h2 class="bot">AssistantBOT</h2>
+  <div class="meta">
+    <a class="repo" href="https://github.com/kungming2/AssistantBOT" target="_blank">kungming2/AssistantBOT</a>
+    <span class="dot">·</span>
+    <span class="lic">MIT</span>
+    <span class="dot">·</span>
+    <span class="push">push 2021-06-25</span>
+    <span class="dot">·</span>
+    <span class="stars">13★</span>
+    <span class="dot">·</span>
+    <span class="owner">u/kungming2</span>
+  </div>
+  <div class="note">⚠ 5-year dormant; permission-path uncertain</div>
+  <p class="framing">AssistantBOT was the friendly archivist of moderation — it sent mods a tidy weekly newsletter and quietly enforced flair. The port isn&#x27;t a feature list; it&#x27;s a brand revival. We re-launch it on Devvit</p>
+  <p class="pitch">"AssistantBOT, redrawn for Devvit — same beloved weekly digest and flair enforcement, now wearing a wordmark, a gradient, and a voice mods will actually pin."</p>
+  <p class="surface"><span class="lbl">Surface:</span> Devvit-native install, but the discovery surface is a scroll-driven brand storyscape: hero with the new AssistantBOT mark, a parallax &#x27;befor</p>
+  <iframe loading="lazy" src="P18-the-designer.html" title="P18 mockup"></iframe>
+</article>
+
+<article class="card tier-A">
+  <header class="card-head">
+    <div class="head-left">
+      <span class="pid">P19</span>
+      <span class="advocate">The Embedded</span>
+    </div>
+    <span class="tier-badge" style="background:oklch(75% 0.18 145);color:oklch(20% 0.05 145)">Tier A</span>
+  </header>
+  <h2 class="bot">/u/MAGIC_EYE_BOT</h2>
+  <div class="meta">
+    <a class="repo" href="https://github.com/downfromthetrees/the_magic_eye" target="_blank">downfromthetrees/the_magic_eye</a>
+    <span class="dot">·</span>
+    <span class="lic">MIT</span>
+    <span class="dot">·</span>
+    <span class="push">push 2024-07-30</span>
+    <span class="dot">·</span>
+    <span class="stars">42★</span>
+    <span class="dot">·</span>
+    <span class="owner">u/CosmicKeys</span>
+  </div>
+  
+  <p class="framing">MAGIC_EYE_BOT&#x27;s value is invisible — mods only notice fewer reposts in modqueue. Ship it not as an app but as a headless Devvit SDK that other Devvit apps compose: three lines of code, zero new UI, re</p>
+  <p class="pitch">"Repost detection as a three-line import. MAGIC_EYE_BOT ported headless — no UI, no app, just a Devvit SDK your existing mod app calls."</p>
+  <p class="surface"><span class="lbl">Surface:</span> npm package `@magic-eye/devvit` — drop-in import, settings.json-driven config, programmatic `MagicEyeRepostCheck.run(post, ctx)` call inside</p>
+  <iframe loading="lazy" src="P19-the-embedded.html" title="P19 mockup"></iframe>
+</article>
+
+<article class="card tier-B">
+  <header class="card-head">
+    <div class="head-left">
+      <span class="pid">P20</span>
+      <span class="advocate">The OSS Maintainer</span>
+    </div>
+    <span class="tier-badge" style="background:oklch(80% 0.15 75);color:oklch(20% 0.05 75)">Tier B</span>
+  </header>
+  <h2 class="bot">ContextMod</h2>
+  <div class="meta">
+    <a class="repo" href="https://github.com/FoxxMD/context-mod" target="_blank">FoxxMD/context-mod</a>
+    <span class="dot">·</span>
+    <span class="lic">MIT</span>
+    <span class="dot">·</span>
+    <span class="push">push 2024-06-13</span>
+    <span class="dot">·</span>
+    <span class="stars">54★</span>
+    <span class="dot">·</span>
+    <span class="owner">u/FoxxMD</span>
+  </div>
+  <div class="note">⚠ 3-year dormant runtime; codebase intact</div>
+  <p class="framing">Reddit&#x27;s Data API sunset is about to orphan ContextMod and the dozens of mod teams who built rule-sets on top of it. We rescue the bot by porting it to Devvit AND handing the keys to a neutral OSS org</p>
+  <p class="pitch">"ContextMod survives the Data API sunset as a community-owned Devvit app — same YAML rules, same behavior, new runtime, governed by the mods who depend on it."</p>
+  <p class="surface"><span class="lbl">Surface:</span> GitHub repo README is the product. Devvit install is the reference implementation. Issues + Discussions + RFC PRs are how mods adopt and ste</p>
+  <iframe loading="lazy" src="P20-the-oss-maintainer.html" title="P20 mockup"></iframe>
+</article>
+
+<article class="card tier-A">
+  <header class="card-head">
+    <div class="head-left">
+      <span class="pid">P21</span>
+      <span class="advocate">The Indie Hacker</span>
+    </div>
+    <span class="tier-badge" style="background:oklch(75% 0.18 145);color:oklch(20% 0.05 145)">Tier A</span>
+  </header>
+  <h2 class="bot">RepostSleuthBot</h2>
+  <div class="meta">
+    <a class="repo" href="https://github.com/barrycarey/RedditRepostSleuth" target="_blank">barrycarey/RedditRepostSleuth</a>
+    <span class="dot">·</span>
+    <span class="lic">GPL-3.0</span>
+    <span class="dot">·</span>
+    <span class="push">push 2026-01-17</span>
+    <span class="dot">·</span>
+    <span class="stars">186★</span>
+    <span class="dot">·</span>
+    <span class="owner">u/barrycarey</span>
+  </div>
+  
+  <p class="framing">Treat the hackathon as a customer-acquisition channel: pick the ONE bot every mod already begs for so the Devvit port hits maximum install velocity post-prize, converting Developer Funds engagement-mi</p>
+  <p class="pitch">"RepostSleuth, ported to Devvit — every mod&#x27;s most-requested bot becomes a one-click install, and post-prize installs compound into Developer Funds revenue."</p>
+  <p class="surface"><span class="lbl">Surface:</span> Devvit modqueue + post-submit trigger: every new image/link post fires a perceptual-hash + text-similarity check; high-confidence reposts su</p>
+  <iframe loading="lazy" src="P21-the-indie-hacker.html" title="P21 mockup"></iframe>
+</article>
+
+<article class="card tier-B">
+  <header class="card-head">
+    <div class="head-left">
+      <span class="pid">P22</span>
+      <span class="advocate">The Researcher</span>
+    </div>
+    <span class="tier-badge" style="background:oklch(80% 0.15 75);color:oklch(20% 0.05 75)">Tier B</span>
+  </header>
+  <h2 class="bot">ContextMod (context-mod)</h2>
+  <div class="meta">
+    <a class="repo" href="https://github.com/FoxxMD/context-mod" target="_blank">FoxxMD/context-mod</a>
+    <span class="dot">·</span>
+    <span class="lic">MIT</span>
+    <span class="dot">·</span>
+    <span class="push">push 2024-06-13</span>
+    <span class="dot">·</span>
+    <span class="stars">54★</span>
+    <span class="dot">·</span>
+    <span class="owner">u/FoxxMD</span>
+  </div>
+  <div class="note">⚠ 3-year dormant runtime; codebase intact</div>
+  <p class="framing">Treat the Devvit port as a *publishable case study* in rule-engine equivalence: every YAML rule from upstream ContextMod must produce a bit-identical mod-action verdict on a frozen corpus of 10K histo</p>
+  <p class="pitch">"ContextMod ported to Devvit as a reproducible benchmark study: 95%+ rule-equivalence on a 10K-event golden corpus, sub-second p50 latency, lab-report UI, BibTeX-exportable evidence judges can cite."</p>
+  <p class="surface"><span class="lbl">Surface:</span> Paper-style artifact bundle: dataset/method/result structure rendered as a moderator-readable &#x27;lab report&#x27; inside the Devvit app — Figure 1 </p>
+  <iframe loading="lazy" src="P22-the-researcher.html" title="P22 mockup"></iframe>
+</article>
+
+<article class="card tier-A">
+  <header class="card-head">
+    <div class="head-left">
+      <span class="pid">P23</span>
+      <span class="advocate">The Game Designer</span>
+    </div>
+    <span class="tier-badge" style="background:oklch(75% 0.18 145);color:oklch(20% 0.05 145)">Tier A</span>
+  </header>
+  <h2 class="bot">u/RemindMeBot</h2>
+  <div class="meta">
+    <a class="repo" href="https://github.com/Watchful1/RemindMeBot" target="_blank">Watchful1/RemindMeBot</a>
+    <span class="dot">·</span>
+    <span class="lic">none</span>
+    <span class="dot">·</span>
+    <span class="push">push 2025-08-06</span>
+    <span class="dot">·</span>
+    <span class="stars">226★</span>
+    <span class="dot">·</span>
+    <span class="owner">u/Watchful1</span>
+  </div>
+  
+  <p class="framing">RemindMeBot&#x27;s job — schedule a future ping and deliver it on time — is already a quest loop in disguise. Reborn on Devvit as a &#x27;Punctuality Engine&#x27;, every &#x27;RemindMe!&#x27; becomes a quest with stakes: XP o</p>
+  <p class="pitch">"RemindMeBot reborn on Devvit as a Punctuality Engine: every reminder is a quest, ack on time for XP, stack streaks, climb the sub leaderboard."</p>
+  <p class="surface"><span class="lbl">Surface:</span> Devvit custom post &#x27;Quest HUD&#x27; embedded inline on the reminded comment + a sidebar custom post for the Punctuality Leaderboard. Live XP bar,</p>
+  <iframe loading="lazy" src="P23-the-game-designer.html" title="P23 mockup"></iframe>
+</article>
+
+<article class="card tier-A">
+  <header class="card-head">
+    <div class="head-left">
+      <span class="pid">P24</span>
+      <span class="advocate">The Reluctant Adopter</span>
+    </div>
+    <span class="tier-badge" style="background:oklch(75% 0.18 145);color:oklch(20% 0.05 145)">Tier A</span>
+  </header>
+  <h2 class="bot">u/Flair_Helper2</h2>
+  <div class="meta">
+    <a class="repo" href="https://github.com/quentinwolf/flair_helper2" target="_blank">quentinwolf/flair_helper2</a>
+    <span class="dot">·</span>
+    <span class="lic">GPL-3.0</span>
+    <span class="dot">·</span>
+    <span class="push">push 2024-09-03</span>
+    <span class="dot">·</span>
+    <span class="stars">1★</span>
+    <span class="dot">·</span>
+    <span class="owner">u/quentinwolf</span>
+  </div>
+  
+  <p class="framing">Mod teams have been burned before — by silent mass-removes, runaway loops, irreversible bans on long-time contributors. This Devvit port of Flair_Helper2 ships brakes-on-by-default: every flair-trigge</p>
+  <p class="pitch">"Flair_Helper2, ported to Devvit with the brakes on: every action shadow-mode by default, 30-day rollback per action, and a first screen that tells you not to install it."</p>
+  <p class="surface"><span class="lbl">Surface:</span> &#x27;Why you probably shouldn&#x27;t install this yet&#x27; is the FIRST screen of the Devvit install/landing flow — four named failure modes (flair-rule </p>
+  <iframe loading="lazy" src="P24-the-reluctant-adopter.html" title="P24 mockup"></iframe>
+</article>
+
+<article class="card tier-B">
+  <header class="card-head">
+    <div class="head-left">
+      <span class="pid">P25</span>
+      <span class="advocate">The AI-Native</span>
+    </div>
+    <span class="tier-badge" style="background:oklch(80% 0.15 75);color:oklch(20% 0.05 75)">Tier B</span>
+  </header>
+  <h2 class="bot">ContextMod</h2>
+  <div class="meta">
+    <a class="repo" href="https://github.com/FoxxMD/context-mod" target="_blank">FoxxMD/context-mod</a>
+    <span class="dot">·</span>
+    <span class="lic">MIT</span>
+    <span class="dot">·</span>
+    <span class="push">push 2024-06-13</span>
+    <span class="dot">·</span>
+    <span class="stars">54★</span>
+    <span class="dot">·</span>
+    <span class="owner">u/FoxxMD</span>
+  </div>
+  <div class="note">⚠ 3-year dormant runtime; codebase intact</div>
+  <p class="framing">ContextMod&#x27;s power is locked behind a 600-line YAML DSL only senior mods can write. Port the rule engine 1:1 to Devvit (parity gate), then layer an Opus-4.7 chat overlay where any mod types &#x27;flag post</p>
+  <p class="pitch">"ContextMod, but you talk to it. Faithful Devvit port of the YAML rule engine, plus an Opus-4.7 chat that turns &#x27;flag suspicious crosspost spam&#x27; into a tested, diff-previewed rule in 8 seconds."</p>
+  <p class="surface"><span class="lbl">Surface:</span> Devvit custom-post &#x27;Mod Console&#x27; tab anchored to the modqueue — primary interaction is a chat composer with @mention command palette (@rule,</p>
+  <iframe loading="lazy" src="P25-the-ai-native.html" title="P25 mockup"></iframe>
+</article>
+
+<article class="card tier-A">
+  <header class="card-head">
+    <div class="head-left">
+      <span class="pid">P26</span>
+      <span class="advocate">The Anti-AI</span>
+    </div>
+    <span class="tier-badge" style="background:oklch(75% 0.18 145);color:oklch(20% 0.05 145)">Tier A</span>
+  </header>
+  <h2 class="bot">u/Flair_Helper2</h2>
+  <div class="meta">
+    <a class="repo" href="https://github.com/quentinwolf/flair_helper2" target="_blank">quentinwolf/flair_helper2</a>
+    <span class="dot">·</span>
+    <span class="lic">GPL-3.0</span>
+    <span class="dot">·</span>
+    <span class="push">push 2024-09-03</span>
+    <span class="dot">·</span>
+    <span class="stars">1★</span>
+    <span class="dot">·</span>
+    <span class="owner">u/quentinwolf</span>
+  </div>
+  
+  <p class="framing">Port Flair_Helper2 to Devvit as the deterministic antithesis of LLM-ified moderation: every mod-action is a pure function of (post_flair_template_id, yaml_rule_line) with zero model calls and zero out</p>
+  <p class="pitch">"Flair_Helper2 reborn on Devvit: every mod-action cites flair_helper.yaml:LINE, zero model calls at runtime, fully auditable end-to-end."</p>
+  <p class="surface"><span class="lbl">Surface:</span> Devvit-native rulebook surface, rule-based and deterministic. PostFlairUpdate trigger fires the compiled rule; action ledger logs `flair_hel</p>
+  <iframe loading="lazy" src="P26-the-anti-ai.html" title="P26 mockup"></iframe>
+</article>
+
+</main>
+</body>
+</html>

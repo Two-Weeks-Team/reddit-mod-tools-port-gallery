@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>P04 — ContextMod → Devvit · The Cost-Conscious</title>
+<style>
+  :root {
+    --bg: oklch(98% 0.01 100);
+    --ink: oklch(22% 0.02 260);
+    --muted: oklch(55% 0.02 260);
+    --line: oklch(85% 0.01 260);
+    --paper: oklch(100% 0 0);
+    --red: oklch(55% 0.18 28);
+    --red-bg: oklch(95% 0.04 28);
+    --green: oklch(52% 0.16 150);
+    --green-bg: oklch(95% 0.05 150);
+    --amber: oklch(72% 0.14 80);
+    --tag: oklch(92% 0.02 260);
+    --accent: oklch(45% 0.14 250);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 28px 24px 60px; }
+  header {
+    border: 1.5px dashed var(--ink);
+    padding: 16px 18px;
+    background: var(--paper);
+    margin-bottom: 18px;
+  }
+  h1 { font-size: 18px; margin: 0 0 4px; letter-spacing: -0.2px; }
+  h2 { font-size: 13px; margin: 22px 0 8px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+  .sub { color: var(--muted); font-size: 12px; }
+  .pill {
+    display: inline-block; padding: 2px 8px; border: 1px solid var(--ink);
+    background: var(--paper); font-size: 11px; margin-right: 6px;
+  }
+  .pill.green { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+  .pill.red   { background: var(--red-bg);   border-color: var(--red);   color: var(--red); }
+  .pill.amber { background: oklch(96% 0.06 80); border-color: var(--amber); color: oklch(40% 0.12 80); }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .card {
+    background: var(--paper);
+    border: 1.5px solid var(--ink);
+    padding: 14px 16px;
+    position: relative;
+  }
+  .card .sticker {
+    position: absolute; top: -10px; right: -10px;
+    background: var(--paper);
+    border: 1.5px solid var(--ink);
+    padding: 3px 8px;
+    font-size: 11px; font-weight: 700;
+    transform: rotate(2deg);
+  }
+  .card.before { background: var(--red-bg); border-color: var(--red); }
+  .card.before .sticker { color: var(--red); border-color: var(--red); transform: rotate(-3deg); }
+  .card.after  { background: var(--green-bg); border-color: var(--green); }
+  .card.after  .sticker { color: var(--green); border-color: var(--green); }
+
+  table.cost { width: 100%; border-collapse: collapse; margin-top: 6px; background: var(--paper); }
+  table.cost th, table.cost td {
+    border: 1px solid var(--line);
+    padding: 8px 10px;
+    text-align: left;
+    font-size: 12px;
+    vertical-align: top;
+  }
+  table.cost th { background: var(--tag); font-weight: 600; }
+  table.cost td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  table.cost td.zero { color: var(--green); font-weight: 700; }
+  table.cost td.cost { color: var(--red); font-weight: 700; }
+  table.cost tr.total td { border-top: 2px solid var(--ink); font-weight: 700; background: oklch(96% 0.01 100); }
+
+  .ledger {
+    border: 1.5px solid var(--ink); background: var(--paper); padding: 0;
+    overflow: hidden; margin-top: 8px;
+  }
+  .ledger-row { display: grid; grid-template-columns: 28px 1fr 110px 110px; }
+  .ledger-row > div { padding: 8px 10px; border-bottom: 1px solid var(--line); font-size: 12px; }
+  .ledger-row.head > div { background: var(--tag); font-weight: 600; }
+  .ledger-row .ok::before  { content: "✓ "; color: var(--green); font-weight: 700; }
+  .ledger-row .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .ledger-row .was { color: var(--red); text-decoration: line-through; }
+  .ledger-row .now { color: var(--green); font-weight: 700; }
+
+  .yaml {
+    background: oklch(96% 0.01 260);
+    border: 1px solid var(--line);
+    padding: 10px 12px;
+    font-size: 11.5px;
+    white-space: pre;
+    overflow-x: auto;
+    margin: 4px 0 0;
+  }
+  .arrow { display: flex; align-items: center; justify-content: center; padding: 4px 0; color: var(--muted); }
+
+  .savings {
+    display: flex; align-items: stretch; gap: 0;
+    border: 2px solid var(--ink);
+    background: var(--paper);
+    margin-top: 6px;
+  }
+  .savings > div { flex: 1; padding: 14px 16px; }
+  .savings .from { background: var(--red-bg); border-right: 1px dashed var(--ink); }
+  .savings .to   { background: var(--green-bg); border-right: 1px dashed var(--ink); }
+  .savings .delta{ background: oklch(98% 0.04 80); }
+  .savings .big  { font-size: 28px; font-weight: 700; line-height: 1; margin: 4px 0; font-variant-numeric: tabular-nums; }
+  .savings .lbl  { font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); }
+  .savings .from .big { color: var(--red); }
+  .savings .to   .big { color: var(--green); }
+  .savings .delta .big { color: var(--accent); }
+
+  .arch { background: var(--paper); border: 1.5px solid var(--ink); padding: 10px; margin-top: 6px; }
+  .arch svg { width: 100%; height: auto; display: block; }
+
+  ul.bare { margin: 6px 0 0; padding-left: 16px; }
+  ul.bare li { margin: 2px 0; }
+  .footnote { color: var(--muted); font-size: 11px; margin-top: 6px; }
+  .kbd { font-family: ui-monospace, monospace; background: var(--tag); padding: 1px 5px; border: 1px solid var(--line); font-size: 11px; }
+  .hr { border: 0; border-top: 1px dashed var(--line); margin: 22px 0 8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="sub">P04 · ADVOCATE: The Cost-Conscious · TRACK: Best Ported Data API App ($10K)</div>
+    <h1>ContextMod → Devvit: kill the $47/mo VPS bill, keep the rules.yaml</h1>
+    <div class="sub">Bot: <b>ContextMod</b> (FoxxMD/context-mod) · Host sub: <b>r/mealtimevideos</b> (≥500 WAU) · Deadline: 2026-05-27 18:00 PDT</div>
+    <div style="margin-top:10px">
+      <span class="pill red">BEFORE: $47/mo</span>
+      <span class="pill green">AFTER: $0/mo</span>
+      <span class="pill">Free tier only</span>
+      <span class="pill">Zero SaaS</span>
+      <span class="pill amber">Parity ≥95%</span>
+    </div>
+  </header>
+
+  <h2>1 · Operator's monthly bill — line-by-line</h2>
+  <table class="cost">
+    <thead>
+      <tr>
+        <th style="width:30%">Cost item</th>
+        <th>Why ContextMod needs it (Data-API bot)</th>
+        <th class="num" style="width:14%">Before / mo</th>
+        <th class="num" style="width:14%">After (Devvit) / mo</th>
+        <th style="width:18%">How Devvit eliminates it</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>VPS (1 vCPU / 1 GB)</td>
+        <td>24/7 Node worker polling /api/mod/* + running rules engine</td>
+        <td class="num cost">$12.00</td>
+        <td class="num zero">$0.00</td>
+        <td>Devvit runtime is free, Reddit-hosted</td>
+      </tr>
+      <tr>
+        <td>Managed Postgres</td>
+        <td>Rule state, author history cache, action audit log</td>
+        <td class="num cost">$15.00</td>
+        <td class="num zero">$0.00</td>
+        <td>Devvit Redis (kv) free tier</td>
+      </tr>
+      <tr>
+        <td>Managed Redis</td>
+        <td>Rate-limit + token-bucket for Data API quota</td>
+        <td class="num cost">$10.00</td>
+        <td class="num zero">$0.00</td>
+        <td>No quota — triggers fire from Reddit itself</td>
+      </tr>
+      <tr>
+        <td>Domain + TLS</td>
+        <td>OAuth callback URL for token rotation</td>
+        <td class="num cost">$1.00</td>
+        <td class="num zero">$0.00</td>
+        <td>Devvit owns identity; no callback needed</td>
+      </tr>
+      <tr>
+        <td>Log/metrics SaaS</td>
+        <td>Crash alerts (uptime is on the operator)</td>
+        <td class="num cost">$7.00</td>
+        <td class="num zero">$0.00</td>
+        <td>Devvit logs in Reddit dev console (free)</td>
+      </tr>
+      <tr>
+        <td>On-call toil (1.5 h/mo @ $0)</td>
+        <td>Token rotation, deploy, restart-after-OOM</td>
+        <td class="num cost">$2.00*</td>
+        <td class="num zero">$0.00</td>
+        <td>Reddit operates the runtime</td>
+      </tr>
+      <tr class="total">
+        <td>TOTAL</td>
+        <td>Per operator, per ≥500 WAU sub</td>
+        <td class="num cost">$47.00</td>
+        <td class="num zero">$0.00</td>
+        <td>= $564 saved / yr</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="footnote">* opportunity-cost proxy at minimum-wage equivalent; real number is higher for most operators.</div>
+
+  <h2>2 · The big number</h2>
+  <div class="savings">
+    <div class="from">
+      <div class="lbl">Before — Data API + VPS</div>
+      <div class="big">$47/mo</div>
+      <div class="sub">$564 / year · per operator · per sub</div>
+    </div>
+    <div class="to">
+      <div class="lbl">After — Devvit free tier</div>
+      <div class="big">$0/mo</div>
+      <div class="sub">no card on file · no quota · no SLA</div>
+    </div>
+    <div class="delta">
+      <div class="lbl">Savings</div>
+      <div class="big">−100%</div>
+      <div class="sub">break-even on day 1 · scales to N subs at $0</div>
+    </div>
+  </div>
+
+  <h2>3 · Architecture diff (low-fi)</h2>
+  <div class="arch">
+    <svg viewBox="0 0 980 240" xmlns="http://www.w3.org/2000/svg" aria-label="architecture before/after">
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="oklch(22% 0.02 260)"/>
+        </marker>
+      </defs>
+      <!-- BEFORE -->
+      <text x="20" y="22" font-family="ui-monospace, monospace" font-size="12" font-weight="700" fill="oklch(55% 0.18 28)">BEFORE — $47/mo</text>
+      <g font-family="ui-monospace, monospace" font-size="11" fill="oklch(22% 0.02 260)">
+        <rect x="20"  y="40" width="110" height="50" fill="oklch(95% 0.04 28)" stroke="oklch(55% 0.18 28)" stroke-width="1.5"/>
+        <text x="35" y="62">Reddit</text>
+        <text x="35" y="78">Data API</text>
+
+        <rect x="170" y="40" width="120" height="50" fill="oklch(95% 0.04 28)" stroke="oklch(55% 0.18 28)" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <text x="184" y="62">OAuth proxy</text>
+        <text x="184" y="78">+ token rot. $1</text>
+
+        <rect x="320" y="20" width="130" height="90" fill="oklch(95% 0.04 28)" stroke="oklch(55% 0.18 28)" stroke-width="1.5"/>
+        <text x="335" y="42">VPS $12</text>
+        <text x="335" y="60">Node worker</text>
+        <text x="335" y="78">snoowrap +</text>
+        <text x="335" y="96">rules engine</text>
+
+        <rect x="475" y="15" width="110" height="40" fill="oklch(95% 0.04 28)" stroke="oklch(55% 0.18 28)" stroke-width="1.5"/>
+        <text x="490" y="40">Postgres $15</text>
+
+        <rect x="475" y="65" width="110" height="40" fill="oklch(95% 0.04 28)" stroke="oklch(55% 0.18 28)" stroke-width="1.5"/>
+        <text x="490" y="90">Redis $10</text>
+
+        <rect x="610" y="40" width="110" height="50" fill="oklch(95% 0.04 28)" stroke="oklch(55% 0.18 28)" stroke-width="1.5"/>
+        <text x="625" y="62">Logs SaaS</text>
+        <text x="625" y="78">$7</text>
+
+        <line x1="130" y1="65" x2="170" y2="65" stroke="oklch(22% 0.02 260)" marker-end="url(#ar)"/>
+        <line x1="290" y1="65" x2="320" y2="65" stroke="oklch(22% 0.02 260)" marker-end="url(#ar)"/>
+        <line x1="450" y1="50" x2="475" y2="35" stroke="oklch(22% 0.02 260)" marker-end="url(#ar)"/>
+        <line x1="450" y1="80" x2="475" y2="85" stroke="oklch(22% 0.02 260)" marker-end="url(#ar)"/>
+        <line x1="450" y1="65" x2="610" y2="65" stroke="oklch(22% 0.02 260)" stroke-dasharray="3 3" marker-end="url(#ar)"/>
+      </g>
+
+      <!-- AFTER -->
+      <text x="20" y="140" font-family="ui-monospace, monospace" font-size="12" font-weight="700" fill="oklch(52% 0.16 150)">AFTER — $0/mo · everything inside Reddit</text>
+      <g font-family="ui-monospace, monospace" font-size="11" fill="oklch(22% 0.02 260)">
+        <rect x="20" y="160" width="940" height="60" fill="oklch(95% 0.05 150)" stroke="oklch(52% 0.16 150)" stroke-width="1.5"/>
+        <text x="36" y="180" font-weight="700">Reddit Devvit runtime (free)</text>
+
+        <rect x="40"  y="188" width="150" height="24" fill="oklch(100% 0 0)" stroke="oklch(52% 0.16 150)"/>
+        <text x="50"  y="204">PostSubmit trigger</text>
+
+        <rect x="200" y="188" width="170" height="24" fill="oklch(100% 0 0)" stroke="oklch(52% 0.16 150)"/>
+        <text x="210" y="204">CommentSubmit trigger</text>
+
+        <rect x="380" y="188" width="160" height="24" fill="oklch(100% 0 0)" stroke="oklch(52% 0.16 150)"/>
+        <text x="390" y="204">Rules engine (TS)</text>
+
+        <rect x="550" y="188" width="150" height="24" fill="oklch(100% 0 0)" stroke="oklch(52% 0.16 150)"/>
+        <text x="560" y="204">Devvit Redis (kv)</text>
+
+        <rect x="710" y="188" width="160" height="24" fill="oklch(100% 0 0)" stroke="oklch(52% 0.16 150)"/>
+        <text x="720" y="204">Settings: rules.yaml</text>
+
+        <rect x="880" y="188" width="60"  height="24" fill="oklch(100% 0 0)" stroke="oklch(52% 0.16 150)"/>
+        <text x="892" y="204">$0</text>
+      </g>
+    </svg>
+  </div>
+
+  <h2>4 · Parity check — same rules.yaml, same actions</h2>
+  <div class="grid2">
+    <div class="card before">
+      <span class="sticker">$47/mo</span>
+      <b>ContextMod (legacy)</b>
+      <div class="sub">snoowrap polling · Postgres state</div>
+<pre class="yaml">rules:
+  - name: low-karma-gate
+    kind: author
+    minKarma: 50
+  - name: repeat-submission
+    kind: recentActivity
+    window: 7d
+    threshold: 3
+actions:
+  - remove
+  - report: "auto: rule {name}"</pre>
+      <div class="footnote">runs in operator's VPS · OOM = mods page operator</div>
+    </div>
+    <div class="card after">
+      <span class="sticker">$0/mo</span>
+      <b>Devvit port (P04)</b>
+      <div class="sub">PostSubmit trigger · Devvit kv state</div>
+<pre class="yaml">// settings.yaml (identical schema)
+rules:
+  - name: low-karma-gate
+    kind: author
+    minKarma: 50
+  - name: repeat-submission
+    kind: recentActivity
+    window: 7d
+    threshold: 3
+actions:
+  - remove
+  - report: "auto: rule {name}"</pre>
+      <div class="footnote">runs on Reddit · no ops, no pager</div>
+    </div>
+  </div>
+
+  <h2>5 · MVP day-4 ledger (live demo)</h2>
+  <div class="ledger">
+    <div class="ledger-row head">
+      <div>#</div><div>Rule from rules.yaml</div><div class="num">Legacy cost</div><div class="num">Devvit cost</div>
+    </div>
+    <div class="ledger-row">
+      <div class="ok"></div><div>recentActivity (7d, ≥3 posts)</div><div class="num was">$0.011 / fire</div><div class="num now">$0.000</div>
+    </div>
+    <div class="ledger-row">
+      <div class="ok"></div><div>repeatSubmission (URL hash)</div><div class="num was">$0.009 / fire</div><div class="num now">$0.000</div>
+    </div>
+    <div class="ledger-row">
+      <div class="ok"></div><div>author age + karma gate</div><div class="num was">$0.006 / fire</div><div class="num now">$0.000</div>
+    </div>
+    <div class="ledger-row">
+      <div class="ok"></div><div>reportThreshold escalation</div><div class="num was">$0.014 / fire</div><div class="num now">$0.000</div>
+    </div>
+    <div class="ledger-row">
+      <div class="ok"></div><div>modActionHistory cooloff</div><div class="num was">$0.008 / fire</div><div class="num now">$0.000</div>
+    </div>
+    <div class="ledger-row">
+      <div></div><div><b>30-day projection on r/mealtimevideos</b> (≈4.8k fires)</div><div class="num was">$47.00</div><div class="num now">$0.00</div>
+    </div>
+  </div>
+  <div class="footnote">Per-fire cost = monthly infra ÷ measured fire count from r/mealtimevideos audit log.</div>
+
+  <hr class="hr"/>
+
+  <h2>6 · Why this wins the Ported track on Cost (judging axis: Reliability + Polish + Impact)</h2>
+  <ul class="bare">
+    <li><b>Reliable UX:</b> $0/mo means no operator ever turns it off — uptime equals Reddit's, not a hobbyist's credit card.</li>
+    <li><b>Community Impact:</b> ContextMod has ~50 known operators × $564/yr = <b>~$28k/yr</b> in collective savings if all migrate via this port.</li>
+    <li><b>Polish:</b> Settings panel accepts the unmodified <span class="kbd">rules.yaml</span> — drop-in replacement, no rewrite.</li>
+    <li><b>Quality of Idea:</b> The cheapest stack possible (Devvit + free kv) is also the only stack post-Data-API deprecation. Cost-optimal = future-proof.</li>
+  </ul>
+
+  <div class="footnote" style="margin-top:18px">
+    Eligibility: ContextMod is MIT-licensed (written permission via license) · r/mealtimevideos confirmed ≥500 WAU host · zero paid SaaS in submitted surface.
+  </div>
+
+</div>
+</body>
+</html>

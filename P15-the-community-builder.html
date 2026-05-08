@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>P15 · RemindMeBot · Community Moments (Devvit Port)</title>
+<style>
+  :root{
+    --bg: oklch(0.18 0.02 270);
+    --panel: oklch(0.23 0.025 270);
+    --panel-2: oklch(0.27 0.03 270);
+    --line: oklch(0.34 0.03 270);
+    --ink: oklch(0.96 0.01 270);
+    --ink-2: oklch(0.78 0.02 270);
+    --ink-3: oklch(0.6 0.03 270);
+    --accent: oklch(0.78 0.17 55);
+    --accent-2: oklch(0.72 0.18 305);
+    --accent-3: oklch(0.78 0.15 165);
+    --danger: oklch(0.7 0.2 25);
+    --r: 14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,sans-serif}
+  body{padding:24px;display:grid;gap:18px;max-width:1200px;margin:0 auto}
+  h1,h2,h3{margin:0;font-weight:650;letter-spacing:-0.01em}
+  .row{display:grid;gap:16px}
+  .row.cols-3{grid-template-columns:1.05fr 1.1fr 1fr}
+  .row.cols-2{grid-template-columns:1.45fr 1fr}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+  .pill{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;font-size:11px;background:var(--panel-2);color:var(--ink-2);border:1px solid var(--line)}
+  .pill.live{color:var(--accent-3);border-color:oklch(0.55 0.12 165)}
+  .pill.role{font-variant:small-caps;letter-spacing:0.04em}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--accent-3);animation:pulse 1.6s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 oklch(0.78 0.15 165 / .55)}70%{box-shadow:0 0 0 10px oklch(0.78 0.15 165 / 0)}100%{box-shadow:0 0 0 0 oklch(0.78 0.15 165 / 0)}}
+  .muted{color:var(--ink-3);font-size:12px}
+  .small{font-size:12px;color:var(--ink-2)}
+  .tag{font-size:11px;padding:2px 7px;border-radius:6px;background:oklch(0.3 0.04 305);color:oklch(0.92 0.04 305)}
+  .lbl{font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:0.08em}
+
+  .hdr{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:12px}
+  .logo{width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:grid;place-items:center}
+  .brand h1{font-size:18px}
+  .brand .sub{font-size:12px;color:var(--ink-3)}
+
+  .counter{display:flex;align-items:flex-end;justify-content:space-between;gap:14px}
+  .counter .num{font-variant-numeric:tabular-nums;font-size:34px;font-weight:700;letter-spacing:-0.02em}
+  .delta{color:var(--accent-3);font-size:12px}
+
+  .graph{position:relative;height:280px;border-radius:12px;background:radial-gradient(circle at 30% 30%, oklch(0.26 0.04 305) 0%, oklch(0.21 0.025 270) 60%);overflow:hidden;border:1px solid var(--line)}
+  .legend{position:absolute;bottom:10px;left:12px;display:flex;gap:10px;font-size:11px;color:var(--ink-2)}
+  .legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:middle}
+
+  .post{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .post .meta{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--ink-2);margin-bottom:6px;flex-wrap:wrap}
+  .post .body{font-size:14px;line-height:1.45}
+  .reply{margin-left:30px;border-left:2px solid var(--line);padding-left:14px;display:grid;gap:10px}
+  .avatar{width:24px;height:24px;border-radius:50%;display:inline-grid;place-items:center;font-size:10px;font-weight:700;color:#000}
+  .react{display:inline-flex;gap:6px;align-items:center;padding:3px 8px;border-radius:999px;background:oklch(0.3 0.03 270);font-size:11px;color:var(--ink-2);border:1px solid var(--line)}
+  .react.me{background:oklch(0.34 0.06 55);color:oklch(0.96 0.04 55)}
+
+  .piggy{display:grid;gap:10px;background:linear-gradient(180deg,oklch(0.27 0.04 305),oklch(0.23 0.025 270));border:1px solid oklch(0.4 0.08 305);border-radius:12px;padding:14px}
+  .piggy .hdr2{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .stack{display:flex;align-items:center}
+  .stack .avatar{margin-left:-6px;border:2px solid var(--panel)}
+  .moment b{color:var(--ink)}
+
+  .funnel{display:grid;gap:8px}
+  .step{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;background:var(--panel-2);border:1px solid var(--line)}
+  .step .bar{height:6px;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--accent-2));margin-top:6px}
+  .step .label{font-size:13px}
+  .step .n{font-variant-numeric:tabular-nums;font-size:13px;color:var(--ink-2)}
+
+  .actions{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{appearance:none;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);padding:8px 12px;border-radius:10px;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  .btn.primary{background:linear-gradient(135deg,var(--accent),oklch(0.7 0.18 35));border-color:transparent;color:#1a0d00;font-weight:600}
+  .btn.ghost{background:transparent}
+
+  .mention{color:oklch(0.82 0.15 235);font-weight:600}
+  .hash{color:oklch(0.82 0.12 305)}
+
+  .subs{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  .sub{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:10px;background:var(--panel-2);border:1px solid var(--line);font-size:12px}
+  .sub b{color:var(--ink)}
+  .sub .grow{color:var(--accent-3);font-variant-numeric:tabular-nums}
+
+  footer{display:flex;justify-content:space-between;font-size:11px;color:var(--ink-3);padding-top:6px;border-top:1px dashed var(--line);flex-wrap:wrap;gap:6px}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="brand">
+    <div class="logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="9" stroke="#fff" stroke-width="1.6"/>
+        <path d="M12 7v5l3.2 2" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div>
+      <h1>RemindMeBot · Community Moments</h1>
+      <div class="sub">Devvit port of <span class="mention">u/RemindMeBot</span> · Watchful1/RemindMeBot · network-first</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <span class="pill live"><span class="dot"></span> live network</span>
+    <span class="pill">P15 · the-community-builder</span>
+    <span class="pill">multi-user · day 1</span>
+  </div>
+</div>
+
+<div class="row cols-3">
+  <div class="card">
+    <div class="counter">
+      <div>
+        <div class="lbl">active reminders · network-wide</div>
+        <div class="num">847,392</div>
+        <div class="delta">+1,284 in last 5 min</div>
+      </div>
+      <svg width="84" height="60" viewBox="0 0 84 60" aria-hidden="true">
+        <polyline fill="none" stroke="oklch(0.78 0.15 165)" stroke-width="2"
+          points="2,48 12,40 22,44 32,30 42,34 52,22 62,26 72,14 82,18"/>
+        <polyline fill="oklch(0.78 0.15 165 / .15)" stroke="none"
+          points="2,48 12,40 22,44 32,30 42,34 52,22 62,26 72,14 82,18 82,60 2,60"/>
+      </svg>
+    </div>
+    <div style="display:flex;gap:14px;margin-top:14px;flex-wrap:wrap">
+      <div><div class="lbl">subs hosting</div><div style="font-weight:600">12,418</div></div>
+      <div><div class="lbl">avg piggyback</div><div style="font-weight:600">5.7×</div></div>
+      <div><div class="lbl">moments pinned · 7d</div><div style="font-weight:600">214</div></div>
+      <div><div class="lbl">mod triage saved</div><div style="font-weight:600;color:var(--accent-3)">−38%</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="font-size:14px">Cross-sub appearance graph</h3>
+    <div class="muted" style="margin-bottom:10px">Where this reminder also got summoned (Opus 4.7 clustered)</div>
+    <div class="graph" aria-label="cross-sub graph">
+      <svg width="100%" height="100%" viewBox="0 0 400 260">
+        <defs>
+          <radialGradient id="hub" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="oklch(0.85 0.15 55)"/>
+            <stop offset="100%" stop-color="oklch(0.6 0.18 55)"/>
+          </radialGradient>
+        </defs>
+        <g stroke="oklch(0.55 0.08 305 / .55)" stroke-width="1.2" fill="none">
+          <path d="M200,130 C160,80 110,90 80,70"/>
+          <path d="M200,130 C260,80 320,100 350,70"/>
+          <path d="M200,130 C150,180 110,210 70,210"/>
+          <path d="M200,130 C260,180 320,200 350,200"/>
+          <path d="M200,130 L130,150"/>
+          <path d="M200,130 L280,150"/>
+          <path d="M200,130 L210,40"/>
+          <path d="M200,130 L190,230"/>
+        </g>
+        <circle cx="200" cy="130" r="22" fill="url(#hub)"/>
+        <text x="200" y="134" text-anchor="middle" font-size="10" font-weight="700" fill="#1a0d00">r/SpaceX</text>
+        <g font-size="10" fill="oklch(0.96 0.01 270)" font-family="system-ui">
+          <circle cx="80" cy="70" r="12" fill="oklch(0.72 0.18 305)"/>
+          <text x="80" y="92" text-anchor="middle">r/space</text>
+          <circle cx="350" cy="70" r="14" fill="oklch(0.72 0.18 305)"/>
+          <text x="350" y="92" text-anchor="middle">r/nasa</text>
+          <circle cx="70" cy="210" r="10" fill="oklch(0.72 0.18 305)"/>
+          <text x="70" y="232" text-anchor="middle">r/scifi</text>
+          <circle cx="350" cy="200" r="13" fill="oklch(0.72 0.18 305)"/>
+          <text x="350" y="222" text-anchor="middle">r/futurology</text>
+          <circle cx="130" cy="150" r="8" fill="oklch(0.78 0.15 165)"/>
+          <text x="130" y="170" text-anchor="middle">r/engineering</text>
+          <circle cx="280" cy="150" r="9" fill="oklch(0.78 0.15 165)"/>
+          <text x="280" y="170" text-anchor="middle">r/rocketry</text>
+          <circle cx="210" cy="40" r="9" fill="oklch(0.78 0.15 165)"/>
+          <text x="210" y="28" text-anchor="middle">r/AskReddit</text>
+          <circle cx="190" cy="230" r="8" fill="oklch(0.78 0.15 165)"/>
+          <text x="190" y="252" text-anchor="middle">r/news</text>
+        </g>
+      </svg>
+      <div class="legend">
+        <span><i style="background:oklch(0.78 0.17 55)"></i>host</span>
+        <span><i style="background:oklch(0.72 0.18 305)"></i>cross-summoned</span>
+        <span><i style="background:oklch(0.78 0.15 165)"></i>topic sibling</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="font-size:14px">Sub adoption · viral loop</h3>
+    <div class="muted" style="margin-bottom:10px">Last 30d · attributed to mod-share</div>
+    <div class="funnel">
+      <div class="step">
+        <div><div class="label">Mods who saw a Moment Card</div><div class="bar" style="width:100%"></div></div>
+        <div class="n">9,420</div>
+      </div>
+      <div class="step">
+        <div><div class="label">Clicked "Install in my sub"</div><div class="bar" style="width:62%"></div></div>
+        <div class="n">5,830</div>
+      </div>
+      <div class="step">
+        <div><div class="label">Completed Devvit install</div><div class="bar" style="width:34%"></div></div>
+        <div class="n">3,196</div>
+      </div>
+      <div class="step">
+        <div><div class="label">Pinned first community moment</div><div class="bar" style="width:18%"></div></div>
+        <div class="n">1,704</div>
+      </div>
+    </div>
+    <div class="muted" style="margin-top:8px">"4 subs added RemindMeBot via your install link this week"</div>
+  </div>
+</div>
+
+<div class="row cols-2">
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+      <h3 style="font-size:14px">Reminder thread · <span class="hash">r/SpaceX</span> · "Starship IFT-12 launch window"</h3>
+      <span class="pill live"><span class="dot"></span> 847 piggybacks · live</span>
+    </div>
+
+    <div style="display:grid;gap:10px">
+      <div class="post">
+        <div class="meta">
+          <span class="avatar" style="background:oklch(0.78 0.17 55)">JT</span>
+          <b>u/jetsetter_77</b>
+          <span class="pill role">requestor</span>
+          <span class="muted">· 2h</span>
+        </div>
+        <div class="body">@RemindMeBot 3 days "Starship IFT-12 static fire window opens"</div>
+      </div>
+
+      <div class="reply">
+        <div class="post">
+          <div class="meta">
+            <span class="avatar" style="background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff">RB</span>
+            <b><span class="mention">u/RemindMeBot</span></b>
+            <span class="pill role">summoner</span>
+            <span class="muted">· 2h · cross-summoned to 4 subs</span>
+          </div>
+          <div class="body">
+            I will be messaging you in 3 days on <b>2026-05-11 14:30 UTC</b> to remind you of this moment.<br/>
+            <span class="small">847 others piggybacked · <span class="tag">community moment candidate</span></span>
+          </div>
+          <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+            <span class="react me">👀 me too · 423</span>
+            <span class="react">🚀 hype · 311</span>
+            <span class="react">📌 mod-pin candidate</span>
+          </div>
+        </div>
+
+        <div class="post">
+          <div class="meta">
+            <span class="avatar" style="background:oklch(0.72 0.18 305)">AM</span>
+            <b>u/astro_mira</b>
+            <span class="pill role">bystander</span>
+            <span class="muted">· 1h</span>
+          </div>
+          <div class="body">@RemindMeBot me too · also ping <span class="mention">u/orbitnerd</span></div>
+        </div>
+
+        <div class="post">
+          <div class="meta">
+            <span class="avatar" style="background:oklch(0.78 0.15 165)">MK</span>
+            <b>u/mod_kestrel</b>
+            <span class="pill role">mod-curator</span>
+            <span class="muted">· 38m</span>
+          </div>
+          <div class="body">Bundling with the <span class="hash">r/space</span> thread (412 piggybacks). Pinning as <b>community moment</b> at T-24h. <span class="mention">@u/RemindMeBot</span> aggregate notify, please.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions" style="margin-top:14px">
+      <button class="btn primary">📌 Pin as Community Moment</button>
+      <button class="btn">🔗 Bundle 3 sibling threads</button>
+      <button class="btn">🔔 Aggregate-notify 847 users</button>
+      <button class="btn ghost">⤴︎ Share install link to mod-team</button>
+    </div>
+  </div>
+
+  <div style="display:grid;gap:16px">
+    <div class="card">
+      <h3 style="font-size:14px;margin-bottom:8px">Mod-team workspace · r/SpaceX</h3>
+      <div class="small" style="margin-bottom:10px">Role-based access · 6 mods · 2 watchers</div>
+      <div style="display:grid;gap:8px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="avatar" style="background:oklch(0.78 0.17 55)">MK</span>
+          <div style="flex:1"><b>u/mod_kestrel</b> <span class="muted">· head mod</span></div>
+          <span class="pill">curate · pin · install</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="avatar" style="background:oklch(0.72 0.18 305)">DV</span>
+          <div style="flex:1"><b>u/devnull_v</b> <span class="muted">· tech mod</span></div>
+          <span class="pill">install · telemetry</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="avatar" style="background:oklch(0.78 0.15 165)">W1</span>
+          <div style="flex:1"><b><span class="mention">u/Watchful1</span></b> <span class="muted">· bot author</span></div>
+          <span class="pill">owner · sign-off</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="avatar" style="background:oklch(0.6 0.03 270);color:#fff">+3</span>
+          <div style="flex:1" class="muted">3 more mods · 2 watchers</div>
+          <span class="pill">read</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="piggy">
+      <div class="hdr2">
+        <div>
+          <div class="moment"><b>Community Moment candidate</b></div>
+          <div class="muted">"Starship IFT-12 static fire window"</div>
+        </div>
+        <span class="pill live"><span class="dot"></span> 847 piggybacks</span>
+      </div>
+      <div class="stack">
+        <span class="avatar" style="background:oklch(0.78 0.17 55)">JT</span>
+        <span class="avatar" style="background:oklch(0.72 0.18 305)">AM</span>
+        <span class="avatar" style="background:oklch(0.78 0.15 165)">OK</span>
+        <span class="avatar" style="background:oklch(0.7 0.2 25)">RV</span>
+        <span class="avatar" style="background:oklch(0.6 0.03 270);color:#fff">+843</span>
+      </div>
+      <div class="small">Opus 4.7 clustered <b>4 sibling threads</b> across r/SpaceX, r/space, r/nasa, r/futurology as the same moment.</div>
+      <div class="actions">
+        <button class="btn primary">Pin to all 4 subs</button>
+        <button class="btn ghost">Preview merged digest</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="font-size:14px;margin-bottom:8px">Subs that installed via your share</h3>
+      <div class="subs">
+        <div class="sub"><b>r/space</b><span class="grow">+312 reminders</span></div>
+        <div class="sub"><b>r/nasa</b><span class="grow">+204</span></div>
+        <div class="sub"><b>r/futurology</b><span class="grow">+88</span></div>
+        <div class="sub"><b>r/rocketry</b><span class="grow">+62</span></div>
+      </div>
+      <div class="muted" style="margin-top:8px">4 subs added RemindMeBot via <b>u/mod_kestrel</b>'s install link · last 7d</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div>P15 · The Community Builder · multi-user day 1 · OKLCH 2026</div>
+  <div>port: Watchful1/RemindMeBot → Devvit · MVP day-4: Community Moment Card</div>
+</footer>
+
+</body>
+</html>

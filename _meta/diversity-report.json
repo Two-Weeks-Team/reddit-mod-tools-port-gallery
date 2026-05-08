@@ -1,0 +1,410 @@
+{
+  "run_id": "r-20260507T172110",
+  "validator": "I2 Diversity Validator (re-validation v2)",
+  "input": "previews.json (26 entries, post-rewrite for P03/P07/P08/P15/P19/P23/P24/P26)",
+  "verdict": "pass",
+  "reasons": [
+    "All 26 advocates are field-distinct (max combined Jaccard = 0.221); 26 unique mockup DOM hashes; every persona stays in its lane; framework convergence = 1 (Devvit native)."
+  ],
+  "total_unique": 26,
+  "final_distribution": {
+    "/u/MAGIC_EYE_BOT": 3,
+    "RepostSleuthBot": 3,
+    "u/RemindMeBot": 3,
+    "ContextMod": 7,
+    "AssistantBOT": 3,
+    "u/AlertBot (Alert-Bot-Reddit)": 1,
+    "Flair_Helper2": 2,
+    "Flair_Helper": 1,
+    "ContextMod (context-mod)": 1,
+    "u/Flair_Helper2": 2
+  },
+  "duplicates_hard": [],
+  "duplicates_soft": [],
+  "top_5_pairs_combined_jaccard": [
+    {
+      "pair": [
+        "P05",
+        "P07"
+      ],
+      "combined_jaccard": 0.221
+    },
+    {
+      "pair": [
+        "P05",
+        "P21"
+      ],
+      "combined_jaccard": 0.217
+    },
+    {
+      "pair": [
+        "P06",
+        "P13"
+      ],
+      "combined_jaccard": 0.207
+    },
+    {
+      "pair": [
+        "P10",
+        "P14"
+      ],
+      "combined_jaccard": 0.187
+    },
+    {
+      "pair": [
+        "P03",
+        "P21"
+      ],
+      "combined_jaccard": 0.186
+    }
+  ],
+  "focus_cluster_pairs": [
+    {
+      "bot": "RemindMeBot",
+      "members": [
+        "P03",
+        "P15",
+        "P23"
+      ],
+      "pairs": [
+        {
+          "pair": [
+            "P03",
+            "P15"
+          ],
+          "combined_jaccard": 0.068,
+          "persona_jaccard": 0.065,
+          "surface_jaccard": 0.048,
+          "framing_jaccard": 0.037,
+          "pitch_jaccard": 0.154,
+          "verdict": "ok"
+        },
+        {
+          "pair": [
+            "P03",
+            "P23"
+          ],
+          "combined_jaccard": 0.119,
+          "persona_jaccard": 0.172,
+          "surface_jaccard": 0.065,
+          "framing_jaccard": 0.103,
+          "pitch_jaccard": 0.067,
+          "verdict": "ok"
+        },
+        {
+          "pair": [
+            "P15",
+            "P23"
+          ],
+          "combined_jaccard": 0.066,
+          "persona_jaccard": 0.062,
+          "surface_jaccard": 0.047,
+          "framing_jaccard": 0.027,
+          "pitch_jaccard": 0.083,
+          "verdict": "ok"
+        }
+      ],
+      "max_pair_combined_jaccard": 0.119
+    },
+    {
+      "bot": "MAGIC_EYE_BOT",
+      "members": [
+        "P01",
+        "P07",
+        "P19"
+      ],
+      "pairs": [
+        {
+          "pair": [
+            "P01",
+            "P07"
+          ],
+          "combined_jaccard": 0.131,
+          "persona_jaccard": 0.175,
+          "surface_jaccard": 0.069,
+          "framing_jaccard": 0.097,
+          "pitch_jaccard": 0.222,
+          "verdict": "ok"
+        },
+        {
+          "pair": [
+            "P01",
+            "P19"
+          ],
+          "combined_jaccard": 0.154,
+          "persona_jaccard": 0.13,
+          "surface_jaccard": 0.101,
+          "framing_jaccard": 0.128,
+          "pitch_jaccard": 0.089,
+          "verdict": "ok"
+        },
+        {
+          "pair": [
+            "P07",
+            "P19"
+          ],
+          "combined_jaccard": 0.134,
+          "persona_jaccard": 0.093,
+          "surface_jaccard": 0.068,
+          "framing_jaccard": 0.135,
+          "pitch_jaccard": 0.083,
+          "verdict": "ok"
+        }
+      ],
+      "max_pair_combined_jaccard": 0.154
+    },
+    {
+      "bot": "Flair_Helper2",
+      "members": [
+        "P11",
+        "P16",
+        "P24",
+        "P26"
+      ],
+      "pairs": [
+        {
+          "pair": [
+            "P11",
+            "P16"
+          ],
+          "combined_jaccard": 0.076,
+          "persona_jaccard": 0.04,
+          "surface_jaccard": 0.092,
+          "framing_jaccard": 0.118,
+          "pitch_jaccard": 0.207,
+          "verdict": "ok"
+        },
+        {
+          "pair": [
+            "P11",
+            "P24"
+          ],
+          "combined_jaccard": 0.087,
+          "persona_jaccard": 0.165,
+          "surface_jaccard": 0.011,
+          "framing_jaccard": 0.12,
+          "pitch_jaccard": 0.125,
+          "verdict": "ok"
+        },
+        {
+          "pair": [
+            "P11",
+            "P26"
+          ],
+          "combined_jaccard": 0.106,
+          "persona_jaccard": 0.145,
+          "surface_jaccard": 0.062,
+          "framing_jaccard": 0.152,
+          "pitch_jaccard": 0.233,
+          "verdict": "ok"
+        },
+        {
+          "pair": [
+            "P16",
+            "P24"
+          ],
+          "combined_jaccard": 0.105,
+          "persona_jaccard": 0.091,
+          "surface_jaccard": 0.049,
+          "framing_jaccard": 0.122,
+          "pitch_jaccard": 0.143,
+          "verdict": "ok"
+        },
+        {
+          "pair": [
+            "P16",
+            "P26"
+          ],
+          "combined_jaccard": 0.078,
+          "persona_jaccard": 0.058,
+          "surface_jaccard": 0.072,
+          "framing_jaccard": 0.13,
+          "pitch_jaccard": 0.176,
+          "verdict": "ok"
+        },
+        {
+          "pair": [
+            "P24",
+            "P26"
+          ],
+          "combined_jaccard": 0.149,
+          "persona_jaccard": 0.207,
+          "surface_jaccard": 0.088,
+          "framing_jaccard": 0.142,
+          "pitch_jaccard": 0.163,
+          "verdict": "ok"
+        }
+      ],
+      "max_pair_combined_jaccard": 0.149
+    }
+  ],
+  "mockup_hash_collisions": [],
+  "mockup_top_shingle_pairs": [
+    {
+      "a": "P04",
+      "b": "P24",
+      "shingle_jaccard": 0.105
+    },
+    {
+      "a": "P01",
+      "b": "P21",
+      "shingle_jaccard": 0.09
+    },
+    {
+      "a": "P03",
+      "b": "P12",
+      "shingle_jaccard": 0.072
+    },
+    {
+      "a": "P04",
+      "b": "P21",
+      "shingle_jaccard": 0.069
+    },
+    {
+      "a": "P11",
+      "b": "P17",
+      "shingle_jaccard": 0.066
+    },
+    {
+      "a": "P11",
+      "b": "P20",
+      "shingle_jaccard": 0.065
+    },
+    {
+      "a": "P17",
+      "b": "P26",
+      "shingle_jaccard": 0.065
+    },
+    {
+      "a": "P06",
+      "b": "P22",
+      "shingle_jaccard": 0.064
+    },
+    {
+      "a": "P01",
+      "b": "P06",
+      "shingle_jaccard": 0.063
+    },
+    {
+      "a": "P17",
+      "b": "P20",
+      "shingle_jaccard": 0.063
+    }
+  ],
+  "mockup_max_shingle_jaccard": 0.105,
+  "framework_convergence": {
+    "buckets": {
+      "unknown": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P09",
+        "P11",
+        "P12",
+        "P13",
+        "P14",
+        "P15",
+        "P16",
+        "P17",
+        "P18",
+        "P19",
+        "P20",
+        "P22",
+        "P23",
+        "P24",
+        "P25",
+        "P26"
+      ],
+      "native": [
+        "P08",
+        "P10",
+        "P21"
+      ]
+    },
+    "distinct_named_count": 1,
+    "threshold": 3,
+    "result": "converged"
+  },
+  "lane_encroachment": {
+    "auto_flagged": [
+      "P19:terminal",
+      "P11:xp",
+      "P26:ml",
+      "P26:xp"
+    ],
+    "after_context_review": [
+      {
+        "id": "P19",
+        "term": "terminal",
+        "context": "appears only in spec_alignment_notes self-distinguishing from P01",
+        "verdict": "false_positive"
+      },
+      {
+        "id": "P11",
+        "term": "xp",
+        "context": "matches inside word 'expect' (target_persona)",
+        "verdict": "false_positive"
+      },
+      {
+        "id": "P26",
+        "term": "ml",
+        "context": "anti-references: 'burned by silent ML false-positives', 'would actively reject ML'",
+        "verdict": "false_positive_intentional_anti_reference"
+      },
+      {
+        "id": "P26",
+        "term": "xp",
+        "context": "matches inside 'explicitly', 'exhaustive', 'explainlikeimfive'",
+        "verdict": "false_positive"
+      }
+    ],
+    "real_encroachments": []
+  },
+  "rewritten_advocates_validated": {
+    "P03": {
+      "bot": "u/RemindMeBot",
+      "lane": "speed",
+      "signature_match": "8/8"
+    },
+    "P07": {
+      "bot": "/u/MAGIC_EYE_BOT",
+      "lane": "mobile-first",
+      "signature_match": "7/7"
+    },
+    "P08": {
+      "bot": "u/AlertBot (Alert-Bot-Reddit)",
+      "lane": "slack-native/modmail",
+      "signature_match": "primary_surface=ModMail confirmed unique"
+    },
+    "P15": {
+      "bot": "u/RemindMeBot",
+      "lane": "community-builder",
+      "signature_match": "6/7"
+    },
+    "P19": {
+      "bot": "/u/MAGIC_EYE_BOT",
+      "lane": "embedded-headless-npm",
+      "signature_match": "9/9"
+    },
+    "P23": {
+      "bot": "u/RemindMeBot",
+      "lane": "game-designer",
+      "signature_match": "8/9"
+    },
+    "P24": {
+      "bot": "u/Flair_Helper2",
+      "lane": "reluctant-skeptic",
+      "signature_match": "7/7"
+    },
+    "P26": {
+      "bot": "u/Flair_Helper2",
+      "lane": "anti-AI",
+      "signature_match": "6/7"
+    }
+  },
+  "retry_requests": []
+}

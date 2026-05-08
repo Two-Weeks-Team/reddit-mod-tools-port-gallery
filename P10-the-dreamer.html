@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ContextMod · v1 → v5 · The Community-AI Compact</title>
+<style>
+  :root {
+    --bg-0: oklch(18% 0.04 280);
+    --bg-1: oklch(24% 0.08 290);
+    --bg-2: oklch(32% 0.12 320);
+    --bg-3: oklch(46% 0.15 30);
+    --ink: oklch(96% 0.02 280);
+    --ink-dim: oklch(78% 0.03 280 / 0.78);
+    --ink-faint: oklch(78% 0.03 280 / 0.42);
+    --glow-a: oklch(82% 0.18 200);
+    --glow-b: oklch(74% 0.22 320);
+    --glow-c: oklch(86% 0.16 95);
+    --line: oklch(96% 0.02 280 / 0.12);
+    --glass: oklch(96% 0.02 280 / 0.06);
+    --glass-2: oklch(96% 0.02 280 / 0.10);
+    --ok: oklch(82% 0.16 155);
+    --warn: oklch(82% 0.18 75);
+    --bad: oklch(72% 0.20 25);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    color: var(--ink);
+    background:
+      radial-gradient(120% 80% at 80% -10%, var(--bg-3) 0%, transparent 55%),
+      radial-gradient(90% 70% at 10% 110%, var(--bg-2) 0%, transparent 60%),
+      linear-gradient(180deg, var(--bg-0), var(--bg-1));
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  .sky-svg { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.65; }
+  .frame { position: relative; z-index: 1; max-width: 1240px; margin: 0 auto; padding: 56px 40px 96px; }
+  header.hero { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 24px; margin-bottom: 56px; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ink-dim); margin-bottom: 18px;
+  }
+  .eyebrow .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--glow-a);
+    box-shadow: 0 0 12px var(--glow-a), 0 0 24px var(--glow-a);
+  }
+  h1 {
+    font-size: clamp(40px, 6vw, 76px);
+    line-height: 0.98; letter-spacing: -0.025em;
+    margin: 0 0 18px; font-weight: 600;
+  }
+  h1 .grad {
+    background: linear-gradient(100deg, var(--glow-a), var(--glow-b) 55%, var(--glow-c));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .lede { font-size: 18px; line-height: 1.55; color: var(--ink-dim); max-width: 640px; margin: 0; }
+  .meta-card {
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    background: var(--glass); border: 1px solid var(--line);
+    border-radius: 18px; padding: 18px 22px; min-width: 260px;
+  }
+  .meta-card .row { display: flex; justify-content: space-between; gap: 16px; padding: 6px 0; font-size: 13px; }
+  .meta-card .row span:first-child { color: var(--ink-faint); }
+  .meta-card .row span:last-child { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+  .layout { display: grid; grid-template-columns: 1fr 320px; gap: 32px; }
+  @media (max-width: 980px) { .layout { grid-template-columns: 1fr; } header.hero { grid-template-columns: 1fr; } }
+
+  .stage {
+    position: relative;
+    backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
+    background: linear-gradient(160deg, var(--glass-2), var(--glass));
+    border: 1px solid var(--line); border-radius: 28px;
+    padding: 32px; overflow: hidden;
+  }
+  .stage::before {
+    content: ""; position: absolute; inset: -1px; border-radius: 28px; pointer-events: none;
+    background: linear-gradient(140deg, var(--glow-a) 0%, transparent 35%, transparent 65%, var(--glow-b) 100%);
+    opacity: 0.18; mix-blend-mode: screen;
+  }
+  .stage-label {
+    font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ink-faint); margin-bottom: 18px;
+  }
+  .modqueue-item {
+    display: grid; grid-template-columns: 44px 1fr auto; gap: 16px; align-items: center;
+    padding: 14px 16px; border-radius: 14px;
+    background: oklch(96% 0.02 280 / 0.04);
+    border: 1px solid var(--line);
+  }
+  .modqueue-item + .modqueue-item { margin-top: 10px; }
+  .avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--glow-b), var(--glow-a));
+    display: grid; place-items: center; font-weight: 600; font-size: 15px;
+    color: var(--bg-0);
+  }
+  .mq-meta { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .mq-title { font-size: 14px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mq-sub { font-size: 12px; color: var(--ink-faint); }
+  .why-btn {
+    appearance: none; border: 1px solid var(--line); background: var(--glass);
+    color: var(--ink); border-radius: 999px; padding: 8px 14px;
+    font: inherit; font-size: 12px; letter-spacing: 0.05em;
+    display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+  }
+  .why-btn .glow {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--glow-a);
+    box-shadow: 0 0 8px var(--glow-a);
+  }
+  .why-btn.active { background: oklch(82% 0.18 200 / 0.16); border-color: var(--glow-a); }
+
+  .why-card {
+    margin-top: 20px;
+    background: linear-gradient(160deg, oklch(82% 0.18 200 / 0.10), oklch(74% 0.22 320 / 0.08));
+    border: 1px solid oklch(82% 0.18 200 / 0.30);
+    border-radius: 20px; padding: 24px;
+    position: relative; overflow: hidden;
+  }
+  .why-card::after {
+    content: ""; position: absolute; right: -80px; top: -80px; width: 220px; height: 220px;
+    background: radial-gradient(closest-side, var(--glow-a), transparent 70%);
+    opacity: 0.35; filter: blur(8px);
+  }
+  .why-head { display: flex; align-items: center; gap: 10px; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-dim); margin-bottom: 12px; }
+  .why-head .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--glow-a); box-shadow: 0 0 10px var(--glow-a); animation: pulse 2.4s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.45; } }
+  .why-card p { font-size: 16px; line-height: 1.55; margin: 0 0 14px; color: var(--ink); }
+  .citations { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+  .cite {
+    font-size: 11px; padding: 5px 10px; border-radius: 8px;
+    background: var(--glass-2); border: 1px solid var(--line);
+    color: var(--ink-dim); font-variant-numeric: tabular-nums;
+  }
+  .risk { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin-bottom: 18px; }
+  .risk-label { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-faint); width: 110px; }
+  .risk-bar { flex: 1; height: 6px; border-radius: 3px; background: var(--glass-2); position: relative; overflow: hidden; }
+  .risk-bar > i { position: absolute; inset: 0; width: 72%; background: linear-gradient(90deg, var(--ok), var(--warn) 60%, var(--bad)); border-radius: 3px; }
+  .risk-val { font-size: 13px; font-variant-numeric: tabular-nums; color: var(--ink); width: 64px; text-align: right; }
+  .feedback { display: flex; gap: 10px; align-items: center; }
+  .feedback span { font-size: 12px; color: var(--ink-dim); margin-right: 6px; }
+  .teach {
+    appearance: none; border: 1px solid var(--line); background: var(--glass);
+    color: var(--ink); border-radius: 12px; padding: 8px 14px; font: inherit; font-size: 12px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .teach.up:hover { border-color: var(--ok); }
+  .teach.down:hover { border-color: var(--bad); }
+
+  /* Roadmap sidebar */
+  aside.roadmap {
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    background: var(--glass); border: 1px solid var(--line);
+    border-radius: 24px; padding: 28px 24px; align-self: start;
+    position: sticky; top: 24px;
+  }
+  .roadmap h2 { font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-faint); margin: 0 0 6px; font-weight: 500; }
+  .roadmap .arc { font-size: 18px; line-height: 1.3; margin: 0 0 22px; color: var(--ink); }
+  .roadmap .arc b { background: linear-gradient(100deg, var(--glow-a), var(--glow-c)); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 600; }
+  .v-list { position: relative; padding-left: 22px; }
+  .v-list::before {
+    content: ""; position: absolute; left: 7px; top: 6px; bottom: 6px; width: 2px;
+    background: linear-gradient(var(--glow-a), var(--glow-b), oklch(78% 0.03 280 / 0.2));
+    border-radius: 2px;
+  }
+  .v-item { position: relative; padding: 0 0 22px; }
+  .v-item:last-child { padding-bottom: 0; }
+  .v-item::before {
+    content: ""; position: absolute; left: -22px; top: 4px; width: 16px; height: 16px;
+    border-radius: 50%; background: var(--bg-1); border: 2px solid var(--glow-a);
+    box-shadow: 0 0 10px oklch(82% 0.18 200 / 0.55);
+  }
+  .v-item.future::before { border-color: var(--ink-faint); box-shadow: none; background: var(--bg-1); }
+  .v-item.now::before { background: var(--glow-a); }
+  .v-tag { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--glow-a); margin-bottom: 4px; }
+  .v-item.future .v-tag { color: var(--ink-faint); }
+  .v-title { font-size: 14px; line-height: 1.35; color: var(--ink); margin-bottom: 4px; font-weight: 500; }
+  .v-sub { font-size: 12px; line-height: 1.45; color: var(--ink-dim); }
+
+  /* metrics row */
+  .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 32px; }
+  .metric {
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    background: var(--glass); border: 1px solid var(--line);
+    border-radius: 16px; padding: 18px;
+  }
+  .metric .label { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 8px; }
+  .metric .value { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .metric .delta { font-size: 12px; color: var(--ok); margin-top: 4px; }
+
+  footer.foot { margin-top: 48px; font-size: 12px; color: var(--ink-faint); display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  footer.foot b { color: var(--ink-dim); font-weight: 500; }
+</style>
+</head>
+<body>
+
+<svg class="sky-svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <defs>
+    <radialGradient id="sun" cx="80%" cy="12%" r="40%">
+      <stop offset="0%" stop-color="oklch(86% 0.16 95)" stop-opacity="0.55"/>
+      <stop offset="60%" stop-color="oklch(74% 0.22 320)" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="oklch(74% 0.22 320)" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ridge" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="oklch(46% 0.15 30)" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="oklch(18% 0.04 280)" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1440" height="900" fill="url(#sun)"/>
+  <g opacity="0.7">
+    <circle cx="220" cy="160" r="1.2" fill="oklch(96% 0.02 280)"/>
+    <circle cx="380" cy="90" r="0.9" fill="oklch(96% 0.02 280)"/>
+    <circle cx="540" cy="200" r="1.4" fill="oklch(96% 0.02 280)"/>
+    <circle cx="720" cy="110" r="0.8" fill="oklch(96% 0.02 280)"/>
+    <circle cx="900" cy="220" r="1.1" fill="oklch(96% 0.02 280)"/>
+    <circle cx="1080" cy="140" r="1.3" fill="oklch(96% 0.02 280)"/>
+    <circle cx="1240" cy="80" r="0.9" fill="oklch(96% 0.02 280)"/>
+    <circle cx="160" cy="320" r="0.8" fill="oklch(96% 0.02 280)"/>
+    <circle cx="640" cy="340" r="1.0" fill="oklch(96% 0.02 280)"/>
+    <circle cx="1180" cy="300" r="1.2" fill="oklch(96% 0.02 280)"/>
+  </g>
+  <path d="M0,640 C220,560 360,680 540,620 C720,560 900,700 1080,640 C1260,580 1380,660 1440,640 L1440,900 L0,900 Z" fill="url(#ridge)"/>
+  <path d="M0,720 C200,680 380,760 580,720 C780,680 980,760 1180,720 C1300,700 1380,720 1440,720 L1440,900 L0,900 Z" fill="oklch(24% 0.08 290)" opacity="0.55"/>
+</svg>
+
+<div class="frame">
+  <header class="hero">
+    <div>
+      <div class="eyebrow"><span class="dot"></span> P10 · The Dreamer · 5-year arc</div>
+      <h1>ContextMod becomes <span class="grad">your subreddit's conscience</span>.</h1>
+      <p class="lede">v1 ports a battle-tested Data-API rule engine to Devvit on day one. v5 ships an AI conscience that learns each community's values from real mod actions and explains every call in the sub's own voice. The hackathon is the keel; the compact is the ship.</p>
+    </div>
+    <div class="meta-card" aria-label="Submission meta">
+      <div class="row"><span>Bot</span><span>ContextMod (FoxxMD)</span></div>
+      <div class="row"><span>Track</span><span>Best Ported · $10K</span></div>
+      <div class="row"><span>Host sub WAU</span><span>1,840</span></div>
+      <div class="row"><span>Parity coverage</span><span>97%</span></div>
+      <div class="row"><span>Deadline</span><span>2026-05-27 18:00 PDT</span></div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <main class="stage">
+      <div class="stage-label">Modqueue · Devvit-native overlay</div>
+
+      <div class="modqueue-item">
+        <div class="avatar">u</div>
+        <div class="mq-meta">
+          <div class="mq-title">"Has anyone else noticed this pattern in the new release?"</div>
+          <div class="mq-sub">u/quiet_hex_22 · 14 min ago · self-post</div>
+        </div>
+        <button class="why-btn active" aria-label="Why was this flagged"><span class="glow"></span> Why?</button>
+      </div>
+      <div class="modqueue-item">
+        <div class="avatar" style="background:linear-gradient(135deg,var(--glow-c),var(--glow-a))">a</div>
+        <div class="mq-meta">
+          <div class="mq-title">"AMA: I built the original tool — three lessons"</div>
+          <div class="mq-sub">u/aurora_kim · 41 min ago · link</div>
+        </div>
+        <button class="why-btn" aria-label="Why was this flagged"><span class="glow"></span> Why?</button>
+      </div>
+      <div class="modqueue-item">
+        <div class="avatar" style="background:linear-gradient(135deg,var(--glow-b),var(--glow-c))">m</div>
+        <div class="mq-meta">
+          <div class="mq-title">"Reposting because mods removed it for no reason"</div>
+          <div class="mq-sub">u/mid_orbit · 1 h ago · self-post</div>
+        </div>
+        <button class="why-btn" aria-label="Why was this flagged"><span class="glow"></span> Why?</button>
+      </div>
+
+      <article class="why-card" aria-live="polite">
+        <div class="why-head"><span class="pulse"></span> ContextMod · Why card · Opus 4.7</div>
+        <p>This post matches your sub's <em>"low-context vague-curiosity"</em> heuristic. The author has 12 posts in the last 30 days across crypto-adjacent subs, three of which your mods removed for the same pattern in March. The phrasing is consistent with the rule you wrote on Apr 04 — kept loose so good-faith newcomers slip through, which is why I'm asking, not removing.</p>
+        <div class="citations">
+          <span class="cite">rule: low-context-curiosity · v3</span>
+          <span class="cite">author history: 12 posts / 30d</span>
+          <span class="cite">prior mod actions: 3 matches</span>
+          <span class="cite">cross-sub signal: 2 subs</span>
+        </div>
+        <div class="risk">
+          <span class="risk-label">Predicted risk</span>
+          <span class="risk-bar"><i></i></span>
+          <span class="risk-val">0.72</span>
+        </div>
+        <div class="feedback">
+          <span>Teach me:</span>
+          <button class="teach up">Right call</button>
+          <button class="teach down">Too aggressive</button>
+          <button class="teach">Add a nuance…</button>
+        </div>
+      </article>
+
+      <div class="metrics">
+        <div class="metric">
+          <div class="label">Mod-decision time</div>
+          <div class="value">−38%</div>
+          <div class="delta">vs legacy ContextMod baseline</div>
+        </div>
+        <div class="metric">
+          <div class="label">Queue dwell p50</div>
+          <div class="value">2m 14s</div>
+          <div class="delta">−41% week over week</div>
+        </div>
+        <div class="metric">
+          <div class="label">Mod overrides used to teach</div>
+          <div class="value">214</div>
+          <div class="delta">weights updated, no retrain</div>
+        </div>
+      </div>
+    </main>
+
+    <aside class="roadmap" aria-label="Five-year arc">
+      <h2>The arc</h2>
+      <p class="arc">From a YAML rule engine to a <b>Community-AI Compact</b> — mod-authored, mod-accountable, sub-specific.</p>
+      <div class="v-list">
+        <div class="v-item now">
+          <div class="v-tag">v1 · 2026 · this hackathon</div>
+          <div class="v-title">Parity port + Why card</div>
+          <div class="v-sub">ContextMod's YAML rules run on Devvit. Opus 4.7 narrates each modqueue hit in the sub's tone. Mod overrides write back to a Redis weight store.</div>
+        </div>
+        <div class="v-item future">
+          <div class="v-tag">v2 · 2027</div>
+          <div class="v-title">Sub-specific value model</div>
+          <div class="v-sub">Six months of mod feedback distill into a per-sub preference vector. The Why card stops citing rules and starts citing precedents.</div>
+        </div>
+        <div class="v-item future">
+          <div class="v-tag">v3 · 2028</div>
+          <div class="v-title">Predictive triage</div>
+          <div class="v-sub">Devvit surfaces flag posts before they hit the queue. Modlog turns into a learning ledger. New mods onboard by reviewing the AI's reasoning, not memorizing rules.</div>
+        </div>
+        <div class="v-item future">
+          <div class="v-tag">v4 · 2029</div>
+          <div class="v-title">Cross-sub compact</div>
+          <div class="v-sub">Subs opt into shared signals (not shared verdicts). A bad-faith pattern detected in r/A warns r/B with full citation — never an automatic ban.</div>
+        </div>
+        <div class="v-item future">
+          <div class="v-tag">v5 · 2030</div>
+          <div class="v-title">The conscience</div>
+          <div class="v-sub">Every sub has a native AI conscience. It explains itself in the sub's voice, refuses actions that contradict mod-stated values, and is replaced — not retrained — when mods say so.</div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="foot">
+    <div><b>P10 · The Dreamer</b> — Reddit Mod Tools Migration · Best Ported Data API App</div>
+    <div>Today's port is v1. 2030's conscience is v5. The keel is the same.</div>
+  </footer>
+</div>
+
+</body>
+</html>
