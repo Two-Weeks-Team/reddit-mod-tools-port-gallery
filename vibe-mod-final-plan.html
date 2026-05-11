@@ -102,6 +102,9 @@ hr{border:none;border-top:1px solid var(--border);margin:20px 0}
 <span class="badge info">테스트 20 cases</span>
 <span class="badge info">a11y 14 items</span>
 <span class="badge info">audit fixes 18건</span>
+<span class="badge ok">OpenAI gpt-5.4-nano</span>
+<span class="badge ok">Devvit 0.12.22</span>
+<span class="badge ok">Zod v4.4 · Hono v4.12 · Vitest v4.1</span>
 </div>
 </header>
 
@@ -116,8 +119,8 @@ hr{border:none;border-top:1px solid var(--border);margin:20px 0}
 <div class="callout success">
 <strong>✅ 결정 사항 (모두 verbatim 검증됨)</strong>
 <ul>
-<li><strong>LLM</strong>: OpenAI <code>gpt-4o-mini</code> (Anthropic 정책 거부, Gemini는 대안)</li>
-<li><strong>패턴</strong>: <code>@devvit/web</code> + Hono + <code>devvit.json</code></li>
+<li><strong>LLM</strong>: OpenAI <code>gpt-5.4-nano</code> (default, 최신·최저가) · <code>gpt-5.4-mini</code> (premium 옵션) · Anthropic은 Reddit 정책 거부</li>
+<li><strong>패턴</strong>: <code>@devvit/web</code> v0.12.22 + Hono v4.12+ + Zod v4.4+ + <code>devvit.json</code></li>
 <li><strong>핵심 invariant</strong>: 런타임에 LLM 호출 0회. 모든 액션 평가는 결정론.</li>
 <li><strong>안전 마진</strong>: shadow mode 24h default, dry-run preview 의무, 30-day rollback, action whitelist 하드코딩</li>
 <li><strong>실행 신뢰도</strong>: 코드 산출물 6개 모두 작성 완료, 보안+품질 audit 2회 통과</li>
@@ -346,6 +349,40 @@ deploy 시 <code>vibe-mod/</code> repo로 그대로 복사 가능. 코드는 <a 
                        │ BYOK key OR developer key │
                        └───────────────────────────┘</code></pre>
 
+<h3>4.1b 최신 패키지·모델 lock (2026-05-11 verbatim verified)</h3>
+<table>
+<thead><tr><th>요소</th><th>버전</th><th>출처</th></tr></thead>
+<tbody>
+<tr><td><code>@devvit/web</code></td><td><strong>0.12.22</strong></td><td>npm view 2026-05-11. Release 0.12.22 (May 1, 2026)</td></tr>
+<tr><td><code>@devvit/redis</code></td><td><strong>0.12.22</strong></td><td>same — Devvit monorepo versioning</td></tr>
+<tr><td><code>@devvit/reddit</code></td><td><strong>0.12.22</strong></td><td>same</td></tr>
+<tr><td><code>@devvit/cli</code> (devDep)</td><td><strong>0.12.22</strong></td><td>same</td></tr>
+<tr><td><code>hono</code></td><td><strong>4.12.18</strong></td><td>npm 2026-05-11. Devvit Web 공식 추천 server framework</td></tr>
+<tr><td><code>zod</code></td><td><strong>4.4.3</strong></td><td>npm 2026-05-11. v4: <code>.strict()</code>·<code>.lazy()</code>·<code>discriminatedUnion</code> 모두 호환 (vibe-mod 사용 부분)</td></tr>
+<tr><td><code>typescript</code> (devDep)</td><td><strong>5.7+</strong></td><td>Devvit Web 권장 (TS 6은 검증 안 됨)</td></tr>
+<tr><td><code>vitest</code> (devDep)</td><td><strong>4.1.5</strong></td><td>npm 2026-05-11. Browser-native testing default</td></tr>
+<tr><td><strong>OpenAI 기본 모델</strong></td><td><strong>gpt-5.4-nano</strong></td><td>openai.com 2026-05. $0.20/$1.25 per 1M tokens. <code>json_object</code> 지원</td></tr>
+<tr><td><strong>OpenAI 프리미엄 옵션</strong></td><td><strong>gpt-5.4-mini</strong></td><td>openai.com 2026-05. $0.75/$4.50 per 1M tokens. 400K context</td></tr>
+<tr><td>OpenAI 폴백 (구버전)</td><td>gpt-5-mini, gpt-5-nano</td><td>여전히 API 가용. 비용은 5.4 시리즈와 유사</td></tr>
+<tr><td><strong>Node.js</strong></td><td>≥22.2.0</td><td>Devvit quickstart 요구사항</td></tr>
+</tbody>
+</table>
+
+<div class="callout info">
+<strong>ℹ️ 모델 선택 근거</strong>
+<code>gpt-5.4-nano</code>는 (a) 최신 모델 패밀리, (b) <code>gpt-5-mini</code>보다 output 토큰이 cheaper ($1.25 vs $2.00), (c) <code>json_object</code> 모드 universal 지원, (d) Devvit 30s timeout 안에 안정적 — 4가지 이점 모두 만족. <code>gpt-5.4-mini</code>는 ambiguous prompt 시 fallback (mod가 settings에서 선택). <code>json_schema</code> strict mode는 일부 nano 모델에 호환 이슈 보고 — Zod 서버측 validation으로 동일 안전성 확보.
+</div>
+
+<div class="callout warning">
+<strong>⚠️ Devvit 0.12.21 신규 기능 (v0.2 활용)</strong>
+2026-04-27 릴리스의 새 기능들 — 본 계획은 보수적으로 v0.1에 미적용:
+<ul>
+<li><code>reddit.Filter()</code> — AutoMod-style 액션 (content 제거+모드큐 라우팅+로그 일괄). vibe-mod의 <code>modqueue</code> 액션은 v0.1.1에서 이걸로 치환.</li>
+<li><code>hSetNX</code> in transactions (0.12.17) — rate-limit hash 패턴 (현재 watch/multi/exec는 동등).</li>
+<li>Subreddit Rules API (0.12.16) — vibe-mod 룰을 Reddit 공식 sub rule로도 export하는 v0.2 feature.</li>
+</ul>
+</div>
+
 <h3>4.2 Devvit primitive 사용 (verbatim verified)</h3>
 <table>
 <thead><tr><th>vibe-mod 기능</th><th>Devvit primitive</th><th>출처</th></tr></thead>
@@ -378,8 +415,9 @@ deploy 시 <code>vibe-mod/</code> repo로 그대로 복사 가능. 코드는 <a 
 <tr><td>Trigger p95 (cold + 2 actions)</td><td>&lt;500ms</td><td>~400ms</td></tr>
 <tr><td>Compile (LLM call)</td><td>&lt;10s (30s timeout)</td><td>~3-5s</td></tr>
 <tr><td>Redis ops per event</td><td>&lt;10</td><td>~6 (40,000/s 한도의 0.015%)</td></tr>
-<tr><td>Cost per compile (gpt-4o-mini)</td><td>&lt;$0.01</td><td>~$0.0003</td></tr>
-<tr><td>Cost per 1,000 subs/month</td><td>—</td><td>~$54 (50 compiles/sub/day × 30일)</td></tr>
+<tr><td>Cost per compile (gpt-5.4-nano)</td><td>&lt;$0.01</td><td>~$0.00066 (800 in $0.20/M + 400 out $1.25/M)</td></tr>
+<tr><td>Cost per 1,000 subs/month</td><td>—</td><td>~$990 (50 compiles/sub/day × 30일) — BYOK fallback로 분산 가능</td></tr>
+<tr><td>Cost premium (gpt-5.4-mini)</td><td>—</td><td>~$0.0048/compile (~$7,200/1k subs/mo) — opt-in</td></tr>
 </tbody>
 </table>
 </section>
@@ -407,10 +445,31 @@ deploy 시 <code>vibe-mod/</code> repo로 그대로 복사 가능. 코드는 <a 
 <h3>5.6 <code>src/server/executor.ts</code> (220줄)</h3>
 <p>Action 화이트리스트 enforcement, audit + rollback atomic txn, crypto.getRandomValues actionId (FIND-05 fix), trySetIfNotExists race-free rate limit (FIND-10 fix), global kill switch check (<code>circuit:beta_freeze</code>), <code>setPostFlair</code> 정상 호출 (FIND-09 fix).</p>
 
-<h3>5.7 <code>src/server/index.ts</code> (520줄)</h3>
+<h3>5.7 <code>package.json</code> + <code>tsconfig.json</code> + <code>vitest.config.ts</code></h3>
+<p>현재 npm 버전으로 pinning된 산출물:</p>
+<pre><code>{
+  "dependencies": {
+    "@devvit/redis": "^0.12.22",
+    "@devvit/reddit": "^0.12.22",
+    "@devvit/web":   "^0.12.22",
+    "hono":          "^4.12.18",
+    "zod":           "^4.4.3"
+  },
+  "devDependencies": {
+    "@devvit/cli":   "^0.12.22",
+    "@types/node":   "^25.6.2",
+    "tsx":           "^4.20.7",
+    "typescript":    "^5.7.0",
+    "vitest":        "^4.1.5",
+    "@vitest/coverage-v8": "^4.1.5"
+  },
+  "engines": { "node": ">=22.2.0" }
+}</code></pre>
+
+<h3>5.8 <code>src/server/index.ts</code> (520줄)</h3>
 <p>Hono entry. 모든 form/menu handler에 <code>isCallerModerator()</code> guard (FIND-03 fix). 모든 trigger handler에 <code>isDuplicateTrigger</code> dedupe (Gap #5 fix). <code>zCount</code> for last-hour breaker (FIND-04 fix). <code>safe-regex</code>-style compile-time check (FIND-02 fix). Clarification은 별도 user turn (FIND-11 fix). BYOK 폴백. <code>summarizeValidationError</code>로 Zod 에러 sanitize. shadow-promote-check이 <code>shadowDurationHours</code> 설정값 읽음 (Gap #6 fix). audit-retention이 cascade del (Gap #18 fix).</p>
 
-<h3>5.8 정식 OpenAI 호출 패턴 (vibe-mod와 동일)</h3>
+<h3>5.9 정식 OpenAI 호출 패턴 (vibe-mod와 동일)</h3>
 <p>공식 Devvit docs의 <code>settings-and-secrets.mdx</code>에 OpenAI API 키 + fetch 호출 예시가 그대로 등장. vibe-mod 패턴이 Reddit 공식 권장 사례.</p>
 <pre><code>// 공식 예시 (자료는 reddit/devvit-docs)
 const apiKey = await settings.get('openaiApiKey');
@@ -505,8 +564,9 @@ const response = await fetch('https://api.openai.com/v1/chat/completions', {
 <li>터미널 안내대로 <code>cd vibe-mod</code></li>
 <li><code>devvit.json</code> 우리 산출물로 덮어쓰기</li>
 <li><code>src/</code>에 우리 6개 코드 파일 복사 + <code>npm install zod hono</code> (또는 express)</li>
-<li>OpenAI key 발급 (platform.openai.com) + 일일 $5 ceiling 설정</li>
-<li><code>npx devvit settings set openaiApiKey</code></li>
+<li>OpenAI key 발급 (platform.openai.com) + <strong>gpt-5.4-nano 사용 권한 확인</strong> + 일일 $5 ceiling 설정</li>
+<li><code>npx devvit settings set openaiApiKey</code> (developer-global secret)</li>
+<li><code>devvit.json</code>의 <code>openaiModel</code> default가 <code>gpt-5.4-nano</code>인지 확인</li>
 <li><code>npm run dev</code> → 자동 생성된 playtest sub 접속</li>
 </ul>
 <div class="exit-gate">EXIT GATE: <code>vibe-mod: Compose rule</code> 메뉴 보이고 form 열림. 토스트 "Please type a rule." 정상 표시</div>
@@ -868,6 +928,15 @@ Write a moderation rule. In English. It works.
 
 <section id="references">
 <h2>15. 출처 + 관련 보고서</h2>
+
+<h3>15.0 최신 모델·패키지 출처 (2026-05-11 verbatim)</h3>
+<ul>
+<li><strong>npm registry</strong>: <code>npm view {pkg} version</code> — 모든 dep 버전 직접 확인 (@devvit/* 0.12.22, hono 4.12.18, zod 4.4.3, vitest 4.1.5)</li>
+<li><strong>OpenAI 공식 API docs</strong>: <a href="https://developers.openai.com/api/docs/models" target="_blank">developers.openai.com/api/docs/models</a> — gpt-5.4-mini/nano + gpt-5.5 enumerate, structured output 가이드</li>
+<li><strong>OpenAI 가격</strong>: <a href="https://developers.openai.com/api/docs/pricing" target="_blank">developers.openai.com/api/docs/pricing</a></li>
+<li><strong>Devvit changelog</strong>: <code>/tmp/devvit-docs/docs/changelog.md</code> (cloned reddit/devvit-docs @ HEAD) — 0.12.16~0.12.22 모든 신규 기능 enumerate</li>
+<li><strong>Zod v4 마이그레이션</strong>: <a href="https://zod.dev/v4" target="_blank">zod.dev/v4</a> — <code>.strict()</code>·<code>.lazy()</code>·<code>discriminatedUnion</code> 호환 확인</li>
+</ul>
 
 <h3>15.1 공식 Devvit docs (verbatim verified)</h3>
 <ul>

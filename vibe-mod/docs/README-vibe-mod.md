@@ -24,7 +24,7 @@ That's it. You never write YAML, you never write regex, and nothing is permanent
 vibe-mod is a single Devvit app:
 
 - **Runtime is pure deterministic TypeScript.** Zero LLM calls per post or comment.
-- **LLM is used only at rule-edit time** (build-time-equivalent). The mod's typed sentence goes to OpenAI gpt-4o-mini, which emits a JSON rule. The JSON is validated against a strict Zod schema and an action whitelist before it can be stored. The LLM never sees Reddit post content.
+- **LLM is used only at rule-edit time** (build-time-equivalent). The mod's typed sentence goes to OpenAI **gpt-5.4-nano** (default — current latest tier, cheapest, `json_object` mode supported), which emits a JSON rule. The JSON is validated against a strict Zod (v4) schema and an action whitelist before it can be stored. The LLM never sees Reddit post content. Premium option: `gpt-5.4-mini` for higher-quality compile on ambiguous prompts.
 - **State lives in Devvit Redis** scoped per installation: `rules:active`, `rules:draft`, `audit` (ZSet, 30-day retention), `rollback:<actionId>` (30-day TTL).
 - **Triggers**: `onPostSubmit`, `onCommentSubmit`, `onPostReport`, `onCommentReport`, plus `onAppInstall` / `onAppUpgrade` for setup and migrations.
 - **Scheduler** for audit retention (daily cron), dry-run replay (one-shot), shadow promotion check (every 15 min), and the per-hour action circuit breaker (every 5 min).

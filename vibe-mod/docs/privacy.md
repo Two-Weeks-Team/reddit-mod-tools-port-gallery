@@ -32,7 +32,7 @@
 ## 4. Third parties
 
 - **Reddit (Devvit)** — hosts the app and the Redis data. Subject to Reddit's privacy policies.
-- **OpenAI** — receives the moderator's typed rule sentence and the vibe-mod system prompt. Subject to [OpenAI's API data usage policies](https://openai.com/policies/api-data-usage-policies). OpenAI states API data is not used to train their models by default.
+- **OpenAI** — receives the moderator's typed rule sentence and the vibe-mod system prompt. We use the `gpt-5.4-nano` model by default (and offer `gpt-5.4-mini` or older fallbacks as configurable). Subject to [OpenAI's API data usage policies](https://openai.com/policies/api-data-usage-policies). OpenAI states API data is not used to train their models by default.
 
 No other third parties receive data from vibe-mod.
 

@@ -277,7 +277,7 @@ app.post('/internal/form/compose-rule-submit', async (c) => {
         schemaVersion: '1.0.0',
         bundleVersion: 0,
         compiledAt: Date.now(),
-        llmModel: ((await settings.get('openaiModel')) as string) || 'gpt-4o-mini',
+        llmModel: ((await settings.get('openaiModel')) as string) || 'gpt-5.4-nano',
         llmTokensIn: 0,
         llmTokensOut: 0,
         rules: [],
@@ -665,7 +665,7 @@ async function callOpenAI(
   const apiKey = (subKey?.trim() || globalKey || '').trim();
   if (!apiKey) throw new Error('no_key');
 
-  const model = ((await settings.get('openaiModel')) as string) || 'gpt-4o-mini';
+  const model = ((await settings.get('openaiModel')) as string) || 'gpt-5.4-nano';
 
   const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
     { role: 'system', content: VIBE_MOD_SYSTEM_PROMPT },
