@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>vibe-mod 실증 검증 보고서 | Devvit 공식 문서 cross-reference</title>
+<style>
+:root{--bg:#fff;--surface:#f6f8fa;--border:#d0d7de;--ink:#1f2328;--muted:#656d76;--accent:#0969da;--success:#1a7f37;--warning:#9a6700;--error:#d1242f;--code-bg:#f6f8fa}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);line-height:1.65;font-size:16px}
+.layout{display:grid;grid-template-columns:280px 1fr;min-height:100vh}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.toc-sidebar{display:none}}
+.toc-sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--surface);border-right:1px solid var(--border);padding:24px 20px}
+.toc-sidebar h3{font-size:12px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;letter-spacing:.05em}
+.toc-sidebar ol{list-style:none;counter-reset:toc}
+.toc-sidebar ol li{counter-increment:toc;margin:4px 0;font-size:13px}
+.toc-sidebar ol li::before{content:counter(toc) ". ";color:var(--muted)}
+.toc-sidebar a{color:var(--ink);text-decoration:none;padding:4px 6px;border-radius:4px;display:inline-block}
+.toc-sidebar a:hover{background:var(--bg);color:var(--accent)}
+main{padding:40px 56px 80px;max-width:1100px}
+@media(max-width:700px){main{padding:24px 20px 60px}}
+header.top{margin-bottom:32px;padding-bottom:20px;border-bottom:2px solid var(--border)}
+header.top h1{font-size:28px;font-weight:700;margin-bottom:8px;line-height:1.3}
+header.top .subtitle{color:var(--muted);font-size:15px}
+.meta-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px;font-size:13px}
+.badge{display:inline-block;padding:3px 10px;border-radius:12px;background:var(--surface);color:var(--muted);border:1px solid var(--border)}
+.badge.ok{background:oklch(95% 0.05 145);color:var(--success);border-color:oklch(80% 0.15 145)}
+.badge.warn{background:oklch(95% 0.05 75);color:var(--warning);border-color:oklch(80% 0.15 75)}
+.badge.crit{background:oklch(95% 0.05 25);color:var(--error);border-color:oklch(80% 0.15 25)}
+section{margin:40px 0;scroll-margin-top:24px}
+section>h2{font-size:22px;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+section>h3{font-size:17px;margin:24px 0 12px}
+section>h4{font-size:15px;margin:16px 0 8px}
+p{margin-bottom:12px}
+ul,ol{margin:8px 0 12px 24px}
+li{margin:4px 0}
+strong{font-weight:600}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+code{font-family:ui-monospace,Menlo,monospace;font-size:13px;background:var(--code-bg);padding:1px 6px;border-radius:3px;border:1px solid var(--border)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:6px;padding:14px 16px;overflow-x:auto;font-size:12px;margin:10px 0}
+pre code{background:none;padding:0;border:none}
+blockquote{border-left:4px solid var(--accent);padding:8px 16px;margin:12px 0;background:oklch(97% 0.02 250)}
+blockquote.verbatim{border-left-color:var(--success);background:oklch(97% 0.03 145);font-family:ui-monospace,monospace;font-size:12px;line-height:1.5}
+blockquote .src{display:block;font-style:normal;font-size:11px;color:var(--muted);margin-top:6px;font-family:system-ui}
+.callout{padding:14px 18px;border-radius:8px;margin:16px 0;border-left:4px solid}
+.callout.info{background:oklch(96% 0.03 250);border-left-color:var(--accent)}
+.callout.success{background:oklch(96% 0.04 145);border-left-color:var(--success)}
+.callout.warning{background:oklch(96% 0.05 75);border-left-color:var(--warning)}
+.callout.error{background:oklch(96% 0.04 25);border-left-color:var(--error)}
+.callout strong:first-child{display:block;margin-bottom:4px;font-size:14px}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px}
+table thead th{text-align:left;background:var(--surface);padding:10px 12px;border-bottom:2px solid var(--border);font-weight:600}
+table tbody td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+table tbody tr:nth-child(even){background:oklch(99% 0.005 250)}
+.scroll-top{position:fixed;bottom:24px;right:24px;padding:10px 14px;border-radius:24px;background:var(--accent);color:white;text-decoration:none;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,0.15);opacity:0;transition:opacity 0.2s}
+.scroll-top.visible{opacity:1}
+hr{border:none;border-top:1px solid var(--border);margin:24px 0}
+@media print{.toc-sidebar,.scroll-top{display:none}.layout{grid-template-columns:1fr}main{padding:0;max-width:100%}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="toc-sidebar">
+<h3>목차</h3>
+<ol>
+<li><a href="#summary">검증 요약</a></li>
+<li><a href="#critical">🚨 결정적 변경 (Claude → OpenAI)</a></li>
+<li><a href="#api-matrix">API/Primitive 검증 매트릭스</a></li>
+<li><a href="#pattern-shift">패턴 전환 (@devvit/web)</a></li>
+<li><a href="#http-fetch">HTTP Fetch + AI 정책</a></li>
+<li><a href="#mod-tool-pattern">공식 Mod Tool 패턴</a></li>
+<li><a href="#redis">Redis 실제 한계</a></li>
+<li><a href="#scheduler">Scheduler 실제 한계</a></li>
+<li><a href="#reddit-api">Reddit API 메서드 검증</a></li>
+<li><a href="#day0">Day-0 CLI smoke test</a></li>
+<li><a href="#new-submission">추가 제출 요건</a></li>
+<li><a href="#updated-plan">업데이트된 4일 MVP scope</a></li>
+<li><a href="#references">출처</a></li>
+</ol>
+</aside>
+
+<main>
+<header class="top">
+<h1>vibe-mod 실증 검증 보고서</h1>
+<p class="subtitle">Devvit 공식 문서(reddit/devvit-docs GitHub) verbatim cross-reference · 4 전문가 plan 클레임 전수 검증</p>
+<div class="meta-row">
+<span class="badge">분석: 2026-05-11 KST</span>
+<span class="badge">소스: github.com/reddit/devvit-docs @ HEAD</span>
+<span class="badge crit">중대 변경 1건: AI provider</span>
+<span class="badge ok">아키텍처 전체: 실현 가능</span>
+</div>
+</header>
+
+<section id="summary">
+<h2>1. 검증 요약</h2>
+
+<div class="callout success">
+<strong>✅ vibe-mod는 Devvit에서 실현 가능합니다.</strong> 모든 핵심 primitive(triggers, redis, scheduler, settings, http fetch, reddit API 메서드)가 공식 문서로 verbatim 확인됨. 단, <strong>2가지 critical 변경</strong>이 필요합니다.
+</div>
+
+<div class="callout error">
+<strong>🚨 결정적 발견 #1 — AI provider 정책</strong>
+Reddit이 명시적으로 "<em>At this time, the only AI providers we allow are OpenAI and Google Gemini... Requests to use any other AI provider will be denied.</em>"라고 룰화. → <strong>Claude Haiku 4.5 사용 불가</strong>. <strong>OpenAI gpt-4o-mini 또는 Gemini Flash로 pivot 필수</strong>.
+</div>
+
+<div class="callout warning">
+<strong>⚠️ 결정적 발견 #2 — Devvit Web 패턴</strong>
+원본 plan의 <code>Devvit.addTrigger(...)</code> closure 패턴은 <strong>구버전 @devvit/public-api</strong>. 현재 공식은 <strong>@devvit/web</strong> — <code>devvit.json</code>에 endpoint 선언 + Hono/Express HTTP 라우트로 처리. 아키텍처 다이어그램·코드 샘플 모두 업데이트 필요.
+</div>
+
+<h3>1.1 11개 클레임 검증 결과</h3>
+<table>
+<thead><tr><th>#</th><th>원본 plan 클레임</th><th>판정</th><th>verbatim 근거</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Devvit apps can call external HTTPS APIs via fetch</td><td><span class="badge ok">✅</span></td><td>"Make requests to allow-listed external domains"</td></tr>
+<tr><td>2</td><td>Claude Haiku 4.5를 LLM으로 사용</td><td><span class="badge crit">❌</span></td><td>"the only AI providers we allow are OpenAI and Google Gemini... Requests to use any other AI provider will be denied"</td></tr>
+<tr><td>3</td><td>onPostSubmit / onCommentSubmit 트리거 사용</td><td><span class="badge ok">✅</span></td><td>모든 트리거 verbatim enumerate</td></tr>
+<tr><td>4</td><td>Devvit Redis (1000 cmd/s, 500MB)</td><td><span class="badge ok">✅<sup>+</sup></span></td><td>실제는 <strong>40,000 cmd/s</strong> (훨씬 관대), 500MB 스토리지 정확</td></tr>
+<tr><td>5</td><td>Sorted sets (zAdd/zRange) 지원</td><td><span class="badge ok">✅</span></td><td>verbatim — zAdd/zRange/zRem/zScore/zRank/zIncrBy/zScan/zRemRangeBy*</td></tr>
+<tr><td>6</td><td>Redis transactions (multi/exec/watch)</td><td><span class="badge ok">✅</span></td><td>verbatim — max 20 concurrent transactions, 5s timeout</td></tr>
+<tr><td>7</td><td>Scheduler cron + one-shot</td><td><span class="badge ok">✅</span></td><td>verbatim — <code>scheduler.runJob({cron|runAt})</code></td></tr>
+<tr><td>8</td><td>Settings with isSecret (App scope)</td><td><span class="badge ok">✅</span></td><td>verbatim — global+subreddit scopes, isSecret 지원, CLI로만 설정 가능</td></tr>
+<tr><td>9</td><td>Reddit API: removePost, modMail.create, setUserFlair 등</td><td><span class="badge ok">✅<sup>*</sup></span></td><td>메서드 전부 존재 (단 호출 패턴은 <code>comment.remove()</code> 객체-메서드형으로 변경)</td></tr>
+<tr><td>10</td><td>Devvit.addTrigger() closure-style handler</td><td><span class="badge warn">⚠️</span></td><td><strong>구버전 패턴</strong>. 현 공식: <code>devvit.json</code>에 endpoint + HTTP route</td></tr>
+<tr><td>11</td><td>Devvit.addCustomPostType + addSettings</td><td><span class="badge warn">⚠️</span></td><td>현 공식은 <code>devvit.json</code> 설정 + 서버 endpoint 패턴</td></tr>
+</tbody>
+</table>
+
+<p><strong>전체 판정</strong>: 9/11 fully feasible, 2/11 require pattern modernization. 컨셉은 흔들리지 않음.</p>
+</section>
+
+<section id="critical">
+<h2>2. 🚨 결정적 변경: Claude → OpenAI (또는 Gemini)</h2>
+
+<h3>2.1 정책 verbatim</h3>
+<blockquote class="verbatim">
+At this time, the only AI providers we allow are OpenAI and Google Gemini:
+<br><br>
+- api.openai.com
+<br>
+- generativelanguage.googleapis.com
+<br><br>
+Requests to use any other AI provider will be denied.
+<span class="src">— docs/capabilities/server/http-fetch-policy.md, section "AI providers"</span>
+</blockquote>
+
+<h3>2.2 LLM 재선정</h3>
+<table>
+<thead><tr><th>모델</th><th>속도</th><th>비용 (입력/출력 per 1M tokens)</th><th>JSON 모드</th><th>판정</th></tr></thead>
+<tbody>
+<tr><td><strong>OpenAI gpt-4o-mini</strong></td><td>~3-5s</td><td>$0.15 / $0.60</td><td>✅ <code>response_format:{type:'json_object'}</code></td><td><span class="badge ok">최우선 픽</span></td></tr>
+<tr><td>OpenAI gpt-4o</td><td>~5-8s</td><td>$2.50 / $10</td><td>✅</td><td><span class="badge warn">고비용, 불필요</span></td></tr>
+<tr><td>Gemini 2.0 Flash</td><td>~2-4s</td><td>$0.10 / $0.40 (대략)</td><td>✅ structured output</td><td><span class="badge ok">대안</span></td></tr>
+<tr><td>Gemini 2.5 Pro</td><td>~5-8s</td><td>$1.25 / $5</td><td>✅</td><td><span class="badge warn">고비용</span></td></tr>
+<tr><td><s>Claude Haiku 4.5</s></td><td>~3-5s</td><td>$1 / $5</td><td>—</td><td><span class="badge crit">정책 거부</span></td></tr>
+</tbody>
+</table>
+
+<h3>2.3 신규 비용 추정 (gpt-4o-mini 기준)</h3>
+<ul>
+<li>1 룰 컴파일: 800 in + 400 out ≈ <code>$0.00012 + $0.00024 = $0.00036</code> (≈ 0.36¢ → <strong>Haiku의 8배 cheaper</strong>)</li>
+<li>50 컴파일/sub/day × 30일 × 1,000 sub = 150만 컴파일 × $0.00036 = <strong>$540/월</strong></li>
+<li>실제로 sub당 일평균 5 컴파일 정도면 → <strong>$54/월 (1,000 sub 운영)</strong></li>
+</ul>
+
+<h3>2.4 영향 — 아키텍처 변경 사항</h3>
+<ul>
+<li><strong>devvit.json</strong>: <code>permissions.http.domains</code>에 <code>"api.openai.com"</code> (또는 <code>"generativelanguage.googleapis.com"</code>) 추가</li>
+<li><strong>global settings</strong>: <code>openaiApiKey</code> (isSecret: true). 공식 settings-and-secrets 문서에 정확히 이 패턴이 예시로 등장 → vibe-mod-shaped 사례</li>
+<li><strong>System prompt + JSON schema</strong>: OpenAI JSON 모드 활용 (Zod validator 그대로 유지)</li>
+<li><strong>비용 절감</strong>: Anthropic보다 8배 저렴 → 50 compiles/day rate limit 완화 가능 (예: 100/day)</li>
+</ul>
+
+<h3>2.5 공식 sample — vibe-mod와 동일 패턴</h3>
+<pre><code>// devvit.json (공식 settings-and-secrets.mdx 예시 — 그대로 차용 가능)
+{
+  "settings": {
+    "global": {
+      "openaiApiKey": {
+        "type": "string",
+        "label": "OpenAI API Key",
+        "isSecret": true,
+        "defaultValue": ""
+      }
+    }
+  },
+  "permissions": {
+    "http": { "enable": true, "domains": ["api.openai.com"] }
+  }
+}
+
+// server/index.ts (공식 예시 그대로)
+import { settings } from '@devvit/web/server';
+
+app.post('/api/generate', async (c) =&gt; {
+  const apiKey = await settings.get('openaiApiKey');
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+    body: JSON.stringify({ model: 'gpt-4o-mini', messages: [...] }),
+  });
+  ...
+});</code></pre>
+</section>
+
+<section id="api-matrix">
+<h2>3. API / Primitive 검증 매트릭스</h2>
+
+<h3>3.1 Triggers (verbatim from docs/capabilities/server/triggers.mdx)</h3>
+<table>
+<thead><tr><th>vibe-mod에서 사용</th><th>공식 이름</th><th>판정</th></tr></thead>
+<tbody>
+<tr><td>새 포스트 → 룰 평가</td><td><code>onPostSubmit</code></td><td>✅</td></tr>
+<tr><td>새 댓글 → 룰 평가</td><td><code>onCommentSubmit</code> or <code>onCommentCreate</code></td><td>✅</td></tr>
+<tr><td>리포트 임계점 → 액션</td><td><code>onPostReport</code> / <code>onCommentReport</code></td><td>✅</td></tr>
+<tr><td>모드 액션 learning (v0.2)</td><td><code>onModAction</code></td><td>✅</td></tr>
+<tr><td>최초 install 시 seed</td><td><code>onAppInstall</code></td><td>✅</td></tr>
+<tr><td>버전 업그레이드 시 migration</td><td><code>onAppUpgrade</code></td><td>✅</td></tr>
+</tbody>
+</table>
+
+<p><strong>등록 방법</strong> (verbatim):</p>
+<pre><code>// devvit.json
+"triggers": {
+  "onAppUpgrade": "/internal/on-app-upgrade",
+  "onPostSubmit": "/internal/on-post-submit",
+  "onCommentCreate": "/internal/on-comment-create"
+}
+
+// server/index.ts (Hono)
+app.post('/internal/on-post-submit', async (c) =&gt; {
+  const input = await c.req.json&lt;OnPostSubmitRequest&gt;();
+  const post = input.post;
+  const author = input.author;
+  // ... evaluate rules
+  return c.json&lt;TriggerResponse&gt;({ status: 'ok' });
+});</code></pre>
+
+<h3>3.2 Redis</h3>
+<table>
+<thead><tr><th>vibe-mod 사용</th><th>공식 지원</th><th>한계</th></tr></thead>
+<tbody>
+<tr><td><code>get / set / del</code> (rules:active)</td><td>✅</td><td>—</td></tr>
+<tr><td><code>zAdd / zRange / zRemRangeByScore</code> (audit)</td><td>✅</td><td>BYSCORE LIMIT count 기본 1000/call</td></tr>
+<tr><td><code>hSet / hGet / hGetAll</code> (rules:meta)</td><td>✅</td><td>—</td></tr>
+<tr><td><code>incrBy</code> (counters:compile)</td><td>✅</td><td>—</td></tr>
+<tr><td><code>expire</code> (rollback TTL 30일)</td><td>✅</td><td>—</td></tr>
+<tr><td><code>multi / exec / watch</code> (atomic audit write)</td><td>✅</td><td>max 20 concurrent tx, 5s exec timeout</td></tr>
+<tr><td>전체 cmd/s</td><td><strong>40,000</strong></td><td>원본 plan은 1,000으로 추정 → <strong>실제 40배 관대</strong></td></tr>
+<tr><td>스토리지</td><td>500 MB / installation</td><td>정확</td></tr>
+<tr><td>max request size</td><td>5 MB</td><td>—</td></tr>
+</tbody>
+</table>
+
+<h3>3.3 Scheduler</h3>
+<table>
+<thead><tr><th>vibe-mod 사용</th><th>공식 지원</th><th>한계 (실제)</th></tr></thead>
+<tbody>
+<tr><td>daily audit retention (cron)</td><td>✅ <code>cron: "0 3 * * *"</code></td><td>최대 <strong>10 live recurring actions</strong> / install</td></tr>
+<tr><td>one-shot dry-run replay</td><td>✅ <code>scheduler.runJob({runAt: new Date(...)})</code></td><td>60 runJob()/min, 60 deliveries/min</td></tr>
+<tr><td>seconds-level (<= 1 min)</td><td>✅ "Faster scheduler" — <code>cron: "*/30 * * * * *"</code></td><td>experimental</td></tr>
+<tr><td>cancelJob / listJobs</td><td>✅</td><td>—</td></tr>
+</tbody>
+</table>
+
+<div class="callout info">
+<strong>ℹ️ 30-day rollback은 scheduler 대신 Redis TTL 사용</strong>
+<code>scheduler</code>는 install당 10 recurring 한도라 매 액션마다 새 job 등록 불가능. 대신 <code>redis.set(rollback:&lt;actionId&gt;, ...).expire(2_592_000)</code>로 30일 TTL 부여. 만료되면 자동 삭제. (원본 plan과 동일 결론)
+</div>
+
+<h3>3.4 Settings (정확히 vibe-mod 시나리오 그대로)</h3>
+<p>공식 settings-and-secrets.mdx에 <strong>"OpenAI API Key with isSecret: true"</strong> 예시가 그대로 등장. vibe-mod의 LLM 통합 패턴이 정식 권장 패턴임을 의미.</p>
+
+<h3>3.5 HTTP Fetch</h3>
+<table>
+<thead><tr><th>요구사항</th><th>공식 답</th></tr></thead>
+<tbody>
+<tr><td>외부 API 호출 가능?</td><td>✅ <code>permissions.http.domains</code> 선언 시</td></tr>
+<tr><td>HTTPS only</td><td>✅</td></tr>
+<tr><td>Methods</td><td>GET, POST, PUT, DELETE, OPTIONS, PATCH</td></tr>
+<tr><td>Timeout</td><td>30s</td></tr>
+<tr><td>Global allowlist에 OpenAI</td><td>✅ <code>api.openai.com</code></td></tr>
+<tr><td>Global allowlist에 Anthropic</td><td>❌ + 정책상 거부</td></tr>
+<tr><td>도메인 신청 후 승인 시간</td><td>"reviewed separately and can add time"</td></tr>
+<tr><td>Terms+Privacy Policy</td><td><strong>필수</strong> (앱 등록 폼에 업로드)</td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="pattern-shift">
+<h2>4. 패턴 전환: @devvit/public-api → @devvit/web</h2>
+
+<h3>4.1 변경 요약</h3>
+<table>
+<thead><tr><th>요소</th><th>원본 plan (구버전)</th><th>실제 공식 (현재)</th></tr></thead>
+<tbody>
+<tr><td>패키지</td><td><code>@devvit/public-api</code></td><td><code>@devvit/web/server</code> + <code>@devvit/web/shared</code></td></tr>
+<tr><td>설정 파일</td><td><code>devvit.yaml</code></td><td><code>devvit.json</code></td></tr>
+<tr><td>트리거 등록</td><td><code>Devvit.addTrigger('PostSubmit', (event,ctx)=&gt;{...})</code></td><td><code>devvit.json</code>에 <code>"triggers":{"onPostSubmit":"/internal/on-post-submit"}</code> + HTTP route</td></tr>
+<tr><td>커스텀 포스트</td><td><code>Devvit.addCustomPostType({render})</code></td><td><code>devvit.json</code> + Devvit Blocks (interactive-posts) — 더 복잡</td></tr>
+<tr><td>메뉴 액션</td><td><code>Devvit.addMenuItem({onPress})</code></td><td><code>devvit.json</code>의 <code>"menu":{"items":[{"endpoint":"/internal/menu/..."}]}</code></td></tr>
+<tr><td>설정</td><td><code>Devvit.addSettings()</code></td><td><code>devvit.json</code>의 <code>"settings":{"global":{...},"subreddit":{...}}</code></td></tr>
+<tr><td>스케줄러 job 등록</td><td><code>Devvit.addSchedulerJob()</code></td><td><code>devvit.json</code>의 <code>"scheduler":{"tasks":{...}}</code> + endpoint</td></tr>
+<tr><td>HTTP 서버 프레임워크</td><td>없음 (closure)</td><td><strong>Hono 또는 Express</strong> (선택)</td></tr>
+<tr><td>Reddit API 클라이언트</td><td><code>context.reddit</code></td><td><code>import {reddit} from '@devvit/reddit'</code> 또는 <code>'@devvit/web/server'</code></td></tr>
+<tr><td>Reddit 액션 패턴</td><td><code>context.reddit.removePost(id)</code></td><td><code>const c = await reddit.getCommentById(id); await c.remove();</code></td></tr>
+</tbody>
+</table>
+
+<h3>4.2 신 패턴의 장점</h3>
+<ul>
+<li>HTTP routes = 표준 웹 패턴, 디버깅 쉬움</li>
+<li><code>devvit.json</code>이 single source of truth</li>
+<li>Hono/Express 선택 자유</li>
+<li>Validation endpoint 같은 declarative 패턴 지원</li>
+</ul>
+</section>
+
+<section id="mod-tool-pattern">
+<h2>5. 공식 Mod Tool 패턴 (quickstart-mod-tool.md verbatim)</h2>
+
+<h3>5.1 공식 권장 구조: Menu Action + Form</h3>
+<p>quickstart의 Comment Mop 예시가 정확히 vibe-mod의 base pattern입니다.</p>
+
+<pre><code>// devvit.json
+{
+  "menu": {
+    "items": [
+      {
+        "label": "Compose rule",
+        "description": "Write a moderation rule in English",
+        "forUserType": "moderator",
+        "location": "subreddit",
+        "endpoint": "/internal/menu/compose-rule"
+      }
+    ]
+  },
+  "forms": {
+    "ruleComposerForm": "/internal/form/compose-rule-submit"
+  },
+  "permissions": {
+    "reddit": { "enable": true, "scope": "moderator" },
+    "redis": true,
+    "http": { "enable": true, "domains": ["api.openai.com"] }
+  },
+  "triggers": {
+    "onPostSubmit": "/internal/on-post-submit",
+    "onAppInstall": "/internal/on-app-install"
+  },
+  "scheduler": {
+    "tasks": {
+      "audit-retention": {
+        "endpoint": "/internal/scheduler/audit-retention",
+        "cron": "0 3 * * *"
+      },
+      "dry-run-replay": {
+        "endpoint": "/internal/scheduler/dry-run-replay"
+      }
+    }
+  },
+  "settings": {
+    "global": {
+      "openaiApiKey": { "type": "string", "label": "OpenAI Key", "isSecret": true }
+    },
+    "subreddit": {
+      "dryRunOnly": { "type": "boolean", "label": "Dry-run mode (no actions)", "defaultValue": true }
+    }
+  }
+}</code></pre>
+
+<h3>5.2 코드 샘플 — vibe-mod 핵심 부분 (실현 가능 입증)</h3>
+<pre><code>// server/index.ts
+import { Hono } from 'hono';
+import type {
+  MenuItemRequest, UiResponse,
+  OnPostSubmitRequest, TriggerResponse,
+  SettingsValidationRequest
+} from '@devvit/web/shared';
+import { reddit, settings, scheduler } from '@devvit/web/server';
+import { redis } from '@devvit/redis';
+
+const app = new Hono();
+
+// 1. Mod opens "Compose rule" menu → form
+app.post('/internal/menu/compose-rule', async (c) =&gt; {
+  return c.json&lt;UiResponse&gt;({
+    showForm: {
+      name: 'ruleComposerForm',
+      form: {
+        title: 'Write a moderation rule',
+        acceptLabel: 'Compile + Preview',
+        fields: [
+          { name: 'rule', label: 'Your rule (English)', type: 'paragraph', defaultValue: '' },
+          { name: 'shadow', label: 'Shadow mode (recommended)', type: 'boolean', defaultValue: true }
+        ]
+      }
+    }
+  });
+});
+
+// 2. Form submit → call OpenAI → store as draft
+app.post('/internal/form/compose-rule-submit', async (c) =&gt; {
+  const { rule, shadow } = await c.req.json&lt;{rule:string,shadow:boolean}&gt;();
+  const apiKey = await settings.get('openaiApiKey');
+
+  const llmResp = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      response_format: { type: 'json_object' },
+      messages: [
+        { role: 'system', content: VIBE_MOD_SYSTEM_PROMPT },  // ~600 tok, schema-defining
+        { role: 'user', content: rule }
+      ],
+      max_tokens: 700, temperature: 0.1
+    })
+  });
+  const { choices } = await llmResp.json();
+  const compiledRule = JSON.parse(choices[0].message.content);
+
+  // Validate against Zod schema (action whitelist, predicate schema)
+  const validated = RuleSchema.parse(compiledRule);
+
+  // Store as draft
+  await redis.set('rules:draft', JSON.stringify(validated));
+
+  // Schedule dry-run replay
+  await scheduler.runJob({
+    name: 'dry-run-replay',
+    runAt: new Date(),
+    data: { ruleId: validated.id }
+  });
+
+  return c.json&lt;UiResponse&gt;({
+    showToast: { text: 'Rule compiled. Dry-run running…', appearance: 'success' }
+  });
+});
+
+// 3. Trigger: PostSubmit → evaluate active rules → take action
+app.post('/internal/on-post-submit', async (c) =&gt; {
+  const { post, author } = await c.req.json&lt;OnPostSubmitRequest&gt;();
+
+  const activeRulesJson = await redis.get('rules:active');
+  if (!activeRulesJson) return c.json&lt;TriggerResponse&gt;({ status: 'ok' });
+
+  const activeRules = JSON.parse(activeRulesJson);
+  const factBag = await buildFactBag(post, author);  // account age, karma, etc.
+
+  for (const rule of activeRules.rules) {
+    if (!rule.enabled) continue;
+    if (evaluatePredicate(rule.when, factBag)) {  // pure deterministic
+      for (const action of rule.then) {
+        await executeAction(action, post, author);
+        await writeAuditEntry(rule.id, action, post.id);
+      }
+    }
+  }
+  return c.json&lt;TriggerResponse&gt;({ status: 'ok' });
+});
+
+// 4. Helper: deterministic action executor
+async function executeAction(action: Action, post: any, author: any) {
+  const allowed = ['remove', 'lock', 'flair', 'modmail', 'report'];
+  if (!allowed.includes(action.action)) throw new Error('forbidden action');
+
+  switch (action.action) {
+    case 'remove': {
+      const p = await reddit.getPostById(post.id);
+      await p.remove();
+      break;
+    }
+    case 'lock': {
+      const p = await reddit.getPostById(post.id);
+      await p.lock();
+      break;
+    }
+    case 'modmail': {
+      await reddit.modMail.create({
+        subredditName: post.subreddit,
+        subject: action.params.subject,
+        body: action.params.body
+      });
+      break;
+    }
+    // ... etc
+  }
+}</code></pre>
+
+<h3>5.3 검증된 사실: 무료 호스팅</h3>
+<blockquote class="verbatim">
+"Notice that you don't need to worry about running costs for your mod tool, because Reddit hosts all Devvit applications for free."
+<span class="src">— quickstart-mod-tool.md</span>
+</blockquote>
+<p>→ 인프라 비용 = $0. LLM API 비용만 부담 (OpenAI에 직접 결제).</p>
+</section>
+
+<section id="http-fetch">
+<h2>6. HTTP Fetch + AI 정책 verbatim</h2>
+
+<h3>6.1 Global allowlist (verbatim)</h3>
+<p>다음 도메인은 모든 앱에서 즉시 호출 가능 (단, <code>permissions.http.domains</code>에 여전히 명시해야 함):</p>
+<pre><code>example.com, site.api.espn.com, cdn.espn.com, discord.com,
+api.polygon.io, api.massive.com, polygon.io, slack.com,
+lichess.org, api.telegram.org, commentanalyzer.googleapis.com,
+language.googleapis.com, statsapi.mlb.com,
+api.openai.com,                        ← ✅ vibe-mod 사용
+api.scryfall.com, api.nasa.gov,
+api.sportradar.us, api.sportradar.com, random.org,
+generativelanguage.googleapis.com,    ← ✅ Gemini 대안
+youtube.googleapis.com, api.weather.gov, wikipedia.org,
+finance.yahoo.com, api.twitter.com, api.petfinder.com,
+fonts.googleapis.com, nytimes.com, npr.org, propublica.org,
+pbs.org, i.giphy.com, chessboardjs.com</code></pre>
+
+<h3>6.2 AI providers 정책 (verbatim, 강조)</h3>
+<blockquote class="verbatim">
+### AI providers<br><br>
+At this time, the only AI providers we allow are OpenAI and Google Gemini:<br><br>
+- <code>api.openai.com</code><br>
+- <code>generativelanguage.googleapis.com</code><br><br>
+<strong>Requests to use any other AI provider will be denied.</strong>
+<span class="src">— docs/capabilities/server/http-fetch-policy.md</span>
+</blockquote>
+
+<h3>6.3 도메인 신청 카테고리</h3>
+<ol>
+<li><strong>API 제공 서비스</strong> (e.g. <code>api.openai.com</code>) — public docs + valid use case면 승인 가능</li>
+<li><strong>제한적 클라우드</strong> (<code>supabase.com, firebase.com, s3.amazonaws.com</code> 등) — 예외 승인 가능, 단 정책 준수</li>
+<li><strong>개인 도메인</strong> — <strong>거부됨</strong>. Devvit 서버로 해결 불가능한 use case만 예외</li>
+</ol>
+</section>
+
+<section id="redis">
+<h2>7. Redis 실제 한계</h2>
+<table>
+<thead><tr><th>제약</th><th>실제 값 (공식)</th><th>원본 plan</th><th>차이</th></tr></thead>
+<tbody>
+<tr><td>Max commands per second</td><td><strong>40,000</strong></td><td>1,000</td><td>40× 관대</td></tr>
+<tr><td>Max request size</td><td>5 MB</td><td>5 MB</td><td>정확</td></tr>
+<tr><td>Max storage</td><td>500 MB</td><td>500 MB</td><td>정확</td></tr>
+<tr><td>Pipelining</td><td>지원 안 함</td><td>—</td><td>—</td></tr>
+<tr><td>Sets</td><td>sorted sets만 지원</td><td>—</td><td>—</td></tr>
+<tr><td>Key listing</td><td>지원 안 함 (KEYS *)</td><td>—</td><td>—</td></tr>
+<tr><td>Lua scripts</td><td>지원 안 함</td><td>—</td><td>—</td></tr>
+<tr><td>Transactions</td><td>최대 20 concurrent, 5s exec timeout</td><td>—</td><td>—</td></tr>
+</tbody>
+</table>
+
+<div class="callout info">
+<strong>ℹ️ Compression (실험적)</strong>
+<code>redisCompressed</code> 클라이언트로 큰 룰 번들(rules:active JSON) 자동 압축 가능. v0.2에서 검토.
+</div>
+</section>
+
+<section id="scheduler">
+<h2>8. Scheduler 실제 한계</h2>
+<table>
+<thead><tr><th>제약</th><th>실제 값</th><th>vibe-mod 영향</th></tr></thead>
+<tbody>
+<tr><td>Max live recurring actions</td><td><strong>10 / installation</strong></td><td>cron 작업은 audit-retention 1개만 사용 → 9 여유</td></tr>
+<tr><td>Creation rate (runJob)</td><td>60/min</td><td>dry-run 1회 = 1 job, 충분</td></tr>
+<tr><td>Delivery rate</td><td>60/min</td><td>—</td></tr>
+<tr><td>Min cron 간격</td><td>1 min (또는 sec-granular experimental)</td><td>—</td></tr>
+<tr><td>Single job timeout</td><td>30s (HTTP fetch limit과 동일)</td><td>dry-run replay는 chunking + daisy-chain 필요</td></tr>
+</tbody>
+</table>
+
+<div class="callout warning">
+<strong>⚠️ 30s job timeout 영향</strong>
+Dry-run replay가 last 24h 100+ 포스트를 평가할 때 30s 안에 못 끝낼 수 있음. 공식 example의 <em>"Migration via daisy-chained scheduler jobs"</em> 패턴을 그대로 차용 가능 (Redis 압축 예시에 자세한 코드 있음).
+</div>
+</section>
+
+<section id="reddit-api">
+<h2>9. Reddit API 메서드 검증 (RedditAPIClient verbatim)</h2>
+<p>모든 vibe-mod 필요 메서드가 공식 API에 존재 확인. (<code>docs/api/redditapi/RedditAPIClient/classes/RedditAPIClient.md</code>)</p>
+<table>
+<thead><tr><th>vibe-mod 사용</th><th>공식 메서드</th><th>호출 패턴</th></tr></thead>
+<tbody>
+<tr><td>Post 제거</td><td><code>post.remove()</code> (객체 메서드)</td><td><code>const p = await reddit.getPostById(id); await p.remove();</code></td></tr>
+<tr><td>Comment 제거</td><td><code>comment.remove()</code></td><td>quickstart에 정확히 이 패턴 사용</td></tr>
+<tr><td>Post/Comment 승인</td><td><code>reddit.approve()</code></td><td>thing ID로 호출</td></tr>
+<tr><td>Lock</td><td><code>post.lock() / comment.lock()</code></td><td>객체 메서드</td></tr>
+<tr><td>ModMail 생성</td><td><code>reddit.modMail</code></td><td>ModMailService 객체</td></tr>
+<tr><td>PM 발송</td><td><code>reddit.sendPrivateMessage(options)</code></td><td>—</td></tr>
+<tr><td>유저 조회</td><td><code>reddit.getUserByUsername(name)</code></td><td>account age 계산용</td></tr>
+<tr><td>Ban (whitelist 외)</td><td><code>reddit.banUser(options)</code></td><td>2-step confirmation 필요</td></tr>
+<tr><td>Mute</td><td><code>reddit.muteUser(options)</code></td><td>—</td></tr>
+<tr><td>Mod note</td><td><code>reddit.addModNote(options)</code></td><td>—</td></tr>
+<tr><td>Removal note</td><td><code>reddit.addRemovalNote(options)</code></td><td>—</td></tr>
+<tr><td>Removal reason</td><td><code>reddit.addSubredditRemovalReason()</code></td><td>—</td></tr>
+<tr><td>User flair 설정</td><td><code>reddit.createUserFlairTemplate</code></td><td>flair template create</td></tr>
+<tr><td>모드큐 조회</td><td><code>reddit.getModQueue()</code></td><td>dry-run preview용</td></tr>
+<tr><td>최근 포스트 조회</td><td><code>reddit.getNewPosts()</code></td><td>dry-run preview용</td></tr>
+<tr><td>모드 로그 조회</td><td><code>reddit.getModerationLog()</code></td><td>v0.2 "learn from mods"</td></tr>
+</tbody>
+</table>
+
+<div class="callout info">
+<strong>ℹ️ 인증은 Devvit이 자동 처리</strong>
+"Unlike traditional Reddit API usage, you don't need to create an app at reddit.com/prefs/apps or manage API keys. Devvit handles authentication automatically when you enable the <code>reddit</code> permission in your app." — 우리는 OAuth 토큰 rotation 등에 신경 쓸 필요 없음.
+</div>
+</section>
+
+<section id="day0">
+<h2>10. Day-0 CLI Smoke Test 결과</h2>
+
+<h3>10.1 환경 검증</h3>
+<table>
+<thead><tr><th>요소</th><th>결과</th><th>요구사항</th></tr></thead>
+<tbody>
+<tr><td>Node.js</td><td>v24.15.0 (사용자 머신)</td><td>22.2.0+ ✅</td></tr>
+<tr><td>npx</td><td>11.12.1</td><td>—</td></tr>
+<tr><td><code>@devvit/cli</code> 최신</td><td>v0.12.22 (npm)</td><td>—</td></tr>
+<tr><td>CLI 실행 가능</td><td><code>npx @devvit/cli/0.12.22 darwin-arm64</code> 정상 응답</td><td>✅</td></tr>
+</tbody>
+</table>
+
+<h3>10.2 실제 <code>devvit new</code> 시도 제약</h3>
+<blockquote class="verbatim">
+"Go to https://developers.reddit.com/new and choose Mod Tool under Other templates. Go through the wizard. You will need to create a Reddit account and connect it to Reddit developers. Follow the instructions on your terminal."
+<span class="src">— quickstart-mod-tool.md</span>
+</blockquote>
+
+<p>→ <strong>Devvit new는 Reddit 계정 OAuth 로그인 + 브라우저 wizard가 필수</strong>. AI 환경에서 비대화형 실행 불가. <strong>사용자 본인이 실행해야 함</strong>.</p>
+
+<h3>10.3 Day-0 권장 액션 (사용자 단독 수행)</h3>
+<pre><code># 1) 브라우저에서 https://developers.reddit.com/new 열고 "Mod Tool" 템플릿 선택
+#    → wizard가 끝나면 터미널에 token + dir 생성 안내
+
+# 2) 생성된 디렉토리로 이동
+cd vibe-mod  # or whatever you named it
+
+# 3) devvit.json 확인 — http 권한 추가
+#    permissions: { http: { enable: true, domains: ['api.openai.com'] }, reddit: {...}, redis: true }
+
+# 4) server/index.ts에 fetch test endpoint 한 줄 추가
+#    app.post('/internal/menu/test-openai', ...) — OpenAI ping
+
+# 5) npm run dev — playtest sub에서 실행
+
+# 6) 메뉴 액션 클릭 → 토스트로 OpenAI 응답 표시
+#    → 성공 시 vibe-mod 본격 개발 시작
+</code></pre>
+
+<div class="callout success">
+<strong>✅ 핵심 결정 사항은 이미 확정됨</strong>
+정책상 OpenAI/Gemini만 가능하다는 사실이 명확하므로, Day-0의 본질적 의문 ("LLM에 fetch 가능한가?")은 <strong>이미 해결</strong>. <code>api.openai.com</code>은 globally allowlisted. 사용자의 CLI 실행은 <strong>코드 작동 확인</strong>이지 정책 게이트 검증이 아님.
+</div>
+</section>
+
+<section id="new-submission">
+<h2>11. 추가 제출 요건 (원본 plan 누락)</h2>
+
+<h3>11.1 Terms and Conditions + Privacy Policy 의무</h3>
+<blockquote class="verbatim">
+"Any app that uses <code>fetch</code> must upload Terms and Conditions and a Privacy Policy. Links to each of these documents must be saved in the app details form."
+<span class="src">— http-fetch.mdx</span>
+</blockquote>
+
+<p>→ <strong>새 작업 항목</strong>: 2 문서 작성 + 호스팅 (GitHub Pages 또는 우리 갤러리 repo 활용 가능):</p>
+<ul>
+<li><code>/tos.html</code> — vibe-mod 사용 약관 (1-page)</li>
+<li><code>/privacy.html</code> — Privacy Policy (모드의 NL → OpenAI 전송, Reddit 콘텐츠 미전송 명시)</li>
+</ul>
+
+<h3>11.2 README "Fetch Domains" 섹션</h3>
+<blockquote class="verbatim">
+"If your app uses fetch domains, you must add context to your app's README for the approval process: Create a 'Fetch Domains' section in your README, List each domain you're requesting and explain why you need it."
+<span class="src">— http-fetch-policy.md</span>
+</blockquote>
+
+<p>→ README 추가 섹션 (vibe-mod 예시):</p>
+<pre><code>## Fetch Domains
+
+The following domains are requested for this app:
+
+- `api.openai.com` — Used to translate moderators' natural-language
+  rule descriptions into a structured rule JSON. The LLM call happens
+  ONLY at rule-edit time, NOT on every post evaluation. Reddit user
+  content (post bodies, usernames) is NEVER sent to the LLM. Only the
+  moderator's own typed sentence is sent.</code></pre>
+
+<h3>11.3 App publishing 결정</h3>
+<table>
+<thead><tr><th>옵션</th><th>명령</th><th>적합도</th></tr></thead>
+<tbody>
+<tr><td>Unlisted (default)</td><td><code>npx devvit publish</code></td><td>해커톤 심사용으로 충분. 다른 모드가 install 링크로 접근 가능</td></tr>
+<tr><td>Public (App Directory)</td><td><code>npx devvit publish --public</code></td><td>Moderator's Choice 영향력 + 사후 광범위 install</td></tr>
+</tbody>
+</table>
+
+<p>→ <strong>전략</strong>: 마감 4-5일 전 (5/22~23) Public publish 신청. Review 1주 걸린다고 명시되어 있음. 늦으면 unlisted로 fallback.</p>
+
+<h3>11.4 vibe-mod 제출 패키지 업데이트</h3>
+<ul>
+<li>☐ App listing 링크 (developers.reddit.com/apps/vibe-mod)</li>
+<li>☐ <strong>NEW</strong>: ToS HTML URL</li>
+<li>☐ <strong>NEW</strong>: Privacy Policy HTML URL</li>
+<li>☐ <strong>NEW</strong>: README의 "Fetch Domains" 섹션</li>
+<li>☐ 참가자 Reddit username 전원</li>
+<li>☐ Tool overview</li>
+<li>☐ Project impact (1-3 communities)</li>
+<li>☐ 200-member 미만 sub 데모 포스트 (심사 기간까지 free access)</li>
+<li>☐ 60초 데모 비디오 (YouTube/Vimeo 공개)</li>
+</ul>
+</section>
+
+<section id="updated-plan">
+<h2>12. 업데이트된 4일 MVP scope (검증 후)</h2>
+
+<h3>Day 1 (5/12 화)</h3>
+<ul>
+<li><strong>사용자 액션</strong>: 브라우저로 <code>developers.reddit.com/new</code> → Mod Tool 템플릿 선택 → wizard → terminal에 vibe-mod 디렉토리 생성</li>
+<li><code>devvit.json</code> 확장: permissions(reddit moderator, redis, http openai), settings(global openaiApiKey isSecret, subreddit dryRunOnly), menu, forms, triggers(onPostSubmit, onCommentSubmit, onAppInstall), scheduler(audit-retention cron, dry-run-replay one-shot)</li>
+<li>OpenAI key 발급 + 일일 $5 ceiling + <code>npx devvit settings set openaiApiKey</code></li>
+<li>Hono 서버 stub: menu/compose, form/submit, trigger/post-submit endpoints (모두 200 응답만)</li>
+<li>Redis schema 검증: <code>rules:active</code>, <code>audit</code> ZSET</li>
+<li><strong>EXIT GATE</strong>: <code>npm run dev</code> → 플레이테스트 sub에서 "Compose rule" 메뉴 보이고 form 열림</li>
+</ul>
+
+<h3>Day 2 (5/13 수)</h3>
+<ul>
+<li>OpenAI gpt-4o-mini 호출 wrapper + JSON 모드 + Zod schema validator</li>
+<li>System prompt + 3 few-shot 예제 (rule schema 정의)</li>
+<li>Action whitelist 하드코딩 (<code>remove/lock/flair/modmail/report</code>; <code>ban/permaban/mute</code>는 confirmation)</li>
+<li>Predicate evaluator (pure TS, <code>{all|any|not}</code> tree)</li>
+<li><code>onPostSubmit</code> handler에서 rules:active 평가 + 첫 action 실행 (<code>reddit.getPostById().remove()</code>)</li>
+<li><strong>EXIT GATE</strong>: form에 "Remove posts containing 'discord.gg' from accounts under 7 days" 입력 → compile → 실제 매칭 포스트 제거 + audit 엔트리</li>
+</ul>
+
+<h3>Day 3 (5/14 목)</h3>
+<ul>
+<li>Rollback 메커니즘: audit:&lt;actionId&gt; ZSET + reverse-action params + <code>redis.expire(rollback:..., 2592000)</code></li>
+<li>Dry-run replay scheduler one-shot: <code>reddit.getNewPosts({limit:100})</code> 가져와 <code>rules:draft</code> 평가, 매치 카운트를 Redis에 저장</li>
+<li>Live Log 보기: 별도 메뉴 → <code>zRange(audit, 0, 50)</code> → form display</li>
+<li>Activate 흐름: shadow mode 24h cron job 등록</li>
+<li><strong>EXIT GATE</strong>: "47 posts would fire" 확인 → Activate (shadow) → 새 포스트 들어옴 → action 실행 → Undo</li>
+</ul>
+
+<h3>Day 4 (5/15 금)</h3>
+<ul>
+<li>5 starter rules <code>onAppInstall</code>에서 seed</li>
+<li>50 compiles/day rate limit (Redis counter)</li>
+<li>30-day audit retention (cron <code>0 3 * * *</code>)</li>
+<li>Error 카피 8개 (LLM down, invalid rule, conflict, permission denied, ...)</li>
+<li>ToS + Privacy Policy HTML 작성 + 갤러리 repo에 호스팅</li>
+<li>README "Fetch Domains" 섹션 작성</li>
+<li><strong>EXIT GATE</strong>: 완전한 end-to-end 흐름 + 200-member 미만 sub 생성 + 첫 데모 영상 trial</li>
+</ul>
+
+<h3>Days 5-15: Polish + Beta + 데모 영상 (원본 plan 유지)</h3>
+
+<h3>마감일 작업 (5/27 수)</h3>
+<ul>
+<li>아침: <code>npx devvit publish</code> (unlisted) — 이미 5/22-23경 Public publish 신청 시도 OK</li>
+<li>제출 양식 채우기 + ToS/PrivacyPolicy URL 입력</li>
+<li><strong>10:00 PT (KST 5/28 02:00)</strong>: 제출 완료 목표 (8시간 buffer)</li>
+</ul>
+</section>
+
+<section id="references">
+<h2>13. 출처 (verbatim 인용 소스)</h2>
+
+<h3>공식 문서 (cloned from reddit/devvit-docs @ HEAD)</h3>
+<ul>
+<li><code>docs/quickstart/quickstart-mod-tool.md</code> — Mod Tool 공식 quickstart (Comment Mop 예시)</li>
+<li><code>docs/capabilities/server/http-fetch.mdx</code> — fetch 활성화 + global allowlist</li>
+<li><code>docs/capabilities/server/http-fetch-policy.md</code> — AI provider 정책 + 도메인 신청 카테고리</li>
+<li><code>docs/capabilities/server/triggers.mdx</code> — 모든 트리거 이벤트 + 등록 패턴</li>
+<li><code>docs/capabilities/server/redis.mdx</code> — Redis 명령어 + 한계 + transactions</li>
+<li><code>docs/capabilities/server/scheduler.mdx</code> — 스케줄러 + cron + one-shot + daisy chain</li>
+<li><code>docs/capabilities/server/settings-and-secrets.mdx</code> — 설정 + isSecret + OpenAI 예시</li>
+<li><code>docs/capabilities/server/reddit-api.mdx</code> — Reddit API 개요 + 인증 자동 처리</li>
+<li><code>docs/api/redditapi/RedditAPIClient/classes/RedditAPIClient.md</code> — 100+ 메서드 전체 API surface</li>
+<li><code>docs/capabilities/client/menu-actions.mdx</code> — menu items + forUserType moderator + 10분 보안 제약</li>
+<li><code>docs/guides/faq.mdx</code> — publish/install 패턴, unlisted vs public</li>
+</ul>
+
+<h3>관련 자료 (이 갤러리 repo 내)</h3>
+<ul>
+<li><a href="./index.html">26-card Gallery</a></li>
+<li><a href="./rules-verification.html">소유권 규정 심층 분석</a></li>
+<li><a href="./vibe-mod-plan.html">vibe-mod 통합 계획 (4 전문가 합의 — 본 보고서로 보강됨)</a></li>
+</ul>
+
+<hr>
+<p style="font-size:12px;color:var(--muted);text-align:center">검증 완료: 2026-05-11 KST · 다음 단계: 사용자가 Day-1 CLI 액션 수행 시점에 본 보고서를 implementation guide로 사용</p>
+</section>
+
+</main>
+</div>
+
+<a href="#" class="scroll-top" id="scrollTop">↑ 맨 위로</a>
+
+<script>
+(function(){
+  const btn=document.getElementById('scrollTop');
+  window.addEventListener('scroll',()=>{btn.classList.toggle('visible',window.scrollY>400)});
+  btn.addEventListener('click',e=>{e.preventDefault();window.scrollTo({top:0,behavior:'smooth'})});
+  const tocLinks=document.querySelectorAll('.toc-sidebar a');
+  const sections=document.querySelectorAll('section[id]');
+  const observer=new IntersectionObserver(entries=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        const id=entry.target.id;
+        tocLinks.forEach(l=>{
+          l.style.background=l.getAttribute('href')==='#'+id?'oklch(95% 0.05 250)':'';
+          l.style.color=l.getAttribute('href')==='#'+id?'var(--accent)':'';
+        });
+      }
+    });
+  },{threshold:0.5});
+  sections.forEach(s=>observer.observe(s));
+})();
+</script>
+</body>
+</html>

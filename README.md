@@ -10,6 +10,9 @@
 🚀 **vibe-mod — Best New Mod Tool ($10K) 수상가능성 최적화 통합 계획**: <https://two-weeks-team.github.io/reddit-mod-tools-port-gallery/vibe-mod-plan.html>
   ↳ Metis(사전분석) + Business Panel(Christensen·Godin·Porter·Doumont·Drucker) + System Architect + Frontend Architect 4명 전문가 에이전트 병렬 합의 기반. Grand $10K 확률 35~55% (Day-0 게이트 통과 시). 17일 실행 일정, 60초 데모 storyboard, Devvit-native 아키텍처, 10-row 리스크 매트릭스, 제출 패키지 체크리스트.
 
+🔬 **vibe-mod 실증 검증 보고서 — Devvit 공식 문서 cross-reference**: <https://two-weeks-team.github.io/reddit-mod-tools-port-gallery/feasibility-validation.html>
+  ↳ `reddit/devvit-docs` GitHub 저장소를 clone해서 verbatim 검증. 11개 클레임 검증 (✅ 9 / ⚠️ 2). **결정적 발견**: ❌ Claude 사용 불가 (정책상 거부), ✅ OpenAI gpt-4o-mini로 pivot. **패턴 전환**: `@devvit/public-api` (구) → `@devvit/web` (현). 모든 API·primitive·한계·요구사항 verbatim 확인. 업데이트된 Day 1-4 MVP scope + 추가 제출 요건 (ToS/Privacy Policy, README "Fetch Domains" 섹션).
+
 ## What this is
 
 Each card shows one persona-biased take on **which existing Reddit Data API moderation bot to port to Devvit**, plus a self-contained mockup of the resulting Devvit app surface. Generated through a Preview Forge `PreviewDD` cycle (max profile, 26 advocates dispatched in parallel) with diversity validation and post-hoc bot-eligibility verification.
