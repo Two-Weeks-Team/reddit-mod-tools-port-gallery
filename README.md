@@ -13,6 +13,12 @@
 🔬 **vibe-mod 실증 검증 보고서 — Devvit 공식 문서 cross-reference**: <https://two-weeks-team.github.io/reddit-mod-tools-port-gallery/feasibility-validation.html>
   ↳ `reddit/devvit-docs` GitHub 저장소를 clone해서 verbatim 검증. 11개 클레임 검증 (✅ 9 / ⚠️ 2). **결정적 발견**: ❌ Claude 사용 불가 (정책상 거부), ✅ OpenAI gpt-4o-mini로 pivot. **패턴 전환**: `@devvit/public-api` (구) → `@devvit/web` (현). 모든 API·primitive·한계·요구사항 verbatim 확인. 업데이트된 Day 1-4 MVP scope + 추가 제출 요건 (ToS/Privacy Policy, README "Fetch Domains" 섹션).
 
+🏁 **vibe-mod 최종 통합 계획 v3 (audit-fixed, implementation-ready)**: <https://two-weeks-team.github.io/reddit-mod-tools-port-gallery/vibe-mod-final-plan.html>
+  ↳ 독립 security-engineer + quality-engineer audit 2명이 발견한 **18건 결정적 결함 전수 패치 적용**. 코드 산출물 6개 (1,210 lines: devvit.json, rule-schema.ts, system-prompt.ts, evaluator.ts, fact-bag.ts, executor.ts, index.ts) + 제출 문서 3개 (ToS, Privacy, README) + 테스트 20 cases + a11y 14 items + acceptance script + global kill switch + 베타 프로토콜 (Phase A/B 하이브리드) + 데모 polish bar + 17일 일정 (testable exit gate). 코드는 `vibe-mod/` 디렉토리에 그대로 존재 — 신규 Devvit repo로 복사하여 즉시 `npm run dev` 가능.
+
+📦 **vibe-mod 코드 산출물 (deployable)**: <https://two-weeks-team.github.io/reddit-mod-tools-port-gallery/vibe-mod/>
+  ↳ `devvit.json` · `src/shared/{rule-schema,system-prompt}.ts` · `src/server/{evaluator,fact-bag,executor,index}.ts` · `docs/{tos,privacy,README}.md` · `tos.html` + `privacy.html` (GitHub Pages 호스팅용, Devpost 제출 폼 URL로 사용 가능).
+
 ## What this is
 
 Each card shows one persona-biased take on **which existing Reddit Data API moderation bot to port to Devvit**, plus a self-contained mockup of the resulting Devvit app surface. Generated through a Preview Forge `PreviewDD` cycle (max profile, 26 advocates dispatched in parallel) with diversity validation and post-hoc bot-eligibility verification.

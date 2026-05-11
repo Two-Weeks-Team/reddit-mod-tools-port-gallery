@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Terms of Service — vibe-mod</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:780px;margin:40px auto;padding:0 20px;line-height:1.65;color:#1f2328}
+h1{font-size:28px;margin-bottom:24px;border-bottom:2px solid #d0d7de;padding-bottom:8px}
+h2{font-size:20px;margin-top:32px;margin-bottom:12px;border-bottom:1px solid #d0d7de;padding-bottom:4px}
+h3{font-size:16px;margin-top:24px;margin-bottom:8px}
+p{margin-bottom:12px}
+ul,ol{margin-left:24px;margin-bottom:12px}
+li{margin:4px 0}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:14px}
+th,td{padding:8px 12px;border-bottom:1px solid #d0d7de;text-align:left;vertical-align:top}
+th{background:#f6f8fa;font-weight:600}
+code{font-family:ui-monospace,Menlo,monospace;font-size:13px;background:#f6f8fa;padding:1px 5px;border-radius:3px;border:1px solid #d0d7de}
+a{color:#0969da;text-decoration:none}
+a:hover{text-decoration:underline}
+strong{font-weight:600}
+</style></head><body>
+<h1>vibe-mod — Terms of Service</h1>
+
+<strong>Effective date:</strong> 2026-05-27 (hackathon submission)
+<strong>App:</strong> vibe-mod on Reddit Developer Platform (Devvit)
+<strong>Contact:</strong> see r/vibe_mod modmail or the GitHub issues tracker linked from the app's developer settings page.
+
+<h2>1. What vibe-mod is</h2>
+
+<p>vibe-mod is a Reddit moderation tool that lets the moderators of a subreddit ("you") write rules in plain English. vibe-mod translates each rule into a deterministic JSON specification and then evaluates incoming posts and comments against the active rules. It can take moderation actions on your behalf (remove, lock, send to mod queue, flair, modmail, or — with explicit confirmation — ban or mute).</p>
+
+<p>vibe-mod is a third-party app built on Reddit's Developer Platform. It is <strong>not</strong> an official Reddit product.</p>
+
+<h2>2. Who can use vibe-mod</h2>
+
+<p>vibe-mod can only be installed and configured by accounts with <strong>moderator</strong> permission on the destination subreddit. End users who are not moderators interact with vibe-mod only through its effects (e.g. a removed post). End users do not have any vibe-mod account.</p>
+
+<h2>3. What you agree to</h2>
+
+<p>By installing vibe-mod on a subreddit you moderate, you agree:</p>
+
+<ol>
+<li>You will use vibe-mod only on subreddits where you are an authorized moderator.</li>
+<li>You will not use vibe-mod to take actions that violate Reddit's <a href="https://www.redditinc.com/policies/content-policy">Content Policy</a>, <a href="https://www.redditinc.com/policies/user-agreement">User Agreement</a>, <a href="https://www.redditinc.com/policies/developer-terms">Developer Platform Terms</a>, or <a href="https://developers.reddit.com/docs/devvit_rules">Devvit Rules</a>.</li>
+<li>You are responsible for the rules you write. vibe-mod compiles your English rule into a deterministic specification, but the <strong>decision</strong> to write that rule is yours.</li>
+<li>You will review what each rule would do (the dry-run preview) before promoting it out of shadow mode.</li>
+<li>You will not attempt to bypass the action whitelist, the per-hour rate limit, the 24-hour shadow window, or the 30-day rollback window.</li>
+</ul>
+
+<h2>4. What vibe-mod does, and what it does not do</h2>
+
+<p>vibe-mod <strong>does</strong>:</p>
+<ul>
+<li>Read your English description of a rule when you submit one.</li>
+<li>Send your English description (and only your English description) to OpenAI for translation into structured JSON.</li>
+<li>Store the resulting JSON rule in Reddit's Devvit Redis, scoped to your subreddit.</li>
+<li>Evaluate the stored rules against new posts and comments in your subreddit.</li>
+<li>Take moderation actions on posts and comments in your subreddit, using your moderator permissions.</li>
+<li>Log every action with the rule that fired, the post/comment, and the time. The log is visible to your mod team and retained for 30 days.</li>
+</ul>
+
+<p>vibe-mod <strong>does not</strong>:</p>
+<ul>
+<li>Read or send Reddit user content (post bodies, comment bodies, usernames, voting history, browsing history, DMs, etc.) to OpenAI or any third party. The LLM only ever sees the <strong>moderator's own typed rule sentence</strong>. Rule evaluation is deterministic and runs entirely inside Devvit.</li>
+<li>Take actions outside your subreddit.</li>
+<li>Take ban / mute / permaban actions automatically. Those actions are only emitted when the moderator who wrote the rule explicitly enabled the "Allow ban/mute" checkbox.</li>
+<li>Share data across subreddits. Each installation's Redis is namespaced and isolated.</li>
+<li>Train any model on your data. vibe-mod does not collect data for model training.</li>
+</ul>
+
+<h2>5. Acceptable use</h2>
+
+<p>You will not use vibe-mod to:</p>
+
+<ul>
+<li>Harass users, discriminate against protected groups, or violate Reddit policies.</li>
+<li>Take automated actions that depend on personally identifying users in ways Reddit does not already expose (vibe-mod does not give you new visibility into users — it only acts on data Reddit already shows you).</li>
+<li>Circumvent Reddit's review of automated moderation actions (Reddit's mod log is the canonical record).</li>
+<li>Build rules that depend on cross-subreddit user activity beyond what is publicly visible.</li>
+</ul>
+
+<h2>6. AI translation disclaimer</h2>
+
+<p>vibe-mod uses OpenAI to translate plain-English rule descriptions into JSON. AI translation can:</p>
+
+<ul>
+<li>Misinterpret ambiguous wording.</li>
+<li>Emit rules that are technically valid but broader (or narrower) than you intended.</li>
+<li>Occasionally fail to compile a rule, in which case vibe-mod shows you the failure and asks you to rephrase.</li>
+</ul>
+
+<p>vibe-mod mitigates these risks with:</p>
+<ul>
+<li>A mandatory <strong>dry-run preview</strong> before any rule can be activated.</li>
+<li>A <strong>24-hour shadow mode</strong> during which a new rule logs what it would do but takes no action.</li>
+<li>A <strong>closed action whitelist</strong> (the LLM cannot smuggle in actions vibe-mod does not support).</li>
+<li>A <strong>30-day rollback</strong> window on every action vibe-mod takes.</li>
+</ul>
+
+<p>You acknowledge that vibe-mod is a tool. Final responsibility for moderation outcomes in your subreddit remains with the moderator team.</p>
+
+<h2>7. Availability</h2>
+
+<p>vibe-mod is provided "as is" without warranty. Reddit may suspend the Developer Platform at any time. OpenAI may become unavailable, in which case rule <strong>creation</strong> is paused but already-active rules continue to evaluate normally (they do not depend on the LLM at runtime).</p>
+
+<p>If the rate-limit safety brake fires (more than the configured actions/hour), vibe-mod auto-pauses all rules and notifies your mod team via modmail.</p>
+
+<h2>8. Termination</h2>
+
+<p>You may uninstall vibe-mod at any time from your subreddit's Mod Tools → Apps page. Uninstalling vibe-mod:</p>
+<ul>
+<li>Stops all rule evaluation immediately.</li>
+<li>Removes the app's Redis data scoped to your subreddit (as enforced by Devvit).</li>
+<li>Does <strong>not</strong> revert past moderation actions. You can manually undo recent actions via Reddit's mod queue, or via vibe-mod's <code>vibe-mod: Undo this action</code> menu before uninstalling.</li>
+</ul>
+
+<h2>9. Changes</h2>
+
+<p>These Terms may be updated. The "Effective date" at the top reflects the most recent version. Material changes will be announced in the app update notes.</p>
+
+<h2>10. Governing terms</h2>
+
+<p>These Terms supplement (but do not replace) Reddit's <a href="https://www.redditinc.com/policies/user-agreement">User Agreement</a>, <a href="https://www.redditinc.com/policies/content-policy">Content Policy</a>, <a href="https://www.redditinc.com/policies/developer-terms">Developer Platform Terms</a>, and <a href="https://developers.reddit.com/docs/devvit_rules">Devvit Rules</a>. Where this document and Reddit's terms conflict, Reddit's terms control.</p>
+
+<hr style="margin-top:40px;border:none;border-top:1px solid #d0d7de">
+<p style="font-size:12px;color:#656d76">vibe-mod for Reddit Mod Tools and Migrated Apps Hackathon · <a href="https://two-weeks-team.github.io/reddit-mod-tools-port-gallery/">gallery</a></p>
+</body></html>

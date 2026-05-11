@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Privacy Policy — vibe-mod</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:780px;margin:40px auto;padding:0 20px;line-height:1.65;color:#1f2328}
+h1{font-size:28px;margin-bottom:24px;border-bottom:2px solid #d0d7de;padding-bottom:8px}
+h2{font-size:20px;margin-top:32px;margin-bottom:12px;border-bottom:1px solid #d0d7de;padding-bottom:4px}
+h3{font-size:16px;margin-top:24px;margin-bottom:8px}
+p{margin-bottom:12px}
+ul,ol{margin-left:24px;margin-bottom:12px}
+li{margin:4px 0}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:14px}
+th,td{padding:8px 12px;border-bottom:1px solid #d0d7de;text-align:left;vertical-align:top}
+th{background:#f6f8fa;font-weight:600}
+code{font-family:ui-monospace,Menlo,monospace;font-size:13px;background:#f6f8fa;padding:1px 5px;border-radius:3px;border:1px solid #d0d7de}
+a{color:#0969da;text-decoration:none}
+a:hover{text-decoration:underline}
+strong{font-weight:600}
+</style></head><body>
+<h1>vibe-mod — Privacy Policy</h1>
+
+<strong>Effective date:</strong> 2026-05-27 (hackathon submission)
+<strong>App:</strong> vibe-mod on Reddit Developer Platform (Devvit)
+
+<h2>1. The short version</h2>
+
+<ul>
+<li>vibe-mod sees Reddit posts and comments <strong>inside your subreddit only</strong>, to evaluate the rules you wrote.</li>
+<li>vibe-mod sends <strong>only your typed English rule description</strong> to OpenAI. It does <strong>not</strong> send any Reddit user content (post bodies, comment bodies, usernames, vote history, browsing history, DMs) to OpenAI or anywhere else.</li>
+<li>vibe-mod stores rules, audit entries, and rollback tokens in Reddit's Devvit Redis, scoped to your subreddit. Reddit handles the underlying storage.</li>
+<li>vibe-mod retains audit entries for <strong>30 days</strong>, then deletes them automatically.</li>
+<li>vibe-mod does <strong>not</strong> train any AI model on your data.</li>
+</ul>
+
+<h2>2. What we collect, and why</h2>
+
+<table>
+<thead><tr><th>Category</th><th>What it is</th><th>Why we need it</th><th>Where it lives</th><th>Retention</th></tr></thead><tbody>
+<tr><td>Mod rule input</td><td>The English sentence a moderator types into the "Compose rule" form</td><td>To translate it into a structured rule</td><td>Sent to OpenAI (<code>api.openai.com</code>) for compilation; the compiled JSON is stored in Devvit Redis</td><td>Indefinite (until the moderator deletes the rule)</td></tr>
+<tr><td>Rule definitions</td><td>The compiled JSON rule</td><td>To evaluate posts and comments</td><td>Devvit Redis (Reddit-hosted, subreddit-scoped)</td><td>Indefinite (until deletion)</td></tr>
+<tr><td>Audit entries</td><td>A log row per moderation action vibe-mod took</td><td>To let your mod team see what happened and undo it</td><td>Devvit Redis</td><td>30 days, then auto-deleted</td></tr>
+<tr><td>Rollback tokens</td><td>A serialized reversal blob per action</td><td>To support the "Undo" menu action</td><td>Devvit Redis with 30-day TTL</td><td>30 days</td></tr>
+<tr><td>Author cache</td><td>A short cache of an author's account age and karma</td><td>To avoid a Reddit API roundtrip on every event</td><td>Devvit Redis</td><td>1 hour</td></tr>
+<tr><td>Compile rate counters</td><td>A daily counter of how many rule compiles a sub has used</td><td>To enforce the per-day rate limit</td><td>Devvit Redis</td><td>1 day</td></tr>
+</tbody></table>
+
+<h2>3. What we do <strong>not</strong> collect</h2>
+
+<ul>
+<li>We do not collect end-user personal data. End users of your subreddit are <strong>not</strong> vibe-mod users.</li>
+<li>We do not send post bodies, comment bodies, or usernames to OpenAI or any other third party. The LLM never sees Reddit content.</li>
+<li>We do not run any analytics or tracking. No third-party trackers, no Google Analytics, no Segment, no Sentry.</li>
+<li>We do not collect data from other subreddits. Each installation is sandboxed by Devvit.</li>
+</ul>
+
+<h2>4. Third parties</h2>
+
+<ul>
+<li><strong>Reddit (Devvit)</strong> — hosts the app and the Redis data. Subject to Reddit's privacy policies.</li>
+<li><strong>OpenAI</strong> — receives the moderator's typed rule sentence and the vibe-mod system prompt. Subject to <a href="https://openai.com/policies/api-data-usage-policies">OpenAI's API data usage policies</a>. OpenAI states API data is not used to train their models by default.</li>
+</ul>
+
+<p>No other third parties receive data from vibe-mod.</p>
+
+<h2>5. End-user transparency</h2>
+
+<p>Every moderation action vibe-mod takes appears in the standard Reddit moderation log with the prefix <code>vibe-mod: <rule name></code>. End users see the same removal reasons and modmail messages they would see for any other moderator action. vibe-mod does not contact end users directly outside of these standard moderation channels.</p>
+
+<h2>6. Data deletion</h2>
+
+<ul>
+<li>A moderator can delete a rule at any time from the vibe-mod Dashboard. Deletion removes the rule from <code>rules:active</code> immediately.</li>
+<li>A moderator can request deletion of audit entries by writing a one-time menu action (planned for v0.2) or by waiting for the automatic 30-day expiry.</li>
+<li>Uninstalling vibe-mod from a subreddit removes all vibe-mod data scoped to that subreddit. Reddit's Devvit storage rules govern the actual deletion semantics.</li>
+</ul>
+
+<h2>7. Children</h2>
+
+<p>vibe-mod is a tool for subreddit moderators, who must be at the age of majority in their jurisdiction to use Reddit's developer features. vibe-mod is not directed at children under 13.</p>
+
+<h2>8. Region</h2>
+
+<p>vibe-mod stores data wherever Reddit's Devvit infrastructure stores it. We do not control the region of Devvit's data centers.</p>
+
+<h2>9. Security</h2>
+
+<ul>
+<li>API keys (OpenAI) are stored as Devvit App-scope secrets, encrypted by Reddit. They are only readable by app server code; they are not visible to subreddit moderators or to anyone via the UI.</li>
+<li>Audit entries are stored in Devvit Redis, namespaced per installation. They are not accessible across subreddits.</li>
+<li>All HTTP traffic (to OpenAI) goes over HTTPS.</li>
+</ul>
+
+<h2>10. Changes</h2>
+
+<p>This policy may be updated. The effective date above reflects the most recent version. Material changes will be announced in the app's update notes.</p>
+
+<h2>11. Contact</h2>
+
+<p>Open an issue on the GitHub repository linked from <code>developers.reddit.com/apps/vibe-mod</code>, or message r/vibe_mod on Reddit.</p>
+
+<hr style="margin-top:40px;border:none;border-top:1px solid #d0d7de">
+<p style="font-size:12px;color:#656d76">vibe-mod for Reddit Mod Tools and Migrated Apps Hackathon · <a href="https://two-weeks-team.github.io/reddit-mod-tools-port-gallery/">gallery</a></p>
+</body></html>
